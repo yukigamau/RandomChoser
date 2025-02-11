@@ -1,13 +1,11 @@
 module;
-
 #include <windows.h>
 #include <commctrl.h>
 #include <gdiplus.h>
 #include "resource.h"
 #pragma comment(lib,"gdiplus.lib")
-using namespace Gdiplus;
-
 export module png;
+using namespace Gdiplus;
 
 export Gdiplus::Bitmap* pBitmap;	// 用于保存图标模式图片
 

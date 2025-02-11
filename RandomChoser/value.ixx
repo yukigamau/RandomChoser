@@ -71,6 +71,10 @@ close	= 1,
 setting	= 2
 ;
 
+export short
+transparencyT = 5	// 透明度修改定时器
+;
+
 export bool
 changeAlpha = false,	// 标志更改透明度是增加还是减少，true为增加，command要用
 createSetting = true,	// 标志是否正在创建设置页面，防止用户输入的名字丢失

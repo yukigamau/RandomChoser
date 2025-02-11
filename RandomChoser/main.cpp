@@ -17,6 +17,7 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 	// 数据初始化
 	if (!initializeData())
 	{
+		store.ifRight = false;
 		MessageBox(nullptr, "找不到数据了诶。那我们一起重新设置一遍吧！", "要说嗯", MB_ICONQUESTION);
 		settingPage(hInstance);
 	}

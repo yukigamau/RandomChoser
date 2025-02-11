@@ -161,9 +161,7 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 					EncryptData(splitLines);
 
 					// 重启程序
-					initializeData();
-					ShowWindow(hwnd, SW_HIDE);
-					choosePage(GetModuleHandle(nullptr));
+					selfRestart(hwnd);
 				}
 				break;
 
@@ -527,7 +525,6 @@ void chooseModeDestroy()
 
 std::string versionText = "点名器1.0";
 std::mt19937 engine(static_cast<unsigned int>(time(0)));	// 随机数于随机滚动
-
 export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -646,7 +643,7 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			if (waitNum == 8)
 			{
 				waitNum = 0;	// 清零waitNum
-				SetTimer(hwnd, IDT_transparency, 10, nullptr); // 用于设置透明度修改时间，应用于所有窗口
+				SetTimer(hwnd, IDT_transparency, transparencyT, nullptr);// 用于设置透明度修改时间
 				transparencyTimerActive = true;
 			}
 			break;
@@ -681,7 +678,7 @@ export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	case WM_LBUTTONUP:
 		if (!isDragging)
 		{
-			SetTimer(hwnd, IDT_transparency, 10, nullptr);	// 动态回复抽取窗口
+			SetTimer(hwnd, IDT_transparency, transparencyT, nullptr);	// 动态回复抽取窗口
 			transparencyTimerActive = true;
 		}
 		ReleaseCapture();

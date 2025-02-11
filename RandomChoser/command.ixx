@@ -15,7 +15,7 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 // 其它数据
-int capationHeight = GetSystemMetrics(SM_CYCAPTION);
+int captionHeight = GetSystemMetrics(SM_CYCAPTION);
 int buttonSize = 20;
 std::mt19937 engine(static_cast<unsigned int>(time(0)));	// 随机数于随机滚动
 
@@ -24,6 +24,8 @@ std::mt19937 engine(static_cast<unsigned int>(time(0)));	// 随机数于随机滚动
 // 设置页面
 export void settingPage(_In_ HINSTANCE hInstance)
 {
+	if (store.ifRight)
+		initializeStore();	// 用于初始化存储数据，如果数据正常则重新设置，不使用默认值
 	settingInstance = hInstance;	// 用于后续创建按钮
 
 	// 注册窗口类
@@ -458,10 +460,20 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 	// 获取窗口的矩形坐标
 	RECT windowRect;
 	GetWindowRect(hWnd, &windowRect);
+
 	// 计算标题栏矩形区域
 	int left = 0, top = 0;
 	int right = windowRect.right - windowRect.left;	// 宽度
-	int bottom = capationHeight;	// 获取推荐标题栏高度
+	int bottom = captionHeight;	// 获取推荐标题栏高度
+
+	// 创建画笔和画刷
+	HBRUSH hBrushBk = CreateSolidBrush(data.clientBC);   // 背景画刷
+	SelectObject(hdc, hBrushBk);
+	// 绘制底色矩形
+	Rectangle(hdc, 0, captionHeight - 1, right, windowRect.bottom - windowRect.top);
+	// 删除 GDI 对象
+	DeleteObject(hBrushBk);
+	
 	// 创建画笔和画刷
 	HPEN hPen = CreatePen(PS_SOLID, 2, data.captionBC); // 边框画笔
 	HBRUSH hBrush = CreateSolidBrush(data.captionBC);   // 背景画刷
@@ -479,7 +491,7 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 	MoveToEx(hdc, right, 0, NULL);
 	LineTo(hdc, right, windowRect.bottom - windowRect.top);	// 右边框
 	LineTo(hdc, 0, windowRect.bottom - windowRect.top);	// 下边框
-	LineTo(hdc, 0, 0);	// 左边框
+	LineTo(hdc, 0, captionHeight);	// 左边框
 	DeleteObject(borderPen);
 
 	// 设置文本颜色和背景模式
@@ -521,15 +533,15 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 	buttonRect.left -= buttonSize;
 	DrawText(hdc, "…", -1, &buttonRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
-	// 客户区文本
+	// 客户区
 	// 计算自定义客户区矩形区域
 	windowRect.bottom -= windowRect.top;
-	windowRect.top = capationHeight;
+	windowRect.top = captionHeight;
 	windowRect.right -= windowRect.left;
 	windowRect.left = 0;
 	// 字体
 	SetTextColor(hdc, data.clientFC);
-	SetBkMode(hdc, TRANSPARENT);	// 背景透明
+	SetBkMode(hdc, TRANSPARENT);
 	if (!hFText)
 	{
 		hFText = CreateFont(
@@ -564,7 +576,7 @@ export bool captionMessage(HWND& hWnd, LPARAM& lParam)
 	POINT ptMouse;
 	ptMouse.y = HIWORD(lParam);
 	ScreenToClient(hWnd, &ptMouse);
-	if (ptMouse.y <= capationHeight)
+	if (ptMouse.y <= captionHeight)
 		return true;  // 返回 HTCAPTION，表示点击在标题栏，可以拖动窗口
 	else
 		return false;
@@ -755,6 +767,7 @@ export bool deleteVoid(std::vector<std::string>& vec)
 		return true;
 }
 
+short change = 15;
 export void transparency(HWND& hwnd, short& mode)
 {
 	if (changeAlpha)	// 增加透明度
@@ -767,15 +780,15 @@ export void transparency(HWND& hwnd, short& mode)
 		}
 		else
 		{
-			currentAlpha += 5;
+			currentAlpha += change;
 			SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA); // 更新透明度
 		}
 	}
 	else // 减少透明度
 	{
-		if (currentAlpha)	// currentAlpha为0
+		if (currentAlpha)
 		{
-			currentAlpha -= 5;  // 每次减少5
+			currentAlpha -= change;  // 每次减少透明度
 			SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA); // 更新透明度
 		}
 		else
@@ -786,13 +799,13 @@ export void transparency(HWND& hwnd, short& mode)
 			{
 				mode = icon;	// 切换模式标记为图标
 				iconPage();
-				SetTimer(hIcon, IDT_transparency, 10, 0);
+				SetTimer(hIcon, IDT_transparency, transparencyT, 0);
 			}
 			else if (mode == icon)
 			{
 				mode = normal;	// 切换模式标记为抽取
 				ExitIconMode();
-				SetTimer(hChoose, IDT_transparency, 10, 0);
+				SetTimer(hChoose, IDT_transparency, transparencyT, 0);
 			}
 		}
 	}
@@ -879,4 +892,31 @@ export void selectChange(HWND& hwnd, std::string& str)
 	int length = SendMessage(hwnd, CB_GETLBTEXTLEN, index, 0);
 	str.resize(length);
 	SendMessage(hwnd, CB_GETLBTEXT, index, (LPARAM)str.data());	// 获取文本
+}
+
+export void selfRestart(HWND& hwnd)
+{
+	// 获取当前程序的路径
+	wchar_t szPath[MAX_PATH];
+	GetModuleFileNameW(NULL, szPath, MAX_PATH);
+
+	// 创建进程启动信息
+	STARTUPINFOW si = { sizeof(STARTUPINFOW) };
+	PROCESS_INFORMATION pi;
+
+	// 启动新的进程
+	CreateProcessW(
+		szPath,   // 当前程序路径
+		NULL,      // 命令行参数
+		NULL,      // 进程安全属性
+		NULL,      // 线程安全属性
+		FALSE,     // 不继承句柄
+		0,         // 创建标志
+		NULL,      // 环境变量
+		NULL,      // 当前目录
+		&si,       // 启动信息
+		&pi);    // 进程信息
+
+	// 退出当前进程
+	ExitProcess(0);
 }
