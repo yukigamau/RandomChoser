@@ -9,31 +9,31 @@ import std;
 import data;
 import value;
 
-// WindowProcµÄº¯ÊıÉùÃ÷
+// WindowProcçš„å‡½æ•°å£°æ˜
 export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-// ÆäËüÊı¾İ
+// å…¶å®ƒæ•°æ®
 int captionHeight = GetSystemMetrics(SM_CYCAPTION);
 int buttonSize = 20;
-std::mt19937 engine(static_cast<unsigned int>(time(0)));	// Ëæ»úÊıÓÚËæ»ú¹ö¶¯
+std::mt19937 engine(static_cast<unsigned int>(time(0)));	// éšæœºæ•°äºéšæœºæ»šåŠ¨
 
-// ÓÃÓÚÉèÖÃÒ³Ãæ»æÖÆ
+// ç”¨äºè®¾ç½®é¡µé¢ç»˜åˆ¶
 
-// ÉèÖÃÒ³Ãæ
+// è®¾ç½®é¡µé¢
 export void settingPage(_In_ HINSTANCE hInstance)
 {
 	if (store.ifRight)
-		initializeStore();	// ÓÃÓÚ³õÊ¼»¯´æ´¢Êı¾İ£¬Èç¹ûÊı¾İÕı³£ÔòÖØĞÂÉèÖÃ£¬²»Ê¹ÓÃÄ¬ÈÏÖµ
-	settingInstance = hInstance;	// ÓÃÓÚºóĞø´´½¨°´Å¥
+		initializeStore();	// ç”¨äºåˆå§‹åŒ–å­˜å‚¨æ•°æ®ï¼Œå¦‚æœæ•°æ®æ­£å¸¸åˆ™é‡æ–°è®¾ç½®ï¼Œä¸ä½¿ç”¨é»˜è®¤å€¼
+	settingInstance = hInstance;	// ç”¨äºåç»­åˆ›å»ºæŒ‰é’®
 
-	// ×¢²á´°¿ÚÀà
-	const char* className = "ÉèÖÃÒ³Ãæ";
+	// æ³¨å†Œçª—å£ç±»
+	const char* className = "è®¾ç½®é¡µé¢";
 	WNDCLASS wc = {};
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpfnWndProc = WPsetting; // ÉèÖÃ´°¿Ú¹ı³Ìº¯Êı
-	wc.hInstance = GetModuleHandle(nullptr); // »ñÈ¡ÊµÀı¾ä±ú
+	wc.lpfnWndProc = WPsetting; // è®¾ç½®çª—å£è¿‡ç¨‹å‡½æ•°
+	wc.hInstance = GetModuleHandle(nullptr); // è·å–å®ä¾‹å¥æŸ„
 	wc.hIcon = LoadIconA(hInstance, (char*)IDI_ICON1);
 	wc.lpszClassName = className;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -42,8 +42,8 @@ export void settingPage(_In_ HINSTANCE hInstance)
 
 	int nWidth = 742 * 1.5;
 	int nHeight = 550;
-	LPCSTR lpWindowName = "µãÃûÆ÷ÉèÖÃ";
-	// ´´½¨´°¿Ú
+	LPCSTR lpWindowName = "ç‚¹åå™¨è®¾ç½®";
+	// åˆ›å»ºçª—å£
 	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
 	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
@@ -51,16 +51,16 @@ export void settingPage(_In_ HINSTANCE hInstance)
 	int y = (screenHeight - nHeight) / 2;
 	HWND hwnd = CreateWindow(
 		className, lpWindowName,
-		WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME,	// ½ûÖ¹´°¿Ú¸Ä±ä´óĞ¡
+		WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME,	// ç¦æ­¢çª—å£æ”¹å˜å¤§å°
 		(GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2, (GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2,
 		nWidth, nHeight,
 		nullptr, nullptr,
-		wc.hInstance,	// ÊµÀı¾ä±ú
-		nullptr			// ¸½¼ÓÊı¾İ
+		wc.hInstance,	// å®ä¾‹å¥æŸ„
+		nullptr			// é™„åŠ æ•°æ®
 	);
 
 	ShowWindow(hwnd, SW_SHOW);
-	SetForegroundWindow(hwnd);	// °Ñ´°¿ÚÏÔÊ¾µ½×îÇ°Ãæ
+	SetForegroundWindow(hwnd);	// æŠŠçª—å£æ˜¾ç¤ºåˆ°æœ€å‰é¢
 	UpdateWindow(hwnd);
 }
 
@@ -82,35 +82,35 @@ export void AddStatic(HWND& hwnd, LPCSTR text, short& x, short& y, short& sizeY)
 	CreateWindow("STATIC", text, WS_CHILD | WS_VISIBLE, x, y, 150, sizeY, hwnd, NULL, NULL, NULL);
 }
 
-// »Øµ÷º¯Êı£¬ÓÃÓÚ±éÀúËùÓĞ×Ó´°¿Ú
+// å›è°ƒå‡½æ•°ï¼Œç”¨äºéå†æ‰€æœ‰å­çª—å£
 export BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam)
 {
-	// ·¢ËÍ WM_SETFONT ÏûÏ¢£¬lParam=TRUE ÈÃ¿Ø¼şÁ¢¼´ÖØ»æ
+	// å‘é€ WM_SETFONT æ¶ˆæ¯ï¼ŒlParam=TRUE è®©æ§ä»¶ç«‹å³é‡ç»˜
 	SendMessage(hwnd, WM_SETFONT, (WPARAM)lParam, TRUE);
 	return TRUE;
 }
 
-// ĞŞ¸ÄÖ¸¶¨´°¿Ú¼°Æä×Ó¿Ø¼şµÄ×ÖÌå
+// ä¿®æ”¹æŒ‡å®šçª—å£åŠå…¶å­æ§ä»¶çš„å­—ä½“
 export void SetFontForAllControls(HWND hWndParent, HFONT hFont)
 {
-	// Ã¶¾ÙËùÓĞ×Ó¿Ø¼ş
+	// æšä¸¾æ‰€æœ‰å­æ§ä»¶
 	EnumChildWindows(hWndParent, EnumChildProc, (LPARAM)hFont);
 }
 
-// »Øµ÷º¯Êı£ºÓÃÓÚÃ¶¾Ù×ÖÌå
+// å›è°ƒå‡½æ•°ï¼šç”¨äºæšä¸¾å­—ä½“
 export int CALLBACK EnumFontFamExProc(const LOGFONT* lpelfe, const TEXTMETRIC* lpntme, DWORD FontType,
 	LPARAM lParam)
 {
 	if (lpelfe->lfCharSet != GB2312_CHARSET)
 	{
-		return 1; // ¹ıÂË·ÇÖĞÎÄ×ÖÌå
+		return 1; // è¿‡æ»¤éä¸­æ–‡å­—ä½“
 	}
 
 	HWND hComboBox = (HWND)lParam;
 	char fontName[LF_FACESIZE];
 	int count = SendMessage(hComboBox, CB_GETCOUNT, 0, 0);
 
-	// ±ÜÃâÖØ¸´Ìí¼Ó
+	// é¿å…é‡å¤æ·»åŠ 
 	for (int i = 0; i < count; i++)
 	{
 		SendMessage(hComboBox, CB_GETLBTEXT, i, (LPARAM)fontName);
@@ -120,13 +120,13 @@ export int CALLBACK EnumFontFamExProc(const LOGFONT* lpelfe, const TEXTMETRIC* l
 		}
 	}
 
-	// Ìí¼Óµ½ÁĞ±í
+	// æ·»åŠ åˆ°åˆ—è¡¨
 	SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)lpelfe->lfFaceName);
 
 	return 1;
 }
 
-// Ìî³ä×ÖÌåÁĞ±í£¬²¢ÎªÃ¿¸ö×ÖÌå´´½¨¾ä±ú
+// å¡«å……å­—ä½“åˆ—è¡¨ï¼Œå¹¶ä¸ºæ¯ä¸ªå­—ä½“åˆ›å»ºå¥æŸ„
 export void PopulateFontList(HWND hComboBox, std::map<std::string, HFONT>& fontMap)
 {
 	HDC hdc = GetDC(NULL);
@@ -138,16 +138,16 @@ export void PopulateFontList(HWND hComboBox, std::map<std::string, HFONT>& fontM
 			HWND hComboBox = (HWND)lParam;
 			std::string fontName = lpelfe->lfFaceName;
 
-			// ¹ıÂËµô @ ¿ªÍ·µÄ×ÖÌå
+			// è¿‡æ»¤æ‰ @ å¼€å¤´çš„å­—ä½“
 			if (fontName[0] != '@')
 			{
-				// È·±£²»ÖØ¸´Ìí¼Ó
+				// ç¡®ä¿ä¸é‡å¤æ·»åŠ 
 				if (SendMessage(hComboBox, CB_FINDSTRINGEXACT, -1, (LPARAM)fontName.c_str()) == CB_ERR)
 				{
 					SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)fontName.c_str());
 				}
 			}
-			return 1; // ¼ÌĞøÃ¶¾Ù
+			return 1; // ç»§ç»­æšä¸¾
 		}, (LPARAM)hComboBox, 0);
 	ReleaseDC(NULL, hdc);
 
@@ -157,26 +157,26 @@ export void PopulateFontList(HWND hComboBox, std::map<std::string, HFONT>& fontM
 		char fontName[LF_FACESIZE];
 		SendMessage(hComboBox, CB_GETLBTEXT, i, (LPARAM)fontName);
 
-		// ´´½¨×ÖÌå¶ÔÏó
+		// åˆ›å»ºå­—ä½“å¯¹è±¡
 		HFONT hFont = CreateFont(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
 			OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, fontName);
 		fontMap[fontName] = hFont;
 	}
 
-	// Ñ¡ÖĞÊı¾İÖĞµÄ×ÖÌå
+	// é€‰ä¸­æ•°æ®ä¸­çš„å­—ä½“
 	int index = SendMessage(hComboBox, CB_FINDSTRINGEXACT, -1, (LPARAM)store.fontName.c_str());
 	SendMessage(hComboBox, CB_SETCURSEL, index, 0);
 }
 
-// ¼ò»¯ÑÕÉ«ÉèÖÃ¿Ø¼ş´úÂë
+// ç®€åŒ–é¢œè‰²è®¾ç½®æ§ä»¶ä»£ç 
 void addColor(HWND& hWnd, short& width, std::string staticText, COLORREF& color,
 	std::vector<HWND>child, std::vector<int> id, short& x, short& y, short& sizeY, short xCommand)
-{	// xCommand²»ÒıÓÃ£¬ÒÔ·ÀĞŞ¸Ä³õÊ¼Öµ
-	// ÑÕÉ«Êı¾İ´¦Àí
+{	// xCommandä¸å¼•ç”¨ï¼Œä»¥é˜²ä¿®æ”¹åˆå§‹å€¼
+	// é¢œè‰²æ•°æ®å¤„ç†
 	int red = GetRValue(color);
 	int green = GetGValue(color);
 	int blue = GetBValue(color);
-	// ¿Ø¼ş´´½¨
+	// æ§ä»¶åˆ›å»º
 	AddStatic(hWnd, staticText.c_str(), x, y, sizeY);
 
 	AddStatic(hWnd, "R", xCommand, y, sizeY);
@@ -197,28 +197,28 @@ void addColor(HWND& hWnd, short& width, std::string staticText, COLORREF& color,
 	AddEdit(hWnd, child[2], std::format("{}", blue), xCommand, y, width * 2, sizeY, (HMENU)id[2]);
 	xCommand += width * 3;
 
-	AddStatic(hWnd, "16½øÖÆ", xCommand, y, sizeY);
+	AddStatic(hWnd, "16è¿›åˆ¶", xCommand, y, sizeY);
 	xCommand += width * 2.5;
 
-	// È·±£16Î»ÖµÕıÈ·
+	// ç¡®ä¿16ä½å€¼æ­£ç¡®
 	std::string color16 = std::format("{:06x}", color);
 	colorCorrect(color16);
 	AddEdit(hWnd, child[3], color16, xCommand, y, width * 3, sizeY, (HMENU)id[3]);
 	y += 40;
 }
 
-// ¾ä±ú
+// å¥æŸ„
 HWND hTopMostYes, hTopMostNo;
 
 export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 {
-	// ×ø±êÓÃ
+	// åæ ‡ç”¨
 	short sizeY = 20;
 	short x = 10;
 	short y = 10;
 	short xCommandFirst = 160;
 	short xCommand = xCommandFirst;
-	// ÉèÖÃ×ÖÌå
+	// è®¾ç½®å­—ä½“
 	if (!hFSetting)
 	{
 		hFSetting = CreateFont(sizeY, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
@@ -227,42 +227,42 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 	}
 	SelectObject(hdc, hFSetting);
 	SIZE sizeOfFont{};
-	GetTextExtentPoint32(hdc, "Ò»", 3, &sizeOfFont);
+	GetTextExtentPoint32(hdc, "ä¸€", 3, &sizeOfFont);
 	short width = sizeOfFont.cx;
 
-	AddStatic(hwnd, "ÊÇ·ñÖÃ¶¥", x, y, sizeY);
-	AddControl(hwnd, hTopMostYes, "ÊÇ", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
+	AddStatic(hwnd, "æ˜¯å¦ç½®é¡¶", x, y, sizeY);
+	AddControl(hwnd, hTopMostYes, "æ˜¯", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
 		xCommand, y, 40, 25, (HMENU)IDB_topYes);
-	AddControl(hwnd, hTopMostNo, "·ñ", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+	AddControl(hwnd, hTopMostNo, "å¦", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
 		xCommand + 50, 10, 40, 25, (HMENU)IDB_topNo);
-	// ÉèÖÃ³õÊ¼Öµ
+	// è®¾ç½®åˆå§‹å€¼
 	if (store.ifRight && !store.ifTop)
 		SendMessage(hTopMostNo, BM_SETCHECK, BST_CHECKED, 0);
 	else
 		SendMessage(hTopMostYes, BM_SETCHECK, BST_CHECKED, 0);
 	y += 40;
 
-	addColor(hwnd, width, "±êÌâÀ¸±³¾°ÑÕÉ«", store.captionBC,
+	addColor(hwnd, width, "æ ‡é¢˜æ èƒŒæ™¯é¢œè‰²", store.captionBC,
 		{ hCaptionBCR ,hCaptionBCG ,hCaptionBCB ,hCaptionBC16 },
 		{ IDE_captionBCR ,IDE_captionBCG ,IDE_captionBCB ,IDE_captionBC16 },
 		x, y, sizeY, xCommand);
 
-	addColor(hwnd, width, "±êÌâÀ¸×ÖÌåÑÕÉ«", store.captionFC,
+	addColor(hwnd, width, "æ ‡é¢˜æ å­—ä½“é¢œè‰²", store.captionFC,
 		{ hCaptionFCR ,hCaptionFCG ,hCaptionFCB ,hCaptionFC16 },
 		{ IDE_captionFCR ,IDE_captionFCG ,IDE_captionFCB ,IDE_captionFC16 },
 		x, y, sizeY, xCommand);
 
-	addColor(hwnd, width, "³éÈ¡Çø±³¾°ÑÕÉ«", store.clientBC,
+	addColor(hwnd, width, "æŠ½å–åŒºèƒŒæ™¯é¢œè‰²", store.clientBC,
 		{ hClientBCR ,hClientBCG ,hClientBCB ,hClientBC16 },
 		{ IDE_clientBCR ,IDE_clientBCG ,IDE_clientBCB ,IDE_clientBC16 },
 		x, y, sizeY, xCommand);
 
-	addColor(hwnd, width, "³éÈ¡Çø×ÖÌåÑÕÉ«", store.clientFC,
+	addColor(hwnd, width, "æŠ½å–åŒºå­—ä½“é¢œè‰²", store.clientFC,
 		{ hClientFCR ,hClientFCG ,hClientFCB ,hClientFC16 },
 		{ IDE_clientFCR ,IDE_clientFCG ,IDE_clientFCB ,IDE_clientFC16 },
 		x, y, sizeY, xCommand);
 
-	AddStatic(hwnd, "Ñ¡Ôñ×ÖÌå", x, y, sizeY);
+	AddStatic(hwnd, "é€‰æ‹©å­—ä½“", x, y, sizeY);
 	hFontName = CreateWindow("COMBOBOX", "",
 		WS_CHILD | WS_VISIBLE | WS_VSCROLL |
 		CBS_DROPDOWN | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS,
@@ -270,49 +270,49 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 	PopulateFontList(hFontName, fontMap);
 	y += 40;
 
-	// ½ÌÑ§ÎÄ±¾
-	hCopyright = CreateWindow("STATIC", "Èí¼şÖø×÷È¨ÓÉgithubÓÃ»§yukigamauËùÓĞ£¬·ş´ÓBSD 3-Clause¡£",
+	// æ•™å­¦æ–‡æœ¬
+	hCopyright = CreateWindow("STATIC", "è½¯ä»¶è‘—ä½œæƒç”±githubç”¨æˆ·yukigamauæ‰€æœ‰ï¼Œæœä»BSD 3-Clauseã€‚",
 		WS_CHILD | WS_VISIBLE, x, y, width * 26, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	hAttention = CreateWindow("STATIC", "Èç¹û¿´²»¶®£¬¾ÍÖ±½Ó´´½¨Ãûµ¥¡£",
-		WS_CHILD | WS_VISIBLE, x, y, width * 13, sizeY, hwnd, NULL, NULL, NULL);	// ½«±»±êºì
+	hAttention = CreateWindow("STATIC", "å¦‚æœçœ‹ä¸æ‡‚ï¼Œå°±ç›´æ¥åˆ›å»ºåå•ã€‚",
+		WS_CHILD | WS_VISIBLE, x, y, width * 13, sizeY, hwnd, NULL, NULL, NULL);	// å°†è¢«æ ‡çº¢
 	y += sizeY;
-	CreateWindow("STATIC", "ÉèÖÃ½«ÒÔ¡­µÄÑù×ÓÏÔÊ¾ÔÚ³éÈ¡ÇøÉÏÃæÄÇ¸ö±êÌâÀ¸ÉÏ£¬ÓÃ»§Ê¹ÓÃÊ±¿É¿´µ½¡£",
+	CreateWindow("STATIC", "è®¾ç½®å°†ä»¥â€¦çš„æ ·å­æ˜¾ç¤ºåœ¨æŠ½å–åŒºä¸Šé¢é‚£ä¸ªæ ‡é¢˜æ ä¸Šï¼Œç”¨æˆ·ä½¿ç”¨æ—¶å¯çœ‹åˆ°ã€‚",
 		WS_CHILD | WS_VISIBLE, x, y, width * 26, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "ÓÃ»§Çë²»ÒªË½×ÔĞŞ¸Ä±¾²úÆ·µÄÈÎºÎÎÄ¼şÓÚ²»»á¸üĞÂÈí¼şÊ±¡£",
+	CreateWindow("STATIC", "ç”¨æˆ·è¯·ä¸è¦ç§è‡ªä¿®æ”¹æœ¬äº§å“çš„ä»»ä½•æ–‡ä»¶äºä¸ä¼šæ›´æ–°è½¯ä»¶æ—¶ã€‚",
 		WS_CHILD | WS_VISIBLE, x, y, width * 28, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "Èí¼ş8ÃëÊ±¼ä²»ÓÃ»á±äÔ²¡£",
+	CreateWindow("STATIC", "è½¯ä»¶8ç§’æ—¶é—´ä¸ç”¨ä¼šå˜åœ†ã€‚",
 		WS_CHILD | WS_VISIBLE, x, y, width * 23, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "²úÆ·½«ÔÚgithubÍøÕ¾ÉÏ¸üĞÂ£¬¿ÉÔÚä¯ÀÀÆ÷ËÑË÷RandomChoserÕÒµ½¡£",
+	CreateWindow("STATIC", "äº§å“å°†åœ¨githubç½‘ç«™ä¸Šæ›´æ–°ï¼Œå¯åœ¨æµè§ˆå™¨æœç´¢RandomChoseræ‰¾åˆ°ã€‚",
 		WS_CHILD | WS_VISIBLE, x, y, width * 30, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "Èç¹ûÓÃ»§²»»áÓÃgithub£¬¿ÉÔÚÍøÉÏËÑË÷£¬µ«ÕâÑùµÄ»°²»½¨Òé¸üĞÂ¡£",
+	CreateWindow("STATIC", "å¦‚æœç”¨æˆ·ä¸ä¼šç”¨githubï¼Œå¯åœ¨ç½‘ä¸Šæœç´¢ï¼Œä½†è¿™æ ·çš„è¯ä¸å»ºè®®æ›´æ–°ã€‚",
 		WS_CHILD | WS_VISIBLE, x, y, width * 23, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "µ±Ç°²úÆ·°æ±¾£º1.0",
+	CreateWindow("STATIC", "å½“å‰äº§å“ç‰ˆæœ¬ï¼š1.0",
 		WS_CHILD | WS_VISIBLE, x, y, width * 23, sizeY, hwnd, NULL, NULL, NULL);
 	y += 40;
 
-	hConfirmBtn = CreateWindow("BUTTON", "È·¶¨ºÃ¡«\\(¨R¨Œ¨Q)/¡«À²À²À²£¨°üÀ¨ÓÒ±ßµÄÃûµ¥£©",
+	hConfirmBtn = CreateWindow("BUTTON", "ç¡®å®šå¥½ï½\\(â‰§â–½â‰¦)/ï½å•¦å•¦å•¦ï¼ˆåŒ…æ‹¬å³è¾¹çš„åå•ï¼‰",
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
 		x, y, width * 22, sizeY + 10, hwnd, (HMENU)IDB_confirm, NULL, NULL);
 
-	// ÓÒ±ßµÄÃûµ¥ÇøÓò
-	short span = 650;	// µ½ÓÒ±ßµÄ¿ç¶È
+	// å³è¾¹çš„åå•åŒºåŸŸ
+	short span = 650;	// åˆ°å³è¾¹çš„è·¨åº¦
 	x += span;
 	y = 10;
 	xCommand += span;
 
-	AddStatic(hwnd, "Ñ¡ÔñÄ¬ÈÏÃûµ¥", x, y, sizeY);
+	AddStatic(hwnd, "é€‰æ‹©é»˜è®¤åå•", x, y, sizeY);
 	hDefaultList = CreateWindow("COMBOBOX", "",
 		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
 		xCommand, y, 200, sizeY * 10, hwnd, (HMENU)IDL_defaultList, NULL, NULL);
-	SendMessage(hDefaultList, CB_SETEDITSEL, 0, MAKELPARAM(-1, 0));	// È¡ÏûÑ¡ÖĞ
+	SendMessage(hDefaultList, CB_SETEDITSEL, 0, MAKELPARAM(-1, 0));	// å–æ¶ˆé€‰ä¸­
 	if (store.defaultList == "")
-		EnableWindow(hDefaultList, FALSE);	// ½ûÓÃ¿Ø¼ş
+		EnableWindow(hDefaultList, FALSE);	// ç¦ç”¨æ§ä»¶
 	else
 	{
 		for (short i = 0; i < store.all.size(); i++)
@@ -320,66 +320,66 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 			std::string addChoice = removeFormat(store.all[i][0]);
 			SendMessage(hDefaultList, CB_ADDSTRING, 0, (LPARAM)addChoice.c_str());
 			if(addChoice==store.defaultList)
-				SendMessage(hDefaultList, CB_SETCURSEL, i, 0);	// ÉèÖÃÄ¬ÈÏÏî
+				SendMessage(hDefaultList, CB_SETCURSEL, i, 0);	// è®¾ç½®é»˜è®¤é¡¹
 			store.currentShowList = store.defaultList;
 		}
 	}
 	y += 40;
 
-	AddStatic(hwnd, "Ñ¡ÔñÏÔÊ¾Ãûµ¥", x, y, sizeY);
+	AddStatic(hwnd, "é€‰æ‹©æ˜¾ç¤ºåå•", x, y, sizeY);
 	hShowList = CreateWindow("COMBOBOX", "",
 		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
 		xCommand, y, 200, sizeY * 10, hwnd, (HMENU)IDL_showList, NULL, NULL);
-	SendMessage(hShowList, CB_SETEDITSEL, 0, MAKELPARAM(-1, 0));	// È¡ÏûÑ¡ÖĞ
+	SendMessage(hShowList, CB_SETEDITSEL, 0, MAKELPARAM(-1, 0));	// å–æ¶ˆé€‰ä¸­
 	if (!store.ifRight || ifTypeName)
 	{
-		EnableWindow(hShowList, FALSE);	// ½ûÓÃ¿Ø¼ş
+		EnableWindow(hShowList, FALSE);	// ç¦ç”¨æ§ä»¶
 		showName = false;
 	}
 	else
 	{
 		for (short i = 0; i < store.all.size(); i++)
 		{
-			// È¡ÏûallµÄ¸ñÊ½
+			// å–æ¶ˆallçš„æ ¼å¼
 			std::string addChoice = removeFormat(store.all[i][0]);
 			SendMessage(hShowList, CB_ADDSTRING, 0, (LPARAM)addChoice.c_str());
 			if (addChoice == store.currentShowList)
-				SendMessage(hShowList, CB_SETCURSEL, i, 0);	// ÉèÖÃÄ¬ÈÏÏî
+				SendMessage(hShowList, CB_SETCURSEL, i, 0);	// è®¾ç½®é»˜è®¤é¡¹
 		}
 		showName = true;
 	}
 	y += 40;
 
-	AddControl(hwnd, hNewListBtn, "ĞÂ½¨Ãûµ¥", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
+	AddControl(hwnd, hNewListBtn, "æ–°å»ºåå•", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
 		x, y, width * 5, sizeY + 10, (HMENU)IDB_newList);
-	AddControl(hwnd, hModifyBtn, "ĞŞ¸ÄÃûµ¥", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
+	AddControl(hwnd, hModifyBtn, "ä¿®æ”¹åå•", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
 		x + width * 5 + 10, y, width * 5, sizeY + 10, (HMENU)IDB_modify);
 	if (!store.ifRight)
-		EnableWindow(hModifyBtn, FALSE);	// ÓÉÓÚÃ»ÓĞÕıÈ·µÄÃûµ¥£¬ËùÒÔ½ûÓÃ
-	AddControl(hwnd, hDeleteBtn, "É¾³ıÃûµ¥", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
+		EnableWindow(hModifyBtn, FALSE);	// ç”±äºæ²¡æœ‰æ­£ç¡®çš„åå•ï¼Œæ‰€ä»¥ç¦ç”¨
+	AddControl(hwnd, hDeleteBtn, "åˆ é™¤åå•", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
 		x + width * 10 + 20, y, width * 5, sizeY + 10, (HMENU)IDB_delete);
 	if (!store.ifRight)
-		EnableWindow(hDeleteBtn, FALSE);	// ÓÉÓÚÃ»ÓĞÕıÈ·µÄÃûµ¥£¬ËùÒÔ½ûÓÃ
+		EnableWindow(hDeleteBtn, FALSE);	// ç”±äºæ²¡æœ‰æ­£ç¡®çš„åå•ï¼Œæ‰€ä»¥ç¦ç”¨
 	y += 40;
 	
 	RECT rect;
 	GetClientRect(hwnd, &rect);
 	short nWidth = rect.right - 10 - x;
 	short nHeight = rect.bottom - 10 - y;
-	// ´¦ÀíÏÔÊ¾ÎÄ±¾
+	// å¤„ç†æ˜¾ç¤ºæ–‡æœ¬
 	std::string nameStr;
 	if (store.ifRight && store.defaultList != "" && createSetting)
 		readName = store.defaultNames;
 	for (std::string str : readName)
 		nameStr += str + "\r\n";
 	createSetting = false;
-	// ´´½¨´°¿Ú
+	// åˆ›å»ºçª—å£
 	hNameEdit = CreateWindow("EDIT", nameStr.c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | WS_HSCROLL | WS_VSCROLL |
 		ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE,
 		x, y, nWidth, nHeight, hwnd, (HMENU)IDE_names, nullptr, nullptr);
 
-	// ÉèÖÃ×Ó¿Ø¼ş×ÖÌå
+	// è®¾ç½®å­æ§ä»¶å­—ä½“
 	SetFontForAllControls(hwnd, hFSetting);
 }
 
@@ -387,188 +387,192 @@ export void drawFontList(LPARAM lParam)
 {
 	LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT)lParam;
 	if (lpdis->CtlID == IDL_fontName)
-	{	// ×ÖÌåÁĞ±í¿ò ID
+	{	// å­—ä½“åˆ—è¡¨æ¡† ID
 		char fontName[LF_FACESIZE];
 		SendMessage(lpdis->hwndItem, CB_GETLBTEXT, lpdis->itemID, (LPARAM)fontName);
 
-		// »ñÈ¡×ÖÌå
+		// è·å–å­—ä½“
 		HFONT hFont = fontMap[fontName];
 		HDC hdc = lpdis->hDC;
 		SelectObject(hdc, hFont);
 
-		// ÉèÖÃ±³¾°ºÍÇ°¾°ÑÕÉ«
+		// è®¾ç½®èƒŒæ™¯å’Œå‰æ™¯é¢œè‰²
 		SetBkColor(hdc, GetSysColor(lpdis->itemState & ODS_SELECTED ? COLOR_HIGHLIGHT : COLOR_WINDOW));
 		SetTextColor(hdc, GetSysColor(lpdis->itemState & ODS_SELECTED ? COLOR_HIGHLIGHTTEXT : COLOR_WINDOWTEXT));
 
-		// Ìî³ä±³¾°
+		// å¡«å……èƒŒæ™¯
 		ExtTextOut(hdc, 0, 0, ETO_OPAQUE, &lpdis->rcItem, NULL, 0, NULL);
 
-		// »æÖÆ×ÖÌåÃû
+		// ç»˜åˆ¶å­—ä½“å
 		DrawText(hdc, fontName, -1, &lpdis->rcItem, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
 	}
 
 }
 
-// ³éÈ¡Ò³Ãæ
-HWND hChoose;	// ·½±ãÆµ·±×ª»»
-short nWidth = 200, nHeight = 90;	// ·½±ã´°¿ÚÎ»ÖÃµ÷½Ú
+// æŠ½å–é¡µé¢
+HWND hChoose;	// æ–¹ä¾¿é¢‘ç¹è½¬æ¢
+short nWidth = 200, nHeight = 90;	// æ–¹ä¾¿çª—å£ä½ç½®è°ƒèŠ‚
 export void choosePage(_In_ HINSTANCE hInstance)
 {
-	// ×¢²á´°¿ÚÀà
-	const char* className = "³éÈ¡Ò³Ãæ";
+	// æ³¨å†Œçª—å£ç±»
+	const char* className = "æŠ½å–é¡µé¢";
 	WNDCLASS wc = {};
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpfnWndProc = WPchoose;	// ÉèÖÃ´°¿Ú¹ı³Ìº¯Êı
-	wc.hInstance = GetModuleHandle(nullptr);	// »ñÈ¡ÊµÀı¾ä±ú
+	wc.lpfnWndProc = WPchoose;	// è®¾ç½®çª—å£è¿‡ç¨‹å‡½æ•°
+	wc.hInstance = GetModuleHandle(nullptr);	// è·å–å®ä¾‹å¥æŸ„
 	wc.hIcon = LoadIconA(hInstance, (char*)IDI_ICON1);
 	wc.lpszClassName = className;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 
 	RegisterClass(&wc);
 
-	LPCSTR lpWindowName = "µãÃûÆ÷1.0";
-	if(hChoose==NULL)// ´´½¨´°¿Ú
+	LPCSTR lpWindowName = "ç‚¹åå™¨";
+	if(hChoose==NULL)// åˆ›å»ºçª—å£
 	{
 		hChoose = CreateWindowEx(
 			WS_EX_LAYERED,
 			className, lpWindowName,
 			WS_POPUP,
 			(GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2,
-			(GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2,   // ´°¿ÚÎ»ÖÃ
-			nWidth, nHeight,                // ´°¿Ú´óĞ¡
-			nullptr,                        // ¸¸´°¿Ú¾ä±ú
-			nullptr,                        // ²Ëµ¥¾ä±ú
-			wc.hInstance,                   // ÊµÀı¾ä±ú
-			nullptr                         // ¸½¼ÓÊı¾İ
+			(GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2,   // çª—å£ä½ç½®
+			nWidth, nHeight,                // çª—å£å¤§å°
+			nullptr,                        // çˆ¶çª—å£å¥æŸ„
+			nullptr,                        // èœå•å¥æŸ„
+			wc.hInstance,                   // å®ä¾‹å¥æŸ„
+			nullptr                         // é™„åŠ æ•°æ®
 		);
 	}
 
-	SetLayeredWindowAttributes(hChoose, 0, 255, LWA_ALPHA); // ÉèÖÃ´°¿ÚÎªÖ§³ÖÍ¸Ã÷
+	SetLayeredWindowAttributes(hChoose, 0, 255, LWA_ALPHA); // è®¾ç½®çª—å£ä¸ºæ”¯æŒé€æ˜
 
-	if (data.ifTop)	// ±£³ÖÖÃ¶¥
+	if (data.ifTop)	// ä¿æŒç½®é¡¶
 	{
 		SetWindowLong(hChoose, GWL_EXSTYLE, GetWindowLong(hChoose, GWL_EXSTYLE) | WS_EX_TOPMOST);
 		SetWindowPos(hChoose, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	}
 
-	ShowWindow(hChoose, SW_SHOW); // ÏÔÊ¾´°¿Ú
+	ShowWindow(hChoose, SW_SHOW); // æ˜¾ç¤ºçª—å£
 	UpdateWindow(hChoose);
 }
 
-export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode±íÊ¾ÊÇ·ñ´¦ÓÚ¹ö¶¯×´Ì¬
+export void chooseDraw(HWND& hWnd, HDC& hdc)	// modeè¡¨ç¤ºæ˜¯å¦å¤„äºæ»šåŠ¨çŠ¶æ€
 {
-	// »ñÈ¡´°¿ÚµÄ¾ØĞÎ×ø±ê
+	// è·å–çª—å£çš„çŸ©å½¢åæ ‡
 	RECT windowRect;
 	GetWindowRect(hWnd, &windowRect);
 
-	// ¼ÆËã±êÌâÀ¸¾ØĞÎÇøÓò
+	// è®¡ç®—æ ‡é¢˜æ çŸ©å½¢åŒºåŸŸ
 	int left = 0, top = 0;
-	int right = windowRect.right - windowRect.left;	// ¿í¶È
-	int bottom = captionHeight;	// »ñÈ¡ÍÆ¼ö±êÌâÀ¸¸ß¶È
+	int right = windowRect.right - windowRect.left;	// å®½åº¦
+	int bottom = captionHeight;	// è·å–æ¨èæ ‡é¢˜æ é«˜åº¦
 
-	// ´´½¨»­±ÊºÍ»­Ë¢
-	HBRUSH hBrushBk = CreateSolidBrush(data.clientBC);   // ±³¾°»­Ë¢
+	// åˆ›å»ºç”»ç¬”å’Œç”»åˆ·
+	HBRUSH hBrushBk = CreateSolidBrush(data.clientBC);   // èƒŒæ™¯ç”»åˆ·
 	SelectObject(hdc, hBrushBk);
-	// »æÖÆµ×É«¾ØĞÎ
+	// ç»˜åˆ¶åº•è‰²çŸ©å½¢
 	Rectangle(hdc, 0, captionHeight - 1, right, windowRect.bottom - windowRect.top);
-	// É¾³ı GDI ¶ÔÏó
+	// åˆ é™¤ GDI å¯¹è±¡
 	DeleteObject(hBrushBk);
 	
-	// ´´½¨»­±ÊºÍ»­Ë¢
-	HPEN hPen = CreatePen(PS_SOLID, 2, data.captionBC); // ±ß¿ò»­±Ê
-	HBRUSH hBrush = CreateSolidBrush(data.captionBC);   // ±³¾°»­Ë¢
+	// åˆ›å»ºç”»ç¬”å’Œç”»åˆ·
+	HPEN hPen = CreatePen(PS_SOLID, 2, data.captionBC); // è¾¹æ¡†ç”»ç¬”
+	HBRUSH hBrush = CreateSolidBrush(data.captionBC);   // èƒŒæ™¯ç”»åˆ·
 	SelectObject(hdc, hPen);
 	SelectObject(hdc, hBrush);
-	// »æÖÆ±êÌâÀ¸¾ØĞÎ
+	// ç»˜åˆ¶æ ‡é¢˜æ çŸ©å½¢
 	Rectangle(hdc, left, top, right, bottom);
-	// É¾³ı GDI ¶ÔÏó
+	// åˆ é™¤ GDI å¯¹è±¡
 	DeleteObject(hBrush);
 	DeleteObject(hPen);
 
-	// »æÖÆÕû¸ö´°¿Ú±ß¿ò
+	// ç»˜åˆ¶æ•´ä¸ªçª—å£è¾¹æ¡†
 	HPEN borderPen = CreatePen(PS_SOLID, 2, data.captionBC);
 	HGDIOBJ BorderPen = SelectObject(hdc, borderPen);
 	MoveToEx(hdc, right, 0, NULL);
-	LineTo(hdc, right, windowRect.bottom - windowRect.top);	// ÓÒ±ß¿ò
-	LineTo(hdc, 0, windowRect.bottom - windowRect.top);	// ÏÂ±ß¿ò
-	LineTo(hdc, 0, captionHeight);	// ×ó±ß¿ò
+	LineTo(hdc, right, windowRect.bottom - windowRect.top);	// å³è¾¹æ¡†
+	LineTo(hdc, 0, windowRect.bottom - windowRect.top);	// ä¸‹è¾¹æ¡†
+	LineTo(hdc, 0, captionHeight);	// å·¦è¾¹æ¡†
 	DeleteObject(borderPen);
 
-	// ÉèÖÃÎÄ±¾ÑÕÉ«ºÍ±³¾°Ä£Ê½
-	SetTextColor(hdc, data.captionFC);	// Ò²ÓÃÓÚÏÂÃæµÄ°´Å¥
-	SetBkMode(hdc, TRANSPARENT);	// ±³¾°Í¸Ã÷
-	// ¼ÆËã±êÌâÎ»ÖÃ
+	// è®¾ç½®æ–‡æœ¬é¢œè‰²å’ŒèƒŒæ™¯æ¨¡å¼
+	SetTextColor(hdc, data.captionFC);	// ä¹Ÿç”¨äºä¸‹é¢çš„æŒ‰é’®
+	SetBkMode(hdc, TRANSPARENT);	// èƒŒæ™¯é€æ˜
+	// è®¡ç®—æ ‡é¢˜ä½ç½®
 	RECT textRect = { left,top,right,bottom };
-	textRect.left += 10;	// ¸øÎÄ×ÖÁôµã¿Õ¼ä
-	textRect.right -= 50;	// ±Ü¿ª¹Ø±Õ°´Å¥
-	// ×ÖÌå
+	textRect.left += 10;	// ç»™æ–‡å­—ç•™ç‚¹ç©ºé—´
+	textRect.right -= 50;	// é¿å¼€å…³é—­æŒ‰é’®
+	// å­—ä½“
 	if (!hFCaption)
 	{
 		hFCaption = CreateFont(
-			(textRect.bottom - textRect.top) * 0.8,	// ×ÖÌå¸ß¶È
+			(textRect.bottom - textRect.top) * 0.8,	// å­—ä½“é«˜åº¦
 			0, 0, 0,
-			FW_NORMAL,		// ×ÖÌå´ÖÏ¸£¨FW_NORMAL, FW_BOLD µÈ£©
-			FALSE,          // ÊÇ·ñĞ±Ìå
-			FALSE,          // ÊÇ·ñÏÂ»®Ïß
-			FALSE,          // ÊÇ·ñÉ¾³ıÏß
-			DEFAULT_CHARSET,// ×Ö·û¼¯
-			OUT_DEFAULT_PRECIS,   // Êä³ö¾«¶È
-			CLIP_DEFAULT_PRECIS,  // ²Ã¼ô¾«¶È
-			DEFAULT_QUALITY,      // Êä³öÖÊÁ¿
-			DEFAULT_PITCH | FF_SWISS,	// ×ÖÌå¼ä¾àºÍ¼Ò×å
+			FW_NORMAL,		// å­—ä½“ç²—ç»†ï¼ˆFW_NORMAL, FW_BOLD ç­‰ï¼‰
+			FALSE,          // æ˜¯å¦æ–œä½“
+			FALSE,          // æ˜¯å¦ä¸‹åˆ’çº¿
+			FALSE,          // æ˜¯å¦åˆ é™¤çº¿
+			DEFAULT_CHARSET,// å­—ç¬¦é›†
+			OUT_DEFAULT_PRECIS,   // è¾“å‡ºç²¾åº¦
+			CLIP_DEFAULT_PRECIS,  // è£å‰ªç²¾åº¦
+			DEFAULT_QUALITY,      // è¾“å‡ºè´¨é‡
+			DEFAULT_PITCH | FF_SWISS,	// å­—ä½“é—´è·å’Œå®¶æ—
 			data.fontName.c_str()
 		);
 	}
 	SelectObject(hdc, hFCaption);
-	// »æÖÆÎÄ×Ö
+	// ç»˜åˆ¶æ–‡å­—
 	DrawText(hdc, chooseTitle.c_str(), -1, &textRect, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
 
-	// ¹Ø±Õ°´Å¥
+	// å…³é—­æŒ‰é’®
 	RECT buttonRect = { right - buttonSize - 10, top + 2, right - 10, top + buttonSize + 2 };
-	// »æÖÆ¹Ø±Õ°´Å¥ÉÏµÄ¡°¡Á¡±£¬Óë±êÌâÊ¹ÓÃÍ¬Ò»×ÖÌå
-	DrawText(hdc, "¡Á", -1, &buttonRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	// ç»˜åˆ¶å…³é—­æŒ‰é’®ä¸Šçš„â€œÃ—â€ï¼Œä¸æ ‡é¢˜ä½¿ç”¨åŒä¸€å­—ä½“
+	DrawText(hdc, "Ã—", -1, &buttonRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
-	// ÉèÖÃ°´Å¥
+	// è®¾ç½®æŒ‰é’®
 	buttonRect.right -= buttonSize;
 	buttonRect.left -= buttonSize;
-	DrawText(hdc, "¡­", -1, &buttonRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	DrawText(hdc, "â€¦", -1, &buttonRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
-	// ¿Í»§Çø
-	// ¼ÆËã×Ô¶¨Òå¿Í»§Çø¾ØĞÎÇøÓò
+	// å®¢æˆ·åŒº
+	// è®¡ç®—è‡ªå®šä¹‰å®¢æˆ·åŒºçŸ©å½¢åŒºåŸŸ
 	windowRect.bottom -= windowRect.top;
 	windowRect.top = captionHeight;
 	windowRect.right -= windowRect.left;
 	windowRect.left = 0;
-	// ×ÖÌå
+	// å­—ä½“
 	SetTextColor(hdc, data.clientFC);
 	SetBkMode(hdc, TRANSPARENT);
 	if (!hFText)
 	{
 		hFText = CreateFont(
-			(windowRect.bottom - windowRect.top) * 0.7,	// ×ÖÌå¸ß¶È
-			0,              // ×ÖÌå¿í¶È£¨Îª 0 ±íÊ¾¸ù¾İ¸ß¶È×Ô¶¯¼ÆËã£©
-			0,              // ×ÖÌåÇãĞ±½Ç¶È£¨µ¥Î» 0.1 ¶È£©
-			0,              // ×ÖÌå»ùÏß·½Ïò½Ç¶È
-			FW_NORMAL,		// ×ÖÌå´ÖÏ¸£¨FW_NORMAL, FW_BOLDµÈ£©
-			FALSE,          // ÊÇ·ñĞ±Ìå
-			FALSE,          // ÊÇ·ñÏÂ»®Ïß
-			FALSE,          // ÊÇ·ñÉ¾³ıÏß
-			DEFAULT_CHARSET,// ×Ö·û¼¯
-			OUT_DEFAULT_PRECIS,   // Êä³ö¾«¶È
-			CLIP_DEFAULT_PRECIS,  // ²Ã¼ô¾«¶È
-			DEFAULT_QUALITY,		// Êä³öÖÊÁ¿
-			DEFAULT_PITCH | FF_SWISS,	// ×ÖÌå¼ä¾àºÍ¼Ò×å
+			(windowRect.bottom - windowRect.top) * 0.7,	// å­—ä½“é«˜åº¦
+			0,              // å­—ä½“å®½åº¦ï¼ˆä¸º 0 è¡¨ç¤ºæ ¹æ®é«˜åº¦è‡ªåŠ¨è®¡ç®—ï¼‰
+			0,              // å­—ä½“å€¾æ–œè§’åº¦ï¼ˆå•ä½ 0.1 åº¦ï¼‰
+			0,              // å­—ä½“åŸºçº¿æ–¹å‘è§’åº¦
+			FW_NORMAL,		// å­—ä½“ç²—ç»†ï¼ˆFW_NORMAL, FW_BOLDç­‰ï¼‰
+			FALSE,          // æ˜¯å¦æ–œä½“
+			FALSE,          // æ˜¯å¦ä¸‹åˆ’çº¿
+			FALSE,          // æ˜¯å¦åˆ é™¤çº¿
+			DEFAULT_CHARSET,// å­—ç¬¦é›†
+			OUT_DEFAULT_PRECIS,   // è¾“å‡ºç²¾åº¦
+			CLIP_DEFAULT_PRECIS,  // è£å‰ªç²¾åº¦
+			DEFAULT_QUALITY,		// è¾“å‡ºè´¨é‡
+			DEFAULT_PITCH | FF_SWISS,	// å­—ä½“é—´è·å’Œå®¶æ—
 			data.fontName.c_str()
 		);
 	}
-	SelectObject(hdc, hFText);
-	// ÔÚ¿Í»§ÇøÏÔÊ¾ÎÄ×Ö
+	// é€‰æ‹©æ˜¾ç¤ºæ–‡å­—
 	if (data.leftNames.size() == 0)
 	{
 		data.leftNames = data.defaultNames;
-		data.leftNames.push_back("³éÍêÒ»ÂÖ");
+		data.leftNames.push_back("æŠ½å®Œä¸€è½®");
 	}
-	DrawText(hdc, chooseText.c_str(), -1, &windowRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	// æ‰“å°æ–‡æœ¬
+	short deviation = (windowRect.bottom - windowRect.top) * 0.15;	// åç§»é‡ï¼Œç”¨äºå±…ä¸­
+	hChooseText = CreateWindow("STATIC", chooseText.c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER,
+		0, windowRect.top + deviation, right, windowRect.bottom - deviation, hWnd, NULL, NULL, NULL);
+	// è®¾ç½®å­—ä½“
+	SendMessage(hChooseText, WM_SETFONT, (WPARAM)hFText, TRUE);
 }
 
 export bool captionMessage(HWND& hWnd, LPARAM& lParam)
@@ -577,7 +581,7 @@ export bool captionMessage(HWND& hWnd, LPARAM& lParam)
 	ptMouse.y = HIWORD(lParam);
 	ScreenToClient(hWnd, &ptMouse);
 	if (ptMouse.y <= captionHeight)
-		return true;  // ·µ»Ø HTCAPTION£¬±íÊ¾µã»÷ÔÚ±êÌâÀ¸£¬¿ÉÒÔÍÏ¶¯´°¿Ú
+		return true;  // è¿”å› HTCAPTIONï¼Œè¡¨ç¤ºç‚¹å‡»åœ¨æ ‡é¢˜æ ï¼Œå¯ä»¥æ‹–åŠ¨çª—å£
 	else
 		return false;
 }
@@ -597,98 +601,98 @@ export short captionButton(HWND& hWnd, LPARAM& lParam)
 		return 0;
 }
 
-// Í¼±êÒ³Ãæ
+// å›¾æ ‡é¡µé¢
 
-// ÓÃÓÚ´°¿ÚÎ»ÖÃµ÷½Ú
+// ç”¨äºçª—å£ä½ç½®è°ƒèŠ‚
 void offset(HWND& hwnd, RECT& newPosition, short& width, short& height)
 {
-	// »ñÈ¡Ô­Ê¼´°¿ÚµÄ´óĞ¡ºÍÎ»ÖÃ
+	// è·å–åŸå§‹çª—å£çš„å¤§å°å’Œä½ç½®
 	RECT originalRect;
 	GetWindowRect(hwnd, &originalRect);
 
-	// ¼ì²é´°¿ÚµÄÎ»ÖÃÆ«ºÃ
+	// æ£€æŸ¥çª—å£çš„ä½ç½®åå¥½
 	bool right = false;
 	bool down = true;
 
-	// ĞŞ¸ÄÎ»ÖÃ²ÎÊı
+	// ä¿®æ”¹ä½ç½®å‚æ•°
 	if (GetSystemMetrics(SM_CXSCREEN) / 2 >
 		(originalRect.right + originalRect.left) / 2)
 	{
-		right = false;	// Æ«×ó
+		right = false;	// åå·¦
 		newPosition.left = originalRect.left;
 	}
 	else
 	{
-		right = true;	// Æ«ÓÒ»ò¾ÓÖĞ
+		right = true;	// åå³æˆ–å±…ä¸­
 		newPosition.left = originalRect.right - width;
 	}
 
 	if (GetSystemMetrics(SM_CYSCREEN) / 2 >
 		(originalRect.bottom + originalRect.top) / 2)
 	{
-		down = false;	// Æ«ÉÏ
+		down = false;	// åä¸Š
 		newPosition.top = originalRect.top;
 	}
 	else
 	{
-		down = true;	// Æ«ÏÂ»ò¾ÓÖĞ
+		down = true;	// åä¸‹æˆ–å±…ä¸­
 		newPosition.top = originalRect.bottom - height;
 	}
 }
 
-HWND hIcon;	// ·½±ãÆµ·±×ª»»
+HWND hIcon;	// æ–¹ä¾¿é¢‘ç¹è½¬æ¢
 export void iconPage()
 {
-	short d = 50;	// ´°¿ÚÖ±¾¶
+	short d = 50;	// çª—å£ç›´å¾„
 
 	RECT newPosition;
 	offset(hChoose, newPosition, d, d);
 
 	if (!hIcon)
 	{
-		// ×¢²áĞÂ´°¿ÚÀàĞÍ
+		// æ³¨å†Œæ–°çª—å£ç±»å‹
 		const char* iconWndName = "icon";
 
 		WNDCLASS iconWc = {};
 		iconWc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-		iconWc.hInstance = GetModuleHandle(nullptr); // »ñÈ¡ÊµÀı¾ä±ú
+		iconWc.hInstance = GetModuleHandle(nullptr); // è·å–å®ä¾‹å¥æŸ„
 		iconWc.lpfnWndProc = WPicon;
 		iconWc.lpszClassName = iconWndName;
 		iconWc.style = CS_HREDRAW | CS_VREDRAW;
 
 		RegisterClass(&iconWc);
 
-		// ÉèÖÃĞÂ´°¿Ú
+		// è®¾ç½®æ–°çª—å£
 		hIcon = CreateWindowEx(
 			WS_EX_LAYERED,
-			iconWndName,	// ´°¿ÚÀàÃû
-			"µãÃûÆ÷Í¼±êÄ£Ê½",		// ´°¿Ú±êÌâ
-			WS_POPUP | WS_SYSMENU,	// ´°¿Ú·ç¸ñ
+			iconWndName,	// çª—å£ç±»å
+			"ç‚¹åå™¨å›¾æ ‡æ¨¡å¼",		// çª—å£æ ‡é¢˜
+			WS_POPUP | WS_SYSMENU,	// çª—å£é£æ ¼
 			newPosition.left,
-			newPosition.top,	// ´°¿ÚÎ»ÖÃ
-			d, d,				// ´°¿Ú´óĞ¡
-			nullptr,			// ¸¸´°¿Ú¾ä±ú
-			nullptr,			// ²Ëµ¥¾ä±ú
-			iconWc.hInstance,	// ÊµÀı¾ä±ú
-			nullptr				// ¸½¼ÓÊı¾İ
+			newPosition.top,	// çª—å£ä½ç½®
+			d, d,				// çª—å£å¤§å°
+			nullptr,			// çˆ¶çª—å£å¥æŸ„
+			nullptr,			// èœå•å¥æŸ„
+			iconWc.hInstance,	// å®ä¾‹å¥æŸ„
+			nullptr				// é™„åŠ æ•°æ®
 		);
 
-		SetLayeredWindowAttributes(hChoose, 0, 0, LWA_ALPHA); // ÉèÖÃ´°¿ÚÎªÖ§³ÖÍ¸Ã÷
+		SetLayeredWindowAttributes(hChoose, 0, 0, LWA_ALPHA); // è®¾ç½®çª—å£ä¸ºæ”¯æŒé€æ˜
 
-		// ´´½¨Ô²ĞÎÇøÓò²¢ÉèÖÃÎª´°¿ÚÇøÓò
+		// åˆ›å»ºåœ†å½¢åŒºåŸŸå¹¶è®¾ç½®ä¸ºçª—å£åŒºåŸŸ
 		HRGN hRegion = CreateEllipticRgn(0, 0, d, d);
 		SetWindowRgn(hIcon, hRegion, TRUE);
 	}
 
-	// ÏÔÊ¾´°¿Ú
+	// æ˜¾ç¤ºçª—å£
 	ShowWindow(hChoose, SW_HIDE);
 	ShowWindow(hIcon, SW_SHOW);
 	UpdateWindow(hIcon);
 
-	// ¹Ø±Õ³éÈ¡´°¿Ú¼ÆÊ±
+	// å…³é—­æŠ½å–çª—å£è®¡æ—¶
 	KillTimer(hChoose, IDT_wait);
 
-	// µ÷ÕûÎ»ÖÃ
+	// è°ƒæ•´ä½ç½®
 	HWND set;
 	if (data.ifTop)
 		set = HWND_TOPMOST;
@@ -709,16 +713,16 @@ export void ExitIconMode()
 	SetWindowPos(hChoose, nullptr, newPosition.left, newPosition.top, 0, 0, SWP_NOSIZE);
 }
 
-// ÆäËü
+// å…¶å®ƒ
 export void deleteAllCommand(HWND& hWnd)
 {
-	// É¾³ıËùÓĞ¿Ø¼ş
+	// åˆ é™¤æ‰€æœ‰æ§ä»¶
 	HWND child;
-	child = GetWindow(hWnd, GW_CHILD); // »ñÈ¡µÚÒ»¸ö×Ó´°¿Ú
+	child = GetWindow(hWnd, GW_CHILD); // è·å–ç¬¬ä¸€ä¸ªå­çª—å£
 	while (child)
 	{
-		DestroyWindow(child); // Ïú»Ù×Ó´°¿Ú
-		child = GetWindow(hWnd, GW_CHILD); // »ñÈ¡ÏÂÒ»¸ö×Ó´°¿Ú
+		DestroyWindow(child); // é”€æ¯å­çª—å£
+		child = GetWindow(hWnd, GW_CHILD); // è·å–ä¸‹ä¸€ä¸ªå­çª—å£
 	}
 }
 
@@ -726,19 +730,19 @@ export std::vector<std::string> readEdit(HWND& hwnd, short ID)
 {
 	std::vector<std::string> lines;
 
-	// »ñÈ¡ EditBox ¾ä±ú
+	// è·å– EditBox å¥æŸ„
 	HWND hEdit = GetDlgItem(hwnd, ID);
 	if (!hEdit) return lines;
 
-	// »ñÈ¡ÎÄ±¾³¤¶È
+	// è·å–æ–‡æœ¬é•¿åº¦
 	int len = GetWindowTextLengthA(hEdit);
-	if (!len) return lines;  // Èç¹ûÃ»ÓĞÄÚÈİ£¬Ö±½Ó·µ»Ø
+	if (!len) return lines;  // å¦‚æœæ²¡æœ‰å†…å®¹ï¼Œç›´æ¥è¿”å›
 
-	// ¶ÁÈ¡ÎÄ±¾
+	// è¯»å–æ–‡æœ¬
 	std::vector<char> buffer(len + 1);
 	GetWindowTextA(hEdit, buffer.data(), len + 1);
 
-	// °´ĞĞ·Ö¸î×Ö·û´®
+	// æŒ‰è¡Œåˆ†å‰²å­—ç¬¦ä¸²
 	std::stringstream ss(buffer.data());
 	std::string line;
 	while (std::getline(ss, line))
@@ -755,64 +759,65 @@ export bool deleteVoid(std::vector<std::string>& vec)
 	{
 		if (!vec[i].size())
 		{
-			vec.erase(vec.begin() + i);	// È¥³ı¿ÕµÄ
-			i--;	// ·ÀÖ¹ÒÅÂ©
-			size--;	// ·ÀÖ¹Òç³ö
+			vec.erase(vec.begin() + i);	// å»é™¤ç©ºçš„
+			i--;	// é˜²æ­¢é—æ¼
+			size--;	// é˜²æ­¢æº¢å‡º
 		}
 	}
 
-	if (!vec.size())	// Ã»ÓĞÔªËØ
+	if (!vec.size())	// æ²¡æœ‰å…ƒç´ 
 		return false;
 	else
 		return true;
 }
 
-short change = 15;
+short change = 15;	// é€æ˜åº¦å˜åŒ–
 export void transparency(HWND& hwnd, short& mode)
 {
-	if (changeAlpha)	// Ôö¼ÓÍ¸Ã÷¶È
+	if (changeAlpha)	// å¢åŠ é€æ˜åº¦
 	{
+		currentAlpha += change;
 		if (currentAlpha >= 255)
 		{
-			changeAlpha = false;
 			KillTimer(hwnd, IDT_transparency);
+			changeAlpha = false;
 			transparencyTimerActive = false;
 		}
 		else
 		{
-			currentAlpha += change;
-			SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA); // ¸üĞÂÍ¸Ã÷¶È
+			SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA); // æ›´æ–°é€æ˜åº¦
 		}
 	}
-	else // ¼õÉÙÍ¸Ã÷¶È
+	else // å‡å°‘é€æ˜åº¦
 	{
-		if (currentAlpha)
+		currentAlpha -= change;  // æ¯æ¬¡å‡å°‘é€æ˜åº¦
+		if (currentAlpha > 0)
 		{
-			currentAlpha -= change;  // Ã¿´Î¼õÉÙÍ¸Ã÷¶È
-			SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA); // ¸üĞÂÍ¸Ã÷¶È
+			SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA); // æ›´æ–°é€æ˜åº¦
 		}
 		else
 		{
-			changeAlpha = true;
 			KillTimer(hwnd, IDT_transparency);
+			changeAlpha = true;
 			if (mode == normal)
 			{
-				mode = icon;	// ÇĞ»»Ä£Ê½±ê¼ÇÎªÍ¼±ê
+				mode = icon;	// åˆ‡æ¢æ¨¡å¼æ ‡è®°ä¸ºå›¾æ ‡
 				iconPage();
 				SetTimer(hIcon, IDT_transparency, transparencyT, 0);
 			}
 			else if (mode == icon)
 			{
-				mode = normal;	// ÇĞ»»Ä£Ê½±ê¼ÇÎª³éÈ¡
+				mode = normal;	// åˆ‡æ¢æ¨¡å¼æ ‡è®°ä¸ºæŠ½å–
 				ExitIconMode();
 				SetTimer(hChoose, IDT_transparency, transparencyT, 0);
+				SetTimer(hChoose, IDT_scroll, scrollT, 0);	// åŒæ—¶å¼€å§‹æ»šåŠ¨ä»¥ä¼˜åŒ–ä½¿ç”¨
 			}
 		}
 	}
 }
 
-// ÈÃÑÕÉ«Í³Ò»ĞŞ¸Ä
-export void colorSynergy(HWND& hwnd, short ID, short position)	// Ğ­Í¬µ÷½ÚÑÕÉ«
+// è®©é¢œè‰²ç»Ÿä¸€ä¿®æ”¹
+export void colorSynergy(HWND& hwnd, short ID, short position)	// ååŒè°ƒèŠ‚é¢œè‰²
 {
 	short mode;
 
@@ -832,38 +837,38 @@ export void colorSynergy(HWND& hwnd, short ID, short position)	// Ğ­Í¬µ÷½ÚÑÕÉ«
 	if (mode == 10 && (value < 0 || value>255) || mode == 16 && (value < 0x00000 || value>0xffffff))
 	{
 		MessageBox(nullptr,
-			"ÄãµÄÑÕÉ«ÉèÖÃ²»ÕıÈ·ÚÀ¡£\nÈç¹ûÊÇRGBµÄ»°£¬Òª0~255¡£\nÈç¹ûÊÇ16Î»£¬²»Òª0x£¬Òª000000~ffffff¡£",
-			"²»ºÃ", MB_ICONERROR);
+			"ä½ çš„é¢œè‰²è®¾ç½®ä¸æ­£ç¡®è¯¶ã€‚\nå¦‚æœæ˜¯RGBçš„è¯ï¼Œè¦0~255ã€‚\nå¦‚æœæ˜¯16ä½ï¼Œä¸è¦0xï¼Œè¦000000~ffffffã€‚",
+			"ä¸å¥½", MB_ICONERROR);
 		HWND hEdit = GetDlgItem(hwnd, ID);
-		SetFocus(hEdit);	// Ç¿ÖÆ»ØÈ¥ÖØĞÂÌîĞ´
+		SetFocus(hEdit);	// å¼ºåˆ¶å›å»é‡æ–°å¡«å†™
 		return;
 	}
 
-	// ÑÕÉ«ÕıÈ·
+	// é¢œè‰²æ­£ç¡®
 	short hexID = ID + (4 - position);
-	// »ñÈ¡¾ä±ú
-	HWND hHexEdit = GetDlgItem(hwnd, hexID);	// »ñÈ¡16Î»±à¼­¿ò¾ä±ú
+	// è·å–å¥æŸ„
+	HWND hHexEdit = GetDlgItem(hwnd, hexID);	// è·å–16ä½ç¼–è¾‘æ¡†å¥æŸ„
 	HWND hREdit = GetDlgItem(hwnd, hexID - 3);
 	HWND hGEdit = GetDlgItem(hwnd, hexID - 2);
 	HWND hBEdit = GetDlgItem(hwnd, hexID - 1);
 	switch (position)
 	{
-	case 1:	// ¸ü¸ÄRÖµ
-		colorStr = readEdit(hwnd, hexID)[0];	// »ñÈ¡16Î»×Ö·û
+	case 1:	// æ›´æ”¹Rå€¼
+		colorStr = readEdit(hwnd, hexID)[0];	// è·å–16ä½å­—ç¬¦
 		colorStr.replace(0, 2, std::format("{:02x}", value));
 		SetWindowText(hHexEdit, colorStr.c_str());
 		break;
-	case 2:	// ¸ü¸ÄGÖµ
-		colorStr = readEdit(hwnd, hexID)[0];	// »ñÈ¡16Î»×Ö·û
+	case 2:	// æ›´æ”¹Gå€¼
+		colorStr = readEdit(hwnd, hexID)[0];	// è·å–16ä½å­—ç¬¦
 		colorStr.replace(2, 2, std::format("{:02x}",value));
 		SetWindowText(hHexEdit, colorStr.c_str());
 		break;
-	case 3:	// ¸ü¸ÄBÖµ
-		colorStr = readEdit(hwnd, hexID)[0];	// »ñÈ¡16Î»×Ö·û
+	case 3:	// æ›´æ”¹Bå€¼
+		colorStr = readEdit(hwnd, hexID)[0];	// è·å–16ä½å­—ç¬¦
 		colorStr.replace(4, 2, std::format("{:02x}", value));
 		SetWindowText(hHexEdit, colorStr.c_str());
 		break;
-	case 4:	// ¸ü¸Ä16Î»
+	case 4:	// æ›´æ”¹16ä½
 		short R;	R = (value >> 16) & 0xff;
 		short G;	G = (value >> 8) & 0xff;
 		short B;	B = value & 0xff;
@@ -873,8 +878,8 @@ export void colorSynergy(HWND& hwnd, short ID, short position)	// Ğ­Í¬µ÷½ÚÑÕÉ«
 		break;
 	}
 
-	// ±£´æĞŞ¸Ä
-	colorStr = readEdit(hwnd, hexID)[0];	// »ñÈ¡16Î»×Ö·û
+	// ä¿å­˜ä¿®æ”¹
+	colorStr = readEdit(hwnd, hexID)[0];	// è·å–16ä½å­—ç¬¦
 	colorCorrect(colorStr);
 	if (ID >= IDE_captionBCR && ID <= IDE_captionBC16)
 		store.captionBC = std::stoi(colorStr, nullptr, 16);
@@ -888,35 +893,35 @@ export void colorSynergy(HWND& hwnd, short ID, short position)	// Ğ­Í¬µ÷½ÚÑÕÉ«
 
 export void selectChange(HWND& hwnd, std::string& str)
 {
-	int index = SendMessage(hwnd, CB_GETCURSEL, 0, 0);	// »ñÈ¡µ±Ç°Ñ¡ÖĞË÷Òı
+	int index = SendMessage(hwnd, CB_GETCURSEL, 0, 0);	// è·å–å½“å‰é€‰ä¸­ç´¢å¼•
 	int length = SendMessage(hwnd, CB_GETLBTEXTLEN, index, 0);
 	str.resize(length);
-	SendMessage(hwnd, CB_GETLBTEXT, index, (LPARAM)str.data());	// »ñÈ¡ÎÄ±¾
+	SendMessage(hwnd, CB_GETLBTEXT, index, (LPARAM)str.data());	// è·å–æ–‡æœ¬
 }
 
 export void selfRestart(HWND& hwnd)
 {
-	// »ñÈ¡µ±Ç°³ÌĞòµÄÂ·¾¶
+	// è·å–å½“å‰ç¨‹åºçš„è·¯å¾„
 	wchar_t szPath[MAX_PATH];
 	GetModuleFileNameW(NULL, szPath, MAX_PATH);
 
-	// ´´½¨½ø³ÌÆô¶¯ĞÅÏ¢
+	// åˆ›å»ºè¿›ç¨‹å¯åŠ¨ä¿¡æ¯
 	STARTUPINFOW si = { sizeof(STARTUPINFOW) };
 	PROCESS_INFORMATION pi;
 
-	// Æô¶¯ĞÂµÄ½ø³Ì
+	// å¯åŠ¨æ–°çš„è¿›ç¨‹
 	CreateProcessW(
-		szPath,   // µ±Ç°³ÌĞòÂ·¾¶
-		NULL,      // ÃüÁîĞĞ²ÎÊı
-		NULL,      // ½ø³Ì°²È«ÊôĞÔ
-		NULL,      // Ïß³Ì°²È«ÊôĞÔ
-		FALSE,     // ²»¼Ì³Ğ¾ä±ú
-		0,         // ´´½¨±êÖ¾
-		NULL,      // »·¾³±äÁ¿
-		NULL,      // µ±Ç°Ä¿Â¼
-		&si,       // Æô¶¯ĞÅÏ¢
-		&pi);    // ½ø³ÌĞÅÏ¢
+		szPath,   // å½“å‰ç¨‹åºè·¯å¾„
+		NULL,      // å‘½ä»¤è¡Œå‚æ•°
+		NULL,      // è¿›ç¨‹å®‰å…¨å±æ€§
+		NULL,      // çº¿ç¨‹å®‰å…¨å±æ€§
+		FALSE,     // ä¸ç»§æ‰¿å¥æŸ„
+		0,         // åˆ›å»ºæ ‡å¿—
+		NULL,      // ç¯å¢ƒå˜é‡
+		NULL,      // å½“å‰ç›®å½•
+		&si,       // å¯åŠ¨ä¿¡æ¯
+		&pi);    // è¿›ç¨‹ä¿¡æ¯
 
-	// ÍË³öµ±Ç°½ø³Ì
+	// é€€å‡ºå½“å‰è¿›ç¨‹
 	ExitProcess(0);
 }
