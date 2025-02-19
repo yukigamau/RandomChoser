@@ -5,7 +5,7 @@ module;
 export module value;
 import std;
 
-// °´Å¥
+// æŒ‰é’®
 export constexpr short
 IDB_topYes	= 1,
 IDB_topNo	= 2,
@@ -14,7 +14,7 @@ IDB_confirm = 4,
 IDB_modify	= 5,
 IDB_delete	= 6
 ;
-// ±à¼­¿ò
+// ç¼–è¾‘æ¡†
 export constexpr short
 IDE_captionBCR	= 101,
 IDE_captionBCG	= 102,
@@ -33,21 +33,21 @@ IDE_clientFCG	= 114,
 IDE_clientFCB	= 115,
 IDE_clientFC16	= 116,
 IDE_password	=117,
-IDE_names		= 118	// ÉèÖÃÒ³ÃæµÄÃû×Ö±à¼­¿ò
+IDE_names		= 118	// è®¾ç½®é¡µé¢çš„åå­—ç¼–è¾‘æ¡†
 ;
-// ÁĞ±í¿ò
+// åˆ—è¡¨æ¡†
 export constexpr short
 IDL_fontName	= 201,
 IDL_defaultList = 202,
 IDL_showList	= 203
 ;
-// ¼ÆÊ±Æ÷
+// è®¡æ—¶å™¨
 export constexpr short
 IDT_scroll			= 301,
 IDT_wait			= 302,
 IDT_transparency	= 303
 ;
-// ¾ä±ú
+// å¥æŸ„
 export HFONT hFCaption;
 export HFONT hFText;
 export HFONT hFSetting;
@@ -58,13 +58,15 @@ hCaptionBCR,	hCaptionBCG,	hCaptionBCB,	hCaptionBC16,
 hCaptionFCR,	hCaptionFCG,	hCaptionFCB,	hCaptionFC16,
 hClientBCR,		hClientBCG,		hClientBCB,		hClientBC16,
 hClientFCR,		hClientFCG,		hClientFCB,		hClientFC16,
-hNewListBtn,	hConfirmBtn,	hModifyBtn,		hDeleteBtn;
-// modeµÄÁ¿
+hNewListBtn,	hConfirmBtn,	hModifyBtn,		hDeleteBtn,
+hChooseText
+;
+// modeçš„é‡
 export constexpr short
 normal	= 1,
 icon	= 2
 ;
-// captionButtonµÄ·µ»ØÖµ
+// captionButtonçš„è¿”å›å€¼
 export const short
 other	= 0,
 close	= 1,
@@ -72,35 +74,36 @@ setting	= 2
 ;
 
 export short
-transparencyT = 5	// Í¸Ã÷¶ÈĞŞ¸Ä¶¨Ê±Æ÷
+transparencyT = 5,	// é€æ˜åº¦ä¿®æ”¹å®šæ—¶å™¨
+scrollT = 50
 ;
 
 export bool
-changeAlpha = false,	// ±êÖ¾¸ü¸ÄÍ¸Ã÷¶ÈÊÇÔö¼Ó»¹ÊÇ¼õÉÙ£¬trueÎªÔö¼Ó£¬commandÒªÓÃ
-createSetting = true,	// ±êÖ¾ÊÇ·ñÕıÔÚ´´½¨ÉèÖÃÒ³Ãæ£¬·ÀÖ¹ÓÃ»§ÊäÈëµÄÃû×Ö¶ªÊ§
-ifTypeName = false,	// ±êÖ¾ÊÇ·ñÕıÔÚÊäÈëĞÂÃûµ¥µÄÃû×Ö
-showName = false,	// ±êÖ¾ÊÇ·ñÕıÔÚÏÔÊ¾Ãû×Ö
-transparencyTimerActive = false	// commandÒªÓÃ
+changeAlpha = false,	// æ ‡å¿—æ›´æ”¹é€æ˜åº¦æ˜¯å¢åŠ è¿˜æ˜¯å‡å°‘ï¼Œtrueä¸ºå¢åŠ ï¼Œcommandè¦ç”¨
+createSetting = true,	// æ ‡å¿—æ˜¯å¦æ­£åœ¨åˆ›å»ºè®¾ç½®é¡µé¢ï¼Œé˜²æ­¢ç”¨æˆ·è¾“å…¥çš„åå­—ä¸¢å¤±
+ifTypeName = false,	// æ ‡å¿—æ˜¯å¦æ­£åœ¨è¾“å…¥æ–°åå•çš„åå­—
+showName = false,	// æ ‡å¿—æ˜¯å¦æ­£åœ¨æ˜¾ç¤ºåå­—
+transparencyTimerActive = false	// commandè¦ç”¨
 ;
 
-export BYTE currentAlpha = 255; // µ±Ç°Í¸Ã÷¶È£¬³õÊ¼ÎªÍêÈ«²»Í¸Ã÷£¬commandÒªÓÃ
-export std::map<std::string, HFONT> fontMap; // ´æ´¢×ÖÌå¶ÔÏó
-export HINSTANCE settingInstance;	// ´æ´¢ÉèÖÃÒ³ÃæÊ¹ÓÃµÄÊµÀı
+export BYTE currentAlpha = 255; // å½“å‰é€æ˜åº¦ï¼Œåˆå§‹ä¸ºå®Œå…¨ä¸é€æ˜ï¼Œcommandè¦ç”¨
+export std::map<std::string, HFONT> fontMap; // å­˜å‚¨å­—ä½“å¯¹è±¡
+export HINSTANCE settingInstance;	// å­˜å‚¨è®¾ç½®é¡µé¢ä½¿ç”¨çš„å®ä¾‹
 
 export std::string
-chooseTitle,	// ³éÈ¡½çÃæ±êÌâÀ¸±êÌâ
-chooseText = "µã»÷³éÈ¡";	// ³éÈ¡Ãû×Ö
+chooseTitle,	// æŠ½å–ç•Œé¢æ ‡é¢˜æ æ ‡é¢˜
+chooseText = "ç‚¹å‡»æŠ½å–";	// æŠ½å–åå­—
 
 export std::vector<std::string>
-newNameTip=	// Ä¬ÈÏÏÔÊ¾ÎÄ±¾
+newNameTip=	// é»˜è®¤æ˜¾ç¤ºæ–‡æœ¬
 {
-	"ÇëÔÚ´Ë¿òÊäÈëĞÂ½¨Ãûµ¥ÄÚµÄÃû×Ö£¬",
-	"Ò»ĞĞÒ»¸öÅ¶¡£",
-	"È»ºóµã»÷ĞÂ½¨Ãûµ¥£¬",
-	"¾Í¿ÉÒÔ´´½¨ĞÂÃûµ¥À²£¡",
-	"±ğÍüÁË°ÑÕâÎåĞĞÉ¾µôÅ¶£¡"
+	"è¯·åœ¨æ­¤æ¡†è¾“å…¥æ–°å»ºåå•å†…çš„åå­—ï¼Œ",
+	"ä¸€è¡Œä¸€ä¸ªå“¦ã€‚",
+	"ç„¶åç‚¹å‡»æ–°å»ºåå•ï¼Œ",
+	"å°±å¯ä»¥åˆ›å»ºæ–°åå•å•¦ï¼",
+	"åˆ«å¿˜äº†æŠŠè¿™äº”è¡Œåˆ æ‰å“¦ï¼"
 },
-readName = newNameTip	// ÓÃÓÚ¶ÁÈ¡Ãûµ¥±à¼­¿òÎÄ±¾
+readName = newNameTip	// ç”¨äºè¯»å–åå•ç¼–è¾‘æ¡†æ–‡æœ¬
 ;
 
 export void colorCorrect(std::string& color16)
