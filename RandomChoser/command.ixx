@@ -458,19 +458,14 @@ export void choosePage(_In_ HINSTANCE hInstance)
 export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 {
 	// 获取窗口的矩形坐标
-	RECT windowRect;
-	GetWindowRect(hWnd, &windowRect);
-
-	// 计算标题栏矩形区域
-	int left = 0, top = 0;
-	int right = windowRect.right - windowRect.left;	// 宽度
-	int bottom = captionHeight;	// 获取推荐标题栏高度
+	RECT clientRect;
+	GetClientRect(hWnd, &clientRect);
 
 	// 创建画笔和画刷
 	HBRUSH hBrushBk = CreateSolidBrush(data.clientBC);   // 背景画刷
 	SelectObject(hdc, hBrushBk);
 	// 绘制底色矩形
-	Rectangle(hdc, 0, captionHeight - 1, right, windowRect.bottom - windowRect.top);
+	Rectangle(hdc, 0, captionHeight - 1, clientRect.right, clientRect.bottom);
 	// 删除 GDI 对象
 	DeleteObject(hBrushBk);
 	
@@ -480,7 +475,7 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 	SelectObject(hdc, hPen);
 	SelectObject(hdc, hBrush);
 	// 绘制标题栏矩形
-	Rectangle(hdc, left, top, right, bottom);
+	Rectangle(hdc, 0, 0, clientRect.right, captionHeight);
 	// 删除 GDI 对象
 	DeleteObject(hBrush);
 	DeleteObject(hPen);
@@ -488,17 +483,17 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 	// 绘制整个窗口边框
 	HPEN borderPen = CreatePen(PS_SOLID, 2, data.captionBC);
 	HGDIOBJ BorderPen = SelectObject(hdc, borderPen);
-	MoveToEx(hdc, right, 0, NULL);
-	LineTo(hdc, right, windowRect.bottom - windowRect.top);	// 右边框
-	LineTo(hdc, 0, windowRect.bottom - windowRect.top);	// 下边框
-	LineTo(hdc, 0, captionHeight);	// 左边框
+	MoveToEx(hdc, clientRect.right, 0, NULL);
+	LineTo(hdc, clientRect.right, clientRect.bottom);	// 右边框
+	MoveToEx(hdc, 0, captionHeight, NULL);
+	LineTo(hdc, 0, clientRect.bottom);	// 左边框
 	DeleteObject(borderPen);
 
 	// 设置文本颜色和背景模式
 	SetTextColor(hdc, data.captionFC);	// 也用于下面的按钮
 	SetBkMode(hdc, TRANSPARENT);	// 背景透明
 	// 计算标题位置
-	RECT textRect = { left,top,right,bottom };
+	RECT textRect = { 0,0,clientRect.right,captionHeight };
 	textRect.left += 10;	// 给文字留点空间
 	textRect.right -= 50;	// 避开关闭按钮
 	// 字体
@@ -524,7 +519,7 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 	DrawText(hdc, chooseTitle.c_str(), -1, &textRect, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
 
 	// 关闭按钮
-	RECT buttonRect = { right - buttonSize - 10, top + 2, right - 10, top + buttonSize + 2 };
+	RECT buttonRect = { clientRect.right - buttonSize - 10, 2, clientRect.right - 10, buttonSize + 2 };
 	// 绘制关闭按钮上的“×”，与标题使用同一字体
 	DrawText(hdc, "×", -1, &buttonRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
@@ -535,10 +530,8 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 
 	// 客户区
 	// 计算自定义客户区矩形区域
-	windowRect.bottom -= windowRect.top;
+	RECT windowRect = clientRect;
 	windowRect.top = captionHeight;
-	windowRect.right -= windowRect.left;
-	windowRect.left = 0;
 	// 字体
 	SetTextColor(hdc, data.clientFC);
 	SetBkMode(hdc, TRANSPARENT);
@@ -570,7 +563,8 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 	// 打印文本
 	short deviation = (windowRect.bottom - windowRect.top) * 0.15;	// 偏移量，用于居中
 	hChooseText = CreateWindow("STATIC", chooseText.c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER,
-		0, windowRect.top + deviation, right, windowRect.bottom - deviation, hWnd, NULL, NULL, NULL);
+		0, windowRect.top + deviation, clientRect.right, windowRect.bottom - deviation,
+		hWnd, NULL, NULL, NULL);
 	// 设置字体
 	SendMessage(hChooseText, WM_SETFONT, (WPARAM)hFText, TRUE);
 }
