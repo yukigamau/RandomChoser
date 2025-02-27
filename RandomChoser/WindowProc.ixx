@@ -458,9 +458,7 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		if ((HWND)lParam == hAttention)
 			SetTextColor(hdcStatic, RGB(255, 0, 0));  // 红色文本
 		else if((HWND)lParam==hCopyright)
-		{
 			SetTextColor(hdcStatic, RGB(82, 184, 235));  // 降亮度天依蓝文本
-		}
 		else
 			SetTextColor(hdcStatic, RGB(0, 0, 0));	// 黑色文本
 		// 返回一个画刷，用来设置背景颜色
@@ -534,6 +532,17 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		chooseTitle = versionText;
 		break;
 
+	case WM_CTLCOLORSTATIC:
+		if ((HWND)lParam == hChooseText)
+		{
+			HBRUSH hBrush = CreateSolidBrush(data.clientBC);
+			HDC hdcStatic = (HDC)wParam;
+			SetBkMode(hdcStatic, TRANSPARENT); // 透明背景
+			SetTextColor(hdcStatic, data.clientFC); // 文本颜色
+			return (LRESULT)hBrush; // 让背景与父窗口一致
+		}
+		break;
+	
 	case WM_DESTROY:
 		KillTimer(hwnd, IDT_wait);
 		chooseModeDestroy();
