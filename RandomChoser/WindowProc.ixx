@@ -122,7 +122,23 @@ LRESULT CALLBACK passwordCheck(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch (uMsg)
+	switch (LOWORD(wParam))	// 针对消息来源进行消息处理
+	{
+	case NULL:	// 主窗口
+		switch (uMsg)
+		{
+		case WM_PAINT:
+			PAINTSTRUCT ps;
+			HDC hdc;
+			hdc = BeginPaint(hwnd, &ps);
+			settingDraw(hwnd, hdc, lParam);
+			EndPaint(hwnd, &ps);
+			break;
+		}
+		break;
+	}
+
+	switch (uMsg)	// 针对消息类型进行消息处理
 	{
 	case WM_COMMAND:
 		switch (HIWORD(wParam))
@@ -414,33 +430,17 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				readName = readEdit(hwnd, IDE_names);	// 在失去焦点时记录名字编辑框里面的内容
 				break;
 
-				// 下面是颜色修改的协同修改信息
-			case IDE_captionBCR:
-			case IDE_captionFCR:
-			case IDE_clientBCR:
-			case IDE_clientFCR:
-				colorSynergy(hwnd, LOWORD(wParam), 1);
-				break;
-
-			case IDE_captionBCG:
-			case IDE_captionFCG:
-			case IDE_clientBCG:
-			case IDE_clientFCG:
-				colorSynergy(hwnd, LOWORD(wParam), 2);
-				break;
-
-			case IDE_captionBCB:
-			case IDE_captionFCB:
-			case IDE_clientBCB:
-			case IDE_clientFCB:
-				colorSynergy(hwnd, LOWORD(wParam), 3);
-				break;
-
 			case IDE_captionBC16:
+				data.captionBC = std::stoi(readEdit(hwnd, IDE_captionBC16)[0], nullptr, 16);
+				break;
 			case IDE_captionFC16:
+				data.captionFC = std::stoi(readEdit(hwnd, IDE_captionFC16)[0], nullptr, 16);
+				break;
 			case IDE_clientBC16:
+				data.clientBC = std::stoi(readEdit(hwnd, IDE_clientBC16)[0], nullptr, 16);
+				break;
 			case IDE_clientFC16:
-				colorSynergy(hwnd, LOWORD(wParam), 4);
+				data.clientFC = std::stoi(readEdit(hwnd, IDE_clientFC16)[0], nullptr, 16);
 				break;
 			}
 		}
@@ -490,18 +490,6 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 		return TRUE;
 	}
-
-	case WM_PAINT:
-		PAINTSTRUCT ps;
-		HDC hdc;
-		hdc = BeginPaint(hwnd, &ps);
-
-		deleteAllCommand(hwnd);
-		settingDraw(hwnd, hdc, lParam);
-
-		EndPaint(hwnd, &ps);
-		break;
-
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam); // 默认处理
 }
@@ -532,20 +520,34 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		chooseTitle = versionText;
 		break;
 
-	case WM_CTLCOLORSTATIC:
-		if ((HWND)lParam == hChooseText)
-		{
-			HBRUSH hBrush = CreateSolidBrush(data.clientBC);
-			HDC hdcStatic = (HDC)wParam;
-			SetBkMode(hdcStatic, TRANSPARENT); // 透明背景
-			SetTextColor(hdcStatic, data.clientFC); // 文本颜色
-			return (LRESULT)hBrush; // 让背景与父窗口一致
-		}
-		break;
-	
 	case WM_DESTROY:
 		KillTimer(hwnd, IDT_wait);
 		chooseModeDestroy();
+		break;
+		
+	case WM_DRAWITEM:
+		LPDRAWITEMSTRUCT pDrawItem;
+		pDrawItem = (LPDRAWITEMSTRUCT)lParam;
+		if (pDrawItem->CtlID == IDS_chooseText)
+		{
+			HDC hdc = pDrawItem->hDC;
+			RECT rc = pDrawItem->rcItem;
+
+			// 1. 绘制背景
+			FillRect(hdc, &rc, CreateSolidBrush(data.clientBC));
+
+			// 2. 绘制边框
+			FrameRect(hdc, &rc, CreateSolidBrush(data.captionBC));
+
+			// 3. 设置文本颜色和透明背景
+			SetTextColor(hdc, data.clientFC);
+			SetBkMode(hdc, TRANSPARENT);
+
+			// 4. 绘制文本
+			DrawText(hdc, chooseText.c_str(), -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+			return TRUE;
+		}
 		break;
 
 	case WM_KEYDOWN:
