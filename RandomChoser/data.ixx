@@ -7,34 +7,34 @@ export module data;
 import cryptograph;
 import std;
 
-// ³éÈ¡Ê±µÄÊı¾İ
+// æŠ½å–æ—¶çš„æ•°æ®
 export class Data
 {
 public:
 	bool ifTop = true;
-	// COLORREFÒª·µ¹ıÀ´
+	// COLORREFè¦è¿”è¿‡æ¥
 	COLORREF clientBC = 0xffffff;
 	COLORREF clientFC = RGB(0, 123, 187);
 	COLORREF captionBC = RGB(102, 204, 255);
 	COLORREF captionFC = 0xffffff;
-	std::string fontName = "¿¬Ìå";
-	std::string defaultList;	// Õâ¸ö²»»áÓĞ	# ¡¶¡·	ÕâĞ©·ûºÅ
+	std::string fontName = "æ¥·ä½“";
+	std::string defaultList;	// è¿™ä¸ªä¸ä¼šæœ‰	# ã€Šã€‹	è¿™äº›ç¬¦å·
 	std::vector<std::string> defaultNames;
 	std::vector<std::string> leftNames;
 };
 export Data data;
 
-std::string binaryFile = "data.bin";	// ¼ÓÃÜÎÄ¼ş
-std::mt19937 engine(static_cast<unsigned int>(time(0)));	// Éú³ÉËæ»úÊı
+std::string binaryFile = "data.bin";	// åŠ å¯†æ–‡ä»¶
+std::mt19937 engine(static_cast<unsigned int>(time(0)));	// ç”Ÿæˆéšæœºæ•°
 
-// ³õÊ¼»¯
+// åˆå§‹åŒ–
 export bool initializeData()
 {
 	std::vector<std::string> splitLines;
 	if (!DecryptData(splitLines))
 		return false;
 
-	// ½«½âÃÜºóµÄÊı¾İ±£´æ
+	// å°†è§£å¯†åçš„æ•°æ®ä¿å­˜
 	std::istringstream(splitLines[0]) >> std::boolalpha >> data.ifTop;
 	data.clientBC = std::stoi(splitLines[1], nullptr, 16);
 	data.clientFC = std::stoi(splitLines[2], nullptr, 16);
@@ -44,94 +44,96 @@ export bool initializeData()
 	data.defaultList = splitLines[6];
 	for (short i = 7; i < splitLines.size(); i++)
 	{
-		// Èç¹ûµ±Ç°ĞĞÒÔ '#' ¿ªÍ·
+		// å¦‚æœå½“å‰è¡Œä»¥ '#' å¼€å¤´
 		if (splitLines[i][0] != '#')
 			continue;
-		// ¼ì²éÊÇ·ñÆ¥ÅäÄ¬ÈÏÁĞ±í±ê¼Ç
-		if (splitLines[i] != "# ¡¶" + data.defaultList + "¡·")	// ÔÚallÖĞÑ°ÕÒÒª¸ñÊ½»¯
+		// æ£€æŸ¥æ˜¯å¦åŒ¹é…é»˜è®¤åˆ—è¡¨æ ‡è®°
+		if (splitLines[i] != "# ã€Š" + data.defaultList + "ã€‹")	// åœ¨allä¸­å¯»æ‰¾è¦æ ¼å¼åŒ–
 			continue;
-		// ²éÕÒÏÂÒ»¸öÒÔ '#' ¿ªÍ·µÄĞĞ£¬È·¶¨·¶Î§
+		// æŸ¥æ‰¾ä¸‹ä¸€ä¸ªä»¥ '#' å¼€å¤´çš„è¡Œï¼Œç¡®å®šèŒƒå›´
 		short j = i + 1;
 		while (j < splitLines.size() && splitLines[j][0] != '#')
-			j++;	// jÔÚ²»Îª´ú±í'#'·ûºÅµÄĞĞºÅÊ±»á¼Ó1
-		// ½«Êı¾İ¿½±´µ½ data.names
-		// i+1ÊÇÃÜÂë£¬¼ÓjµÄbegin()²¢²»°üÀ¨jµÄ¿½±´
+			j++;	// jåœ¨ä¸ä¸ºä»£è¡¨'#'ç¬¦å·çš„è¡Œå·æ—¶ä¼šåŠ 1
+		// å°†æ•°æ®æ‹·è´åˆ° data.names
+		// i+1æ˜¯å¯†ç ï¼ŒåŠ jçš„begin()å¹¶ä¸åŒ…æ‹¬jçš„æ‹·è´
 		data.defaultNames.resize(j - i - 2);
 		std::copy(splitLines.begin() + i + 2, splitLines.begin() + j, data.defaultNames.begin());
 
-		break;	// ´æÔÚÊı¾İ
+		break;	// å­˜åœ¨æ•°æ®
 	}
 
 	if (data.defaultNames.size() == 0)
 	{
-		// Ã»ÓĞÕÒµ½Ãûµ¥Ãû×Ö
-		MessageBox(nullptr, "Êı¾İÎÄ¼ş¸ñÊ½´íÎóÁËÚÀ¡£", "X©nX", MB_ICONERROR);
+		// æ²¡æœ‰æ‰¾åˆ°åå•åå­—
+		MessageBox(nullptr, "æ•°æ®æ–‡ä»¶æ ¼å¼é”™è¯¯äº†è¯¶ã€‚", "Xï¹X", MB_ICONERROR);
 		return false;
 	}
 
-	// ĞŞ¸ÄÊ£ÓàÃûµ¥
+	// ä¿®æ”¹å‰©ä½™åå•
 	data.leftNames = data.defaultNames;
+	for (short i = 0; i < 50; i++)
+		engine();	// éšæœºæ•°è°ƒæ•´ï¼ŒåŠ å¼ºéšæœºæ€§
 	shuffle(data.leftNames.begin(), data.leftNames.end(), engine);
 
-	// Ëæ»úĞŞ¸Ä
+	// éšæœºä¿®æ”¹
 	if (!(engine() % 10))
 		EncryptData(splitLines);
 
 	return true;
 }
 
-// ×¨ÃÅÓÃÓÚÉèÖÃĞÅÏ¢´æ´¢
-export class Store :public Data	// ¼Ì³ĞDataµÄ¶«Î÷
+// ä¸“é—¨ç”¨äºè®¾ç½®ä¿¡æ¯å­˜å‚¨
+export class Store :public Data	// ç»§æ‰¿Dataçš„ä¸œè¥¿
 {
 public:
-	bool ifRight = true;	// ±êÖ¾Êı¾İÊÇ·ñÕı³£
-	std::vector<std::vector<std::string>> all;	// [0]´æÃûµ¥Ãû£¬[1]´æÃÜÂë
-	std::string currentShowList;	// ´æ´¢µ±Ç°ÕıÔÚÏÔÊ¾µÄÃûµ¥Ãû
+	bool ifRight = true;	// æ ‡å¿—æ•°æ®æ˜¯å¦æ­£å¸¸
+	std::vector<std::vector<std::string>> all;	// [0]å­˜åå•åï¼Œ[1]å­˜å¯†ç 
+	std::string currentShowList;	// å­˜å‚¨å½“å‰æ­£åœ¨æ˜¾ç¤ºçš„åå•å
 };
-export Store store;	// µ±Ê¹ÓÃÉèÖÃÒ³ÃæÊ±¶¨Òå
+export Store store;	// å½“ä½¿ç”¨è®¾ç½®é¡µé¢æ—¶å®šä¹‰
 
 export void initializeStore()
 {
-	// È·ÈÏÊÇ·ñ¿ÉÒÔ¼ÌĞø³õÊ¼»¯
+	// ç¡®è®¤æ˜¯å¦å¯ä»¥ç»§ç»­åˆå§‹åŒ–
 	std::vector<std::string> splitLines;
 	if (!DecryptData(splitLines))
 	{
 		store.ifRight = false;
-		return;	// Î¬³ÖÄ¬ÈÏÌ¬
+		return;	// ç»´æŒé»˜è®¤æ€
 	}
 	else
 		store.ifRight = true;
 
-	// ÔÙ¶È¼ì²éÄ¬ÈÏÃûµ¥µÄÍêÕûĞÔ
+	// å†åº¦æ£€æŸ¥é»˜è®¤åå•çš„å®Œæ•´æ€§
 	store.defaultList = splitLines[6];
-	// Ä¬ÈÏÃû×Ö
+	// é»˜è®¤åå­—
 	for (short i = 7; i < splitLines.size(); i++)
 	{
-		// Èç¹ûµ±Ç°ĞĞÒÔ '#' ¿ªÍ·
+		// å¦‚æœå½“å‰è¡Œä»¥ '#' å¼€å¤´
 		if (splitLines[i][0] != '#')
 			continue;
-		// ¼ì²éÊÇ·ñÆ¥ÅäÄ¬ÈÏÁĞ±í±ê¼Ç
-		if (splitLines[i] != "# ¡¶" + store.defaultList + "¡·")
+		// æ£€æŸ¥æ˜¯å¦åŒ¹é…é»˜è®¤åˆ—è¡¨æ ‡è®°
+		if (splitLines[i] != "# ã€Š" + store.defaultList + "ã€‹")
 			continue;
-		// ²éÕÒÏÂÒ»¸öÒÔ '#' ¿ªÍ·µÄĞĞ£¬È·¶¨·¶Î§
+		// æŸ¥æ‰¾ä¸‹ä¸€ä¸ªä»¥ '#' å¼€å¤´çš„è¡Œï¼Œç¡®å®šèŒƒå›´
 		short j = i + 1;
 		while (j < splitLines.size() && splitLines[j][0] != '#')
-			j++;	// jÔÚ²»Îª´ú±í'#'·ûºÅµÄĞĞºÅÊ±»á¼Ó1
-		// ½«Êı¾İ¿½±´
-		// i+1ÊÇÃÜÂë£¬¼ÓjµÄbegin()²¢²»°üÀ¨jµÄ¿½±´
+			j++;	// jåœ¨ä¸ä¸ºä»£è¡¨'#'ç¬¦å·çš„è¡Œå·æ—¶ä¼šåŠ 1
+		// å°†æ•°æ®æ‹·è´
+		// i+1æ˜¯å¯†ç ï¼ŒåŠ jçš„begin()å¹¶ä¸åŒ…æ‹¬jçš„æ‹·è´
 		store.defaultNames.resize(j - i - 2);
 		std::copy(splitLines.begin() + i + 2, splitLines.begin() + j, store.defaultNames.begin());
 
-		break;	// ´æÔÚÊı¾İ
+		break;	// å­˜åœ¨æ•°æ®
 	}
 	if (store.defaultNames.size() == 0)
 	{
-		// Ã»ÓĞÕÒµ½Ãûµ¥Ãû×Ö
+		// æ²¡æœ‰æ‰¾åˆ°åå•åå­—
 		store.ifRight = false;
 		return;
 	}
 
-	// ÆäËüdata¼Ì³Ğ²¿·ÖµÄ³õÊ¼»¯
+	// å…¶å®ƒdataç»§æ‰¿éƒ¨åˆ†çš„åˆå§‹åŒ–
 	std::istringstream(splitLines[0]) >> std::boolalpha >> store.ifTop;
 	store.clientBC = std::stoi(splitLines[1], nullptr, 16);
 	store.clientFC = std::stoi(splitLines[2], nullptr, 16);
@@ -139,38 +141,38 @@ export void initializeStore()
 	store.captionFC = std::stoi(splitLines[4], nullptr, 16);
 	store.fontName = splitLines[5];
 
-	// ËùÓĞÃûµ¥ÓëÃû×Ö
-	short listNum = 0;	// ÓÃÓÚ¼ÇÂ¼µ±Ç°Ãûµ¥µÄĞòºÅ
+	// æ‰€æœ‰åå•ä¸åå­—
+	short listNum = 0;	// ç”¨äºè®°å½•å½“å‰åå•çš„åºå·
 	for (short i = 7; i < splitLines.size(); i++)
 	{
-		// Èç¹ûµ±Ç°ĞĞÒÔ '#' ¿ªÍ·£¬ÔòÊÇÃûµ¥Ãû»òÃûµ¥ÖÕÖ¹·û
+		// å¦‚æœå½“å‰è¡Œä»¥ '#' å¼€å¤´ï¼Œåˆ™æ˜¯åå•åæˆ–åå•ç»ˆæ­¢ç¬¦
 		if (splitLines[i][0] != '#')
 			continue;
 
-		// ¼ì²éÊÇ·ñÊÇÃûµ¥Ãû
+		// æ£€æŸ¥æ˜¯å¦æ˜¯åå•å
 		if (splitLines[i].size() > 2)
 		{
 			std::string name = splitLines[i];
-			name.erase(0, 2);	// É¾³ı¿ªÍ·µÄ'#'ºÍ' 'Á½×Ö·û
+			name.erase(0, 2);	// åˆ é™¤å¼€å¤´çš„'#'å’Œ' 'ä¸¤å­—ç¬¦
 
-			// ¸øallĞÂÔö¿ÕÃûµ¥
+			// ç»™allæ–°å¢ç©ºåå•
 			store.all.push_back({});
 
 			store.all[listNum].push_back(splitLines[i]);
-			store.all[listNum].push_back(splitLines[i + 1]);	// ÕâÊÇÃÜÂë
+			store.all[listNum].push_back(splitLines[i + 1]);	// è¿™æ˜¯å¯†ç 
 		}
 
-		// ²éÕÒÏÂÒ»¸öÒÔ '#' ¿ªÍ·µÄĞĞ£¬È·¶¨µ±Ç°Ãûµ¥·¶Î§
-		short j = i + 2;	// ´ÓÃÜÂëºóÃæ¿ªÊ¼
+		// æŸ¥æ‰¾ä¸‹ä¸€ä¸ªä»¥ '#' å¼€å¤´çš„è¡Œï¼Œç¡®å®šå½“å‰åå•èŒƒå›´
+		short j = i + 2;	// ä»å¯†ç åé¢å¼€å§‹
 		while (j < splitLines.size() && splitLines[j][0] != '#')
-			j++;	// jÔÚ²»Îª'#'·ûºÅ¿ªÍ·µÄĞĞ»á¼Ó1
-		// ½«Êı¾İ¿½±´
-		// i+1ÊÇÃÜÂë£¬¼ÓjµÄbegin()²¢²»°üÀ¨jµÄ¿½±´
+			j++;	// jåœ¨ä¸ä¸º'#'ç¬¦å·å¼€å¤´çš„è¡Œä¼šåŠ 1
+		// å°†æ•°æ®æ‹·è´
+		// i+1æ˜¯å¯†ç ï¼ŒåŠ jçš„begin()å¹¶ä¸åŒ…æ‹¬jçš„æ‹·è´
 		store.all[listNum].resize(j - i);
 		std::copy(splitLines.begin() + i + 2, splitLines.begin() + j, store.all[listNum].begin() + 2);
-		listNum++;	// ×¼±¸ÏÂÒ»¸öÃûµ¥
+		listNum++;	// å‡†å¤‡ä¸‹ä¸€ä¸ªåå•
 
-		// ÒòÎªj±íÊ¾µÄÊÇÃûµ¥ÖÕÖ¹·ûµÄĞĞºÅ£¬ËùÒÔiÓ¦×ª»»Îª£º
+		// å› ä¸ºjè¡¨ç¤ºçš„æ˜¯åå•ç»ˆæ­¢ç¬¦çš„è¡Œå·ï¼Œæ‰€ä»¥iåº”è½¬æ¢ä¸ºï¼š
 		i = j + 1;
 
 		break;
@@ -183,7 +185,7 @@ export void fontStore(std::string fontName)
 	store.fontName = fontName;
 }
 
-// ÓÃÓÚÈ¡Ïûall[][0]µÄ¸ñÊ½
+// ç”¨äºå–æ¶ˆall[][0]çš„æ ¼å¼
 export std::string removeFormat(std::string& str)
 {
 	return str.substr(4, str.size() - 6);
