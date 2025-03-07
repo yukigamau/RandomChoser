@@ -64,26 +64,26 @@ export void settingPage(_In_ HINSTANCE hInstance)
 	UpdateWindow(hwnd);
 }
 
-export void AddControl(HWND hwnd, HWND& control, LPCSTR text, DWORD style, int x, int y, int width,
+void AddControl(HWND hwnd, HWND& control, LPCSTR text, DWORD style, int x, int y, int width,
 	int height,	HMENU id)
 {
 	control = CreateWindow("BUTTON", text, style, x, y, width, height, hwnd, id, NULL, NULL);
 }
 
-export void AddEdit(HWND hwnd, HWND& control, std::string text,
+void AddEdit(HWND hwnd, HWND& control, std::string text,
 	int x, int y, int width, int height, HMENU id)
 {
 	control = CreateWindow("EDIT", text.c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER,
 		x, y, width, height, hwnd, id, NULL, NULL);
 }
 
-export void AddStatic(HWND& hwnd, LPCSTR text, short& x, short& y, short& sizeY)
+void AddStatic(HWND& hwnd, LPCSTR text, short& x, short& y, short& sizeY)
 {
 	CreateWindow("STATIC", text, WS_CHILD | WS_VISIBLE, x, y, 150, sizeY, hwnd, NULL, NULL, NULL);
 }
 
 // 回调函数，用于遍历所有子窗口
-export BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam)
 {
 	// 发送 WM_SETFONT 消息，lParam=TRUE 让控件立即重绘
 	SendMessage(hwnd, WM_SETFONT, (WPARAM)lParam, TRUE);
@@ -91,14 +91,14 @@ export BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam)
 }
 
 // 修改指定窗口及其子控件的字体
-export void SetFontForAllControls(HWND hWndParent, HFONT hFont)
+void SetFontForAllControls(HWND hWndParent, HFONT hFont)
 {
 	// 枚举所有子控件
 	EnumChildWindows(hWndParent, EnumChildProc, (LPARAM)hFont);
 }
 
 // 回调函数：用于枚举字体
-export int CALLBACK EnumFontFamExProc(const LOGFONT* lpelfe, const TEXTMETRIC* lpntme, DWORD FontType,
+int CALLBACK EnumFontFamExProc(const LOGFONT* lpelfe, const TEXTMETRIC* lpntme, DWORD FontType,
 	LPARAM lParam)
 {
 	if (lpelfe->lfCharSet != GB2312_CHARSET)
@@ -127,7 +127,7 @@ export int CALLBACK EnumFontFamExProc(const LOGFONT* lpelfe, const TEXTMETRIC* l
 }
 
 // 填充字体列表，并为每个字体创建句柄
-export void PopulateFontList(HWND hComboBox, std::map<std::string, HFONT>& fontMap)
+void PopulateFontList(HWND hComboBox, std::map<std::string, HFONT>& fontMap)
 {
 	HDC hdc = GetDC(NULL);
 	LOGFONT logFont = { 0 };
@@ -170,7 +170,7 @@ export void PopulateFontList(HWND hComboBox, std::map<std::string, HFONT>& fontM
 
 // 简化颜色设置控件代码
 void addColor(HWND& hWnd, short& width, std::string staticText, COLORREF& color,
-	std::vector<HWND>child, std::vector<int> id, short& x, short& y, short& sizeY, short xCommand)
+	HWND child, int id, short& x, short& y, short& sizeY, short xCommand)
 {	// xCommand不引用，以防修改初始值
 	// 颜色数据处理
 	int red = GetRValue(color);
@@ -178,32 +178,13 @@ void addColor(HWND& hWnd, short& width, std::string staticText, COLORREF& color,
 	int blue = GetBValue(color);
 	// 控件创建
 	AddStatic(hWnd, staticText.c_str(), x, y, sizeY);
-
-	AddStatic(hWnd, "R", xCommand, y, sizeY);
-	xCommand += width / 2;
-
-	AddEdit(hWnd, child[0], std::format("{}", red), xCommand, y, width * 2, sizeY, (HMENU)id[0]);
-	xCommand += width * 3;
-
-	AddStatic(hWnd, "G", xCommand, y, sizeY);
-	xCommand += width / 2;
-
-	AddEdit(hWnd, child[1], std::format("{}", green), xCommand, y, width * 2, sizeY, (HMENU)id[1]);
-	xCommand += width * 3;
-
-	AddStatic(hWnd, "B", xCommand, y, sizeY);
-	xCommand += width / 2;
-
-	AddEdit(hWnd, child[2], std::format("{}", blue), xCommand, y, width * 2, sizeY, (HMENU)id[2]);
-	xCommand += width * 3;
-
 	AddStatic(hWnd, "16进制", xCommand, y, sizeY);
 	xCommand += width * 2.5;
 
 	// 确保16位值正确
 	std::string color16 = std::format("{:06x}", color);
 	colorCorrect(color16);
-	AddEdit(hWnd, child[3], color16, xCommand, y, width * 3, sizeY, (HMENU)id[3]);
+	AddEdit(hWnd, child, color16, xCommand, y, width * 3, sizeY, (HMENU)id);
 	y += 40;
 }
 
@@ -223,7 +204,7 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 	{
 		hFSetting = CreateFont(sizeY, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
 			DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-			DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, store.fontName.c_str());
+			CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, store.fontName.c_str());
 	}
 	SelectObject(hdc, hFSetting);
 	SIZE sizeOfFont{};
@@ -242,24 +223,16 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 		SendMessage(hTopMostYes, BM_SETCHECK, BST_CHECKED, 0);
 	y += 40;
 
-	addColor(hwnd, width, "标题栏背景颜色", store.captionBC,
-		{ hCaptionBCR ,hCaptionBCG ,hCaptionBCB ,hCaptionBC16 },
-		{ IDE_captionBCR ,IDE_captionBCG ,IDE_captionBCB ,IDE_captionBC16 },
+	addColor(hwnd, width, "标题栏背景颜色", store.captionBC, hCaptionBC16, IDE_captionBC16,
 		x, y, sizeY, xCommand);
 
-	addColor(hwnd, width, "标题栏字体颜色", store.captionFC,
-		{ hCaptionFCR ,hCaptionFCG ,hCaptionFCB ,hCaptionFC16 },
-		{ IDE_captionFCR ,IDE_captionFCG ,IDE_captionFCB ,IDE_captionFC16 },
+	addColor(hwnd, width, "标题栏字体颜色", store.captionFC, hCaptionFC16, IDE_captionFC16,
 		x, y, sizeY, xCommand);
 
-	addColor(hwnd, width, "抽取区背景颜色", store.clientBC,
-		{ hClientBCR ,hClientBCG ,hClientBCB ,hClientBC16 },
-		{ IDE_clientBCR ,IDE_clientBCG ,IDE_clientBCB ,IDE_clientBC16 },
+	addColor(hwnd, width, "抽取区背景颜色", store.clientBC, hClientBC16, IDE_clientBC16,
 		x, y, sizeY, xCommand);
 
-	addColor(hwnd, width, "抽取区字体颜色", store.clientFC,
-		{ hClientFCR ,hClientFCG ,hClientFCB ,hClientFC16 },
-		{ IDE_clientFCR ,IDE_clientFCG ,IDE_clientFCB ,IDE_clientFC16 },
+	addColor(hwnd, width, "抽取区字体颜色", store.clientFC, hClientFC16, IDE_clientFC16,
 		x, y, sizeY, xCommand);
 
 	AddStatic(hwnd, "选择字体", x, y, sizeY);
@@ -480,15 +453,6 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 	DeleteObject(hBrush);
 	DeleteObject(hPen);
 
-	// 绘制整个窗口边框
-	HPEN borderPen = CreatePen(PS_SOLID, 2, data.captionBC);
-	HGDIOBJ BorderPen = SelectObject(hdc, borderPen);
-	MoveToEx(hdc, clientRect.right, 0, NULL);
-	LineTo(hdc, clientRect.right, clientRect.bottom);	// 右边框
-	MoveToEx(hdc, 0, captionHeight, NULL);
-	LineTo(hdc, 0, clientRect.bottom);	// 左边框
-	DeleteObject(borderPen);
-
 	// 设置文本颜色和背景模式
 	SetTextColor(hdc, data.captionFC);	// 也用于下面的按钮
 	SetBkMode(hdc, TRANSPARENT);	// 背景透明
@@ -509,7 +473,7 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 			DEFAULT_CHARSET,// 字符集
 			OUT_DEFAULT_PRECIS,   // 输出精度
 			CLIP_DEFAULT_PRECIS,  // 裁剪精度
-			DEFAULT_QUALITY,      // 输出质量
+			CLEARTYPE_QUALITY,      // 输出质量
 			DEFAULT_PITCH | FF_SWISS,	// 字体间距和家族
 			data.fontName.c_str()
 		);
@@ -529,16 +493,13 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 	DrawText(hdc, "…", -1, &buttonRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
 	// 客户区
-	// 计算自定义客户区矩形区域
-	RECT windowRect = clientRect;
-	windowRect.top = captionHeight;
 	// 字体
 	SetTextColor(hdc, data.clientFC);
 	SetBkMode(hdc, TRANSPARENT);
 	if (!hFText)
 	{
 		hFText = CreateFont(
-			(windowRect.bottom - windowRect.top) * 0.7,	// 字体高度
+			(clientRect.bottom - captionHeight) * 0.7,	// 字体高度
 			0,              // 字体宽度（为 0 表示根据高度自动计算）
 			0,              // 字体倾斜角度（单位 0.1 度）
 			0,              // 字体基线方向角度
@@ -549,7 +510,7 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 			DEFAULT_CHARSET,// 字符集
 			OUT_DEFAULT_PRECIS,   // 输出精度
 			CLIP_DEFAULT_PRECIS,  // 裁剪精度
-			DEFAULT_QUALITY,		// 输出质量
+			CLEARTYPE_QUALITY,		// 输出质量
 			DEFAULT_PITCH | FF_SWISS,	// 字体间距和家族
 			data.fontName.c_str()
 		);
@@ -561,10 +522,9 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状�
 		data.leftNames.push_back("抽完一轮");
 	}
 	// 打印文本
-	short deviation = (windowRect.bottom - windowRect.top) * 0.15;	// 偏移量，用于居中
-	hChooseText = CreateWindow("STATIC", chooseText.c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER,
-		0, windowRect.top + deviation, clientRect.right, windowRect.bottom - deviation,
-		hWnd, NULL, NULL, NULL);
+	hChooseText = CreateWindow("STATIC", chooseText.c_str(), WS_CHILD | WS_VISIBLE | SS_OWNERDRAW,
+		0, captionHeight, clientRect.right, clientRect.bottom - captionHeight,
+		hWnd, (HMENU)IDS_chooseText, NULL, NULL);
 	// 设置字体
 	SendMessage(hChooseText, WM_SETFONT, (WPARAM)hFText, TRUE);
 }
@@ -609,28 +569,43 @@ void offset(HWND& hwnd, RECT& newPosition, short& width, short& height)
 	bool down = true;
 
 	// 修改位置参数
+	// 水平
 	if (GetSystemMetrics(SM_CXSCREEN) / 2 >
 		(originalRect.right + originalRect.left) / 2)
 	{
 		right = false;	// 偏左
-		newPosition.left = originalRect.left;
+		if (originalRect.left < 0)
+			newPosition.left = 0;
+		else
+			newPosition.left = originalRect.left;
 	}
 	else
 	{
 		right = true;	// 偏右或居中
-		newPosition.left = originalRect.right - width;
+		int screenWidth = GetSystemMetrics(SM_CXSCREEN);  // 屏幕宽度
+		if (originalRect.right > screenWidth)
+			newPosition.left = screenWidth - width;
+		else
+			newPosition.left = originalRect.right - width;
 	}
-
+	// 垂直
 	if (GetSystemMetrics(SM_CYSCREEN) / 2 >
 		(originalRect.bottom + originalRect.top) / 2)
 	{
 		down = false;	// 偏上
-		newPosition.top = originalRect.top;
+		if (originalRect.top < 0)
+			newPosition.top = 0;
+		else
+			newPosition.top = originalRect.top;
 	}
 	else
 	{
 		down = true;	// 偏下或居中
-		newPosition.top = originalRect.bottom - height;
+		int screenHeight = GetSystemMetrics(SM_CYSCREEN);  // 屏幕高度
+		if (originalRect.bottom > screenHeight)
+			newPosition.top = screenHeight - height;
+		else
+			newPosition.top = originalRect.bottom - height;
 	}
 }
 
@@ -808,81 +783,6 @@ export void transparency(HWND& hwnd, short& mode)
 			}
 		}
 	}
-}
-
-// 让颜色统一修改
-export void colorSynergy(HWND& hwnd, short ID, short position)	// 协同调节颜色
-{
-	short mode;
-
-	std::string colorStr = readEdit(hwnd, ID)[0];
-	if (!colorStr.size())
-	{
-		HWND hEdit = GetDlgItem(hwnd, ID);
-		SetWindowText(hEdit, "0");
-	}
-
-	if (position < 4)
-		mode = 10;
-	else
-		mode = 16;
-	unsigned int value = std::stoi(colorStr, nullptr, mode);
-
-	if (mode == 10 && (value < 0 || value>255) || mode == 16 && (value < 0x00000 || value>0xffffff))
-	{
-		MessageBox(nullptr,
-			"你的颜色设置不正确诶。\n如果是RGB的话，要0~255。\n如果是16位，不要0x，要000000~ffffff。",
-			"不好", MB_ICONERROR);
-		HWND hEdit = GetDlgItem(hwnd, ID);
-		SetFocus(hEdit);	// 强制回去重新填写
-		return;
-	}
-
-	// 颜色正确
-	short hexID = ID + (4 - position);
-	// 获取句柄
-	HWND hHexEdit = GetDlgItem(hwnd, hexID);	// 获取16位编辑框句柄
-	HWND hREdit = GetDlgItem(hwnd, hexID - 3);
-	HWND hGEdit = GetDlgItem(hwnd, hexID - 2);
-	HWND hBEdit = GetDlgItem(hwnd, hexID - 1);
-	switch (position)
-	{
-	case 1:	// 更改R值
-		colorStr = readEdit(hwnd, hexID)[0];	// 获取16位字符
-		colorStr.replace(0, 2, std::format("{:02x}", value));
-		SetWindowText(hHexEdit, colorStr.c_str());
-		break;
-	case 2:	// 更改G值
-		colorStr = readEdit(hwnd, hexID)[0];	// 获取16位字符
-		colorStr.replace(2, 2, std::format("{:02x}",value));
-		SetWindowText(hHexEdit, colorStr.c_str());
-		break;
-	case 3:	// 更改B值
-		colorStr = readEdit(hwnd, hexID)[0];	// 获取16位字符
-		colorStr.replace(4, 2, std::format("{:02x}", value));
-		SetWindowText(hHexEdit, colorStr.c_str());
-		break;
-	case 4:	// 更改16位
-		short R;	R = (value >> 16) & 0xff;
-		short G;	G = (value >> 8) & 0xff;
-		short B;	B = value & 0xff;
-		SetWindowText(hREdit, std::format("{}", R).c_str());
-		SetWindowText(hGEdit, std::format("{}", G).c_str());
-		SetWindowText(hBEdit, std::format("{}", B).c_str());
-		break;
-	}
-
-	// 保存修改
-	colorStr = readEdit(hwnd, hexID)[0];	// 获取16位字符
-	colorCorrect(colorStr);
-	if (ID >= IDE_captionBCR && ID <= IDE_captionBC16)
-		store.captionBC = std::stoi(colorStr, nullptr, 16);
-	else if (ID >= IDE_captionFCR && ID <= IDE_captionFC16)
-		store.captionFC = std::stoi(colorStr, nullptr, 16);
-	else if (ID > IDE_clientBCR && ID <= IDE_clientBC16)
-		store.clientBC = std::stoi(colorStr, nullptr, 16);
-	else
-		store.clientFC = std::stoi(colorStr, nullptr, 16);
 }
 
 export void selectChange(HWND& hwnd, std::string& str)
