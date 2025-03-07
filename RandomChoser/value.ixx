@@ -16,24 +16,12 @@ IDB_delete	= 6
 ;
 // 编辑框
 export constexpr short
-IDE_captionBCR	= 101,
-IDE_captionBCG	= 102,
-IDE_captionBCB	= 103,
-IDE_captionBC16 = 104,
-IDE_captionFCR	= 105,
-IDE_captionFCG	= 106,
-IDE_captionFCB	= 107,
-IDE_captionFC16 = 108,
-IDE_clientBCR	= 109,
-IDE_clientBCG	= 110,
-IDE_clientBCB	= 111,
-IDE_clientBC16	= 112,
-IDE_clientFCR	= 113,
-IDE_clientFCG	= 114,
-IDE_clientFCB	= 115,
-IDE_clientFC16	= 116,
-IDE_password	=117,
-IDE_names		= 118	// 设置页面的名字编辑框
+IDE_captionBC16 = 101,
+IDE_captionFC16 = 102,
+IDE_clientBC16	= 103,
+IDE_clientFC16	= 104,
+IDE_password	= 105,
+IDE_names		= 106	// 设置页面的名字编辑框
 ;
 // 列表框
 export constexpr short
@@ -47,6 +35,10 @@ IDT_scroll			= 301,
 IDT_wait			= 302,
 IDT_transparency	= 303
 ;
+// 文本框
+export constexpr short
+IDS_chooseText = 401
+;
 // 句柄
 export HFONT hFCaption;
 export HFONT hFText;
@@ -54,10 +46,7 @@ export HFONT hFSetting;
 export HWND
 hAttention,		hCopyright,
 hDefaultList,	hFontName,		hNameEdit,		hShowList,
-hCaptionBCR,	hCaptionBCG,	hCaptionBCB,	hCaptionBC16,
-hCaptionFCR,	hCaptionFCG,	hCaptionFCB,	hCaptionFC16,
-hClientBCR,		hClientBCG,		hClientBCB,		hClientBC16,
-hClientFCR,		hClientFCG,		hClientFCB,		hClientFC16,
+hCaptionBC16,	hCaptionFC16,	hClientBC16,	hClientFC16,
 hNewListBtn,	hConfirmBtn,	hModifyBtn,		hDeleteBtn,
 hChooseText
 ;
