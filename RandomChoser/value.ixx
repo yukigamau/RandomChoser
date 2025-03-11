@@ -95,6 +95,7 @@ newNameTip=	// 默认显示文本
 readName = newNameTip	// 用于读取名单编辑框文本
 ;
 
+// 交换16进制颜色文本的前后各两位
 export void colorCorrect(std::string& color16)
 {
 	color16[0] ^= color16[4];
@@ -103,4 +104,16 @@ export void colorCorrect(std::string& color16)
 	color16[1] ^= color16[5];
 	color16[5] ^= color16[1];
 	color16[1] ^= color16[5];
+}
+
+// 交换16进制数的前后各两位
+export void swapHexParts(COLORREF& original)
+{
+	// 提取前两位（高8位）和后两位（低8位）
+	unsigned int front = (original >> 16) & 0xFF;  // 前两位
+	unsigned int end = original & 0xFF;            // 后两位
+	unsigned int middle = original & 0x00FF00;     // 中间两位
+
+	// 交换前后两位，合并中间部分
+	original = (end << 16) | middle | front;
 }
