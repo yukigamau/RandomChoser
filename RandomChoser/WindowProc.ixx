@@ -122,23 +122,7 @@ LRESULT CALLBACK passwordCheck(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch (LOWORD(wParam))	// 针对消息来源进行消息处理
-	{
-	case NULL:	// 主窗口
-		switch (uMsg)
-		{
-		case WM_PAINT:
-			PAINTSTRUCT ps;
-			HDC hdc;
-			hdc = BeginPaint(hwnd, &ps);
-			settingDraw(hwnd, hdc, lParam);
-			EndPaint(hwnd, &ps);
-			break;
-		}
-		break;
-	}
-
-	switch (uMsg)	// 针对消息类型进行消息处理
+	switch (uMsg)
 	{
 	case WM_COMMAND:
 		switch (HIWORD(wParam))
@@ -431,16 +415,20 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				break;
 
 			case IDE_captionBC16:
-				data.captionBC = std::stoi(readEdit(hwnd, IDE_captionBC16)[0], nullptr, 16);
+				store.captionBC = std::stoi(readEdit(hwnd, IDE_captionBC16)[0], nullptr, 16);
+				swapHexParts(store.captionBC);
 				break;
 			case IDE_captionFC16:
-				data.captionFC = std::stoi(readEdit(hwnd, IDE_captionFC16)[0], nullptr, 16);
+				store.captionFC = std::stoi(readEdit(hwnd, IDE_captionFC16)[0], nullptr, 16);
+				swapHexParts(store.captionFC);
 				break;
 			case IDE_clientBC16:
-				data.clientBC = std::stoi(readEdit(hwnd, IDE_clientBC16)[0], nullptr, 16);
+				store.clientBC = std::stoi(readEdit(hwnd, IDE_clientBC16)[0], nullptr, 16);
+				swapHexParts(store.clientBC);
 				break;
 			case IDE_clientFC16:
-				data.clientFC = std::stoi(readEdit(hwnd, IDE_clientFC16)[0], nullptr, 16);
+				store.clientFC = std::stoi(readEdit(hwnd, IDE_clientFC16)[0], nullptr, 16);
+				swapHexParts(store.clientFC);
 				break;
 			}
 		}
@@ -490,6 +478,14 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 		return TRUE;
 	}
+
+	case WM_PAINT:
+		PAINTSTRUCT ps;
+		HDC hdc;
+		hdc = BeginPaint(hwnd, &ps);
+		settingDraw(hwnd, hdc, lParam);
+		EndPaint(hwnd, &ps);
+		break;
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam); // 默认处理
 }
@@ -509,7 +505,7 @@ void chooseModeDestroy()
 	PostQuitMessage(0);
 }
 
-std::string versionText = "点名器1.1";
+std::string versionText = "点名器1.2";
 std::mt19937 engine(static_cast<unsigned int>(time(0)));	// 随机数于随机滚动
 export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -669,9 +665,6 @@ export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 {
 	switch (uMsg)
 	{
-	case WM_CREATE:
-		break;
-
 	case WM_DESTROY:
 		chooseModeDestroy();
 		break;
@@ -727,9 +720,7 @@ export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		PAINTSTRUCT ps;
 		HDC hdc;
 		hdc = BeginPaint(hwnd, &ps);
-
 		pngDraw(hdc, hwnd);
-
 		EndPaint(hwnd, &ps);
 		break;
 
