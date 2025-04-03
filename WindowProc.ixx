@@ -14,24 +14,24 @@ import std;
 import value;
 
 
-short mode = normal;	// 0æ­£å¸¸ï¼Œ1å›¾æ ‡æ¨¡å¼
-short waitNum = 0;		// å¾…æœºæ—¶é•¿
-short scrollMax = 10;	// æ»šåŠ¨åå­—æ•°é‡ä¸Šé™
-short scrollNum = scrollMax;	// è®¾ç½®æ»šåŠ¨åå­—æ•°é‡
-std::string newListName;	// ç”¨äºå‚¨å­˜æ–°åå•åå­—
+short mode = normal;	// 0Õı³££¬1Í¼±êÄ£Ê½
+short waitNum = 0;		// ´ı»úÊ±³¤
+short scrollMax = 10;	// ¹ö¶¯Ãû×ÖÊıÁ¿ÉÏÏŞ
+short scrollNum = scrollMax;	// ÉèÖÃ¹ö¶¯Ãû×ÖÊıÁ¿
+std::string newListName;	// ÓÃÓÚ´¢´æĞÂÃûµ¥Ãû×Ö
 
 LRESULT CALLBACK DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (uMsg == WM_INITDIALOG)
-		CheckDlgButton(hwnd, IDC_YES, BST_CHECKED);	// é»˜è®¤é€‰æ‹©ç¬¬ä¸€ä¸ªå•é€‰æŒ‰é’®
+		CheckDlgButton(hwnd, IDC_YES, BST_CHECKED);	// Ä¬ÈÏÑ¡ÔñµÚÒ»¸öµ¥Ñ¡°´Å¥
 
 	if (uMsg == WM_COMMAND && LOWORD(wParam) == ID_OK)
 	{
-		// è·å–è¾“å…¥çš„åå•åå­—
+		// »ñÈ¡ÊäÈëµÄÃûµ¥Ãû×Ö
 		char name[100];
 		GetDlgItemText(hwnd, IDC_NAME_EDIT, name, sizeof(name));
 		newListName = name;
-		newListName = "# ã€Š" + newListName + "ã€‹";	// è®¾ç½®æ ¼å¼
+		newListName = "# ¡¶" + newListName + "¡·";	// ÉèÖÃ¸ñÊ½
 		if (!newListName.size())
 			goto RETURN;
 		else
@@ -40,48 +40,48 @@ LRESULT CALLBACK DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if (newListName == store.all[i][0])
 				{
-					SetDlgItemText(hwnd, IDC_NAME_EDIT, "ä¸å¯é‡å");
+					SetDlgItemText(hwnd, IDC_NAME_EDIT, "²»¿ÉÖØÃû");
 					goto RETURN;
 				}
 			}
 		}
 
-		std::string password;	// ç”¨äºå‚¨å­˜æ–°åå•å¯†ç 
-		// è·å–è¾“å…¥çš„å¯†ç 
+		std::string password;	// ÓÃÓÚ´¢´æĞÂÃûµ¥ÃÜÂë
+		// »ñÈ¡ÊäÈëµÄÃÜÂë
 		password = readEdit(hwnd, IDC_PASSWORD_EDIT)[0];
 		if (!password.size())
 			goto RETURN;
 
-		// æ–°å¢åå•
+		// ĞÂÔöÃûµ¥
 		store.all.push_back({ newListName,password});
 		short listNum = store.all.size() - 1;
 		store.all[listNum].resize(2 + readName.size());
 		std::copy(readName.begin(), readName.end(), store.all[listNum].begin() + 2);
 
-		// é»˜è®¤åå•æŒ‰é’®
+		// Ä¬ÈÏÃûµ¥°´Å¥
 		if (IsDlgButtonChecked(hwnd, IDC_YES) == BST_CHECKED)
 		{
-			// å¤„ç†æ ¼å¼
+			// ´¦Àí¸ñÊ½
 			newListName.erase(0, 4);
 			newListName.pop_back();
 			newListName.pop_back();
-			// ä¿å­˜
+			// ±£´æ
 			store.defaultList = newListName;
 			store.defaultNames = readName;
 		}
 		
-		// å…³é—­å¯¹è¯æ¡†
+		// ¹Ø±Õ¶Ô»°¿ò
 		EndDialog(hwnd, 1);
 	}
 	else if(uMsg == WM_COMMAND && LOWORD(wParam) == IDNO)
-		EndDialog(hwnd, 0);	// å…³é—­å¯¹è¯æ¡†
+		EndDialog(hwnd, 0);	// ¹Ø±Õ¶Ô»°¿ò
 RETURN:
-	return DefWindowProc(hwnd, uMsg, wParam, lParam); // é»˜è®¤å¤„ç†
+	return DefWindowProc(hwnd, uMsg, wParam, lParam); // Ä¬ÈÏ´¦Àí
 }
 
-std::string modifyListName;	// è¦ä¿®æ”¹çš„åå•çš„åå­—
-std::string inputPassword;	// å­˜å‚¨è¾“å…¥çš„å¯†ç 
-short listNum;	// å­˜å‚¨åå•æ‰€åœ¨çš„ä½ç½®
+std::string modifyListName;	// ÒªĞŞ¸ÄµÄÃûµ¥µÄÃû×Ö
+std::string inputPassword;	// ´æ´¢ÊäÈëµÄÃÜÂë
+short listNum;	// ´æ´¢Ãûµ¥ËùÔÚµÄÎ»ÖÃ
 LRESULT CALLBACK passwordCheck(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -90,45 +90,48 @@ LRESULT CALLBACK passwordCheck(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		switch (LOWORD(wParam))
 		{
 		case ID_CONFIRM_PASSWORD:
-			// è·å–è¾“å…¥çš„å¯†ç 
+			// »ñÈ¡ÊäÈëµÄÃÜÂë
 			char inputPasswordCh[100];
 			GetDlgItemText(hwnd, IDC_PASSWORD_CHECK, inputPasswordCh, sizeof(inputPasswordCh));
 			inputPassword = inputPasswordCh;
 			for (short i = 0; i < store.all.size(); i++)
 			{
 				if (modifyListName != store.all[i][0])
-					continue;	// å¯»æ‰¾åå•å¯†ç 
+					continue;	// Ñ°ÕÒÃûµ¥ÃÜÂë
 
 				listNum = i;
 
 				if (inputPassword == store.all[i][1])
-					EndDialog(hwnd, 0);	// å¯†ç æ­£ç¡®
+					EndDialog(hwnd, 0);	// ÃÜÂëÕıÈ·
 				else
-					EndDialog(hwnd, 2);	// å¯†ç é”™è¯¯
+					EndDialog(hwnd, 2);	// ÃÜÂë´íÎó
 			}
 			break;
 
 		case ID_CANCELMODIFY:
-			EndDialog(hwnd, 1);	// é€€å‡ºä¿®æ”¹
+			EndDialog(hwnd, 1);	// ÍË³öĞŞ¸Ä
 			break;
 		}
 		break;
 
 	default:
-		return DefWindowProc(hwnd, uMsg, wParam, lParam); // é»˜è®¤å¤„ç†
+		return DefWindowProc(hwnd, uMsg, wParam, lParam); // Ä¬ÈÏ´¦Àí
 		break;
 	}
 }
 
 void chooseModeDestroy()
 {
+	// Ğ´ÈëÀúÊ·¼ÇÂ¼
+	writeHistory();
+
 	if (transparencyTimerActive)
-		KillTimer(nullptr, IDT_transparency);  // å®Œå…¨é€æ˜ååœæ­¢å®šæ—¶å™¨
+		KillTimer(nullptr, IDT_transparency);  // ÍêÈ«Í¸Ã÷ºóÍ£Ö¹¶¨Ê±Æ÷
 
 	if (g_hdcMem)
 		DeleteDC(g_hdcMem);
 
-	// åˆ é™¤å­—ä½“å¯¹è±¡ï¼Œé‡Šæ”¾èµ„æº
+	// É¾³ı×ÖÌå¶ÔÏó£¬ÊÍ·Å×ÊÔ´
 	DeleteObject(hFCaption);
 	DeleteObject(hFText);
 
@@ -147,14 +150,14 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			{
 			case IDB_confirm:
 				if (!store.defaultNames.size())
-					MessageBox(nullptr, "ä½ æ²¡æœ‰æ–°å»ºåå•è¯¶ã€‚", "å¯æ˜¯â€¦â€¦", MB_ICONQUESTION);
+					MessageBox(nullptr, "ÄãÃ»ÓĞĞÂ½¨Ãûµ¥ÚÀ¡£", "¿ÉÊÇ¡­¡­", MB_ICONQUESTION);
 				else
 				{
-					// å…³é—­è®¾ç½®
+					// ¹Ø±ÕÉèÖÃ
 					ShowWindow(hwnd, SW_HIDE);
 					HDC hdc = GetDC(hwnd);
 
-					// åˆ›å»ºæ•°æ®åº“
+					// ´´½¨Êı¾İ¿â
 					std::vector<std::string> splitLines;
 					splitLines.push_back(std::format("{}",store.ifTop));
 					splitLines.push_back(std::format("{:06x}", store.clientBC));
@@ -170,27 +173,27 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 						splitLines.push_back("#");
 					}
 
-					// ä¿å­˜åœ¨data.binæ–‡ä»¶ä¸­
-					std::ofstream fileMake("data.bin", std::ios::binary | std::ios::trunc);	// åˆ›å»ºæ–‡ä»¶
+					// ±£´æÔÚdata.binÎÄ¼şÖĞ
+					std::ofstream fileMake(binaryFile, std::ios::binary | std::ios::trunc);	// ´´½¨ÎÄ¼ş
 					fileMake.close();
-					EncryptData(splitLines);
+																						EncryptData(splitLines, binaryFile);
 
-					// é‡å¯ç¨‹åº
+					// ÖØÆô³ÌĞò
 					selfRestart(hwnd);
 				}
 				break;
 
 			case IDB_delete:
 				if (MessageBox(nullptr,
-					"è¯·ç¡®å®šåˆ é™¤åå•ã€‚\nåå•åˆ é™¤ï¼Œå› åå•åå­—å·²è®°å½•ï¼Œåé¢ä¸å¯ä»¥åˆ›å»ºåŒååå•ï¼Œé™¤éåˆ é™¤data.binã€‚",
-					"ç¡®å®šï¼Ÿ", MB_OKCANCEL) == IDOK)
+					"ÇëÈ·¶¨É¾³ıÃûµ¥¡£\nÃûµ¥É¾³ı£¬ÒòÃûµ¥Ãû×ÖÒÑ¼ÇÂ¼£¬ºóÃæ²»¿ÉÒÔ´´½¨Í¬ÃûÃûµ¥£¬³ı·ÇÉ¾³ıdata.bin¡£",
+					"È·¶¨£¿", MB_OKCANCEL) == IDOK)
 				{
 					std::string deleteListName = readEdit(hwnd, IDL_showList)[0];
 
 					if (deleteListName == store.defaultList)
 					{
-						MessageBox(nullptr, "é»˜è®¤åå•ä¸å¯åˆ é™¤ï¼Œè¯·åˆ›å»ºå…¶å®ƒåå•å¹¶ç¡®ç«‹ä¸ºé»˜è®¤åå†åˆ é™¤æ­¤åå•ã€‚"
-							, "ç³Ÿç³•Xï¹X", MB_ICONWARNING);
+						MessageBox(nullptr, "Ä¬ÈÏÃûµ¥²»¿ÉÉ¾³ı£¬Çë´´½¨ÆäËüÃûµ¥²¢È·Á¢ÎªÄ¬ÈÏºóÔÙÉ¾³ı´ËÃûµ¥¡£"
+							, "Ôã¸âX©nX", MB_ICONWARNING);
 						break;
 					}
 
@@ -201,9 +204,9 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 							store.all[i].erase(store.all[i].begin() + 1, store.all[i].end());
 						}
 					}
-					MessageBox(nullptr, "åå•å·²åˆ é™¤ã€‚", "å®Œæˆ", NULL);
+					MessageBox(nullptr, "Ãûµ¥ÒÑÉ¾³ı¡£", "Íê³É", NULL);
 
-					// ä¿®æ”¹æ˜¾ç¤ºåå•åˆ—è¡¨
+					// ĞŞ¸ÄÏÔÊ¾Ãûµ¥ÁĞ±í
 					LRESULT index = SendMessage(hShowList, LB_FINDSTRINGEXACT, -1,
 						(LPARAM)store.defaultList.c_str());
 					if (index != LB_ERR)
@@ -218,84 +221,84 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				break;
 
 			case IDB_modify:
-				// è·å–è¾“å…¥çš„åå•
+				// »ñÈ¡ÊäÈëµÄÃûµ¥
 				char name[100];
 				GetDlgItemText(hwnd, IDL_showList, name, sizeof(name));
 				modifyListName = name;
-				modifyListName = "# ã€Š" + modifyListName + "ã€‹";	// ä¿®æ”¹æ ¼å¼
+				modifyListName = "# ¡¶" + modifyListName + "¡·";	// ĞŞ¸Ä¸ñÊ½
 
-				// å¯†ç è¾“å…¥çª—å£
+				// ÃÜÂëÊäÈë´°¿Ú
 				switch (DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ASK_PASSWORD), hwnd,
 					passwordCheck))
 				{
-				case 0:	// å¯†ç æ­£ç¡®
+				case 0:	// ÃÜÂëÕıÈ·
 				{
 					readName.clear();
 					readName = readEdit(hwnd, IDE_names);
 					store.all[listNum].resize(2 + readName.size());
 					std::copy(readName.begin(), readName.end(), store.all[listNum].begin() + 2);
 
-					MessageBox(nullptr, "å·²è®°å½•ï¼Œè®°å¾—ç‚¹â€œç¡®å®šå¥½å•¦â€ã€‚", "å¥½å•¦\\(^o^)/~", NULL);
+					MessageBox(nullptr, "ÒÑ¼ÇÂ¼£¬¼ÇµÃµã¡°È·¶¨ºÃÀ²¡±¡£", "ºÃÀ²\\(^o^)/~", NULL);
 				}
 					break;
 
-				case 1:	// å–æ¶ˆä¿®æ”¹æˆ–å–æ¶ˆè¾“å…¥å¯†ç 
+				case 1:	// È¡ÏûĞŞ¸Ä»òÈ¡ÏûÊäÈëÃÜÂë
 					break;
 
-				case 2:	// å¯†ç é”™è¯¯
-					MessageBox(nullptr, "å¯†ç é”™è¯¯ã€‚", "ç³Ÿç³•Xï¹X", NULL);
+				case 2:	// ÃÜÂë´íÎó
+					MessageBox(nullptr, "ÃÜÂë´íÎó¡£", "Ôã¸âX©nX", NULL);
 					break;
 				}
 
 				break;
 
 			case IDB_newList:
-				if (showName)	// å½“å‰æ­£åœ¨æ˜¾ç¤ºåå­—
+				if (showName)	// µ±Ç°ÕıÔÚÏÔÊ¾Ãû×Ö
 				{
-					readName = newNameTip;	// é‡ç½®åå•æ˜¾ç¤ºæ–‡æœ¬
+					readName = newNameTip;	// ÖØÖÃÃûµ¥ÏÔÊ¾ÎÄ±¾
 					std::string setText;
 					for (std::string str : readName)
 						setText += str + "\r\n";
-					SetWindowText(hNameEdit,setText.c_str());	// ä¿®æ”¹åå­—æ˜¾ç¤ºæ–‡æœ¬
+					SetWindowText(hNameEdit,setText.c_str());	// ĞŞ¸ÄÃû×ÖÏÔÊ¾ÎÄ±¾
 					showName = false;
 					ifTypeName = true;
-					EnableWindow(hModifyBtn, FALSE);	// ç¦ç”¨ä¿®æ”¹åå•
-					EnableWindow(hDeleteBtn, FALSE);	// ç¦ç”¨åˆ é™¤åå•
-					EnableWindow(hShowList, FALSE);		// ç¦ç”¨æ˜¾ç¤ºåå•
+					EnableWindow(hModifyBtn, FALSE);	// ½ûÓÃĞŞ¸ÄÃûµ¥
+					EnableWindow(hDeleteBtn, FALSE);	// ½ûÓÃÉ¾³ıÃûµ¥
+					EnableWindow(hShowList, FALSE);		// ½ûÓÃÏÔÊ¾Ãûµ¥
 					break;
 				}
-				else // ä¸æ˜¯æ˜¾ç¤ºåå­—ï¼Œè€Œæ˜¯ç¼–è¾‘åå­—åâ€œæ–°å»ºåå•â€
+				else // ²»ÊÇÏÔÊ¾Ãû×Ö£¬¶øÊÇ±à¼­Ãû×Öºó¡°ĞÂ½¨Ãûµ¥¡±
 				{
 					if (!deleteVoid(readName))
 					{
-						MessageBox(nullptr, "æ²¡æœ‰åå­—å•Š(âŠ™oâŠ™)", "å¥‡æ€ª", MB_ICONQUESTION);
+						MessageBox(nullptr, "Ã»ÓĞÃû×Ö°¡(¡Ño¡Ñ)", "Ææ¹Ö", MB_ICONQUESTION);
 						break;
 					}
 
-					// æ‰“å¼€åå­—ã€å¯†ç è¾“å…¥å¯¹è¯æ¡†
+					// ´ò¿ªÃû×Ö¡¢ÃÜÂëÊäÈë¶Ô»°¿ò
 					if (DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG1), hwnd, DialogProc))
 					{
-						store.ifRight = true;	// ç¡®ä¿æ­£å¸¸å…¨éƒ¨é‡ç»˜
+						store.ifRight = true;	// È·±£Õı³£È«²¿ÖØ»æ
 
-						MessageBox(nullptr, "å·²è®°å½•ï¼Œè®°å¾—ç‚¹â€œç¡®å®šå¥½å•¦â€ã€‚", "å¥½å•¦\\(^o^)/~", NULL);
+						MessageBox(nullptr, "ÒÑ¼ÇÂ¼£¬¼ÇµÃµã¡°È·¶¨ºÃÀ²¡±¡£", "ºÃÀ²\\(^o^)/~", NULL);
 
-						// æ˜¾ç¤ºå½“å‰åå•
-						EnableWindow(hModifyBtn, TRUE);	// å¯ç”¨ä¿®æ”¹åå•
-						EnableWindow(hDeleteBtn, TRUE);	// å¯ç”¨åˆ é™¤åå•
-						EnableWindow(hDefaultList, TRUE);	// å¯ç”¨é»˜è®¤åå•
-						EnableWindow(hShowList, TRUE);	// å¯ç”¨æ˜¾ç¤ºåå•
-						// è¿½åŠ åå•åˆ—è¡¨
+						// ÏÔÊ¾µ±Ç°Ãûµ¥
+						EnableWindow(hModifyBtn, TRUE);	// ¿ÉÓÃĞŞ¸ÄÃûµ¥
+						EnableWindow(hDeleteBtn, TRUE);	// ¿ÉÓÃÉ¾³ıÃûµ¥
+						EnableWindow(hDefaultList, TRUE);	// ¿ÉÓÃÄ¬ÈÏÃûµ¥
+						EnableWindow(hShowList, TRUE);	// ¿ÉÓÃÏÔÊ¾Ãûµ¥
+						// ×·¼ÓÃûµ¥ÁĞ±í
 						std::string str;
 						str = removeFormat(store.all.back()[0]);
 						SendMessage(hDefaultList, CB_ADDSTRING, 0, (LPARAM)str.c_str());
 						if (store.defaultList == str)
-							SendMessage(hDefaultList, CB_SETCURSEL, store.all.size() - 1, 0);	// è®¾ç½®é»˜è®¤é¡¹
+							SendMessage(hDefaultList, CB_SETCURSEL, store.all.size() - 1, 0);	// ÉèÖÃÄ¬ÈÏÏî
 						SendMessage(hShowList, CB_ADDSTRING, 0, (LPARAM)str.c_str());
-						SendMessage(hShowList, CB_SETCURSEL, store.all.size() - 1, 0);	// è®¾ç½®æ˜¾ç¤ºé¡¹
+						SendMessage(hShowList, CB_SETCURSEL, store.all.size() - 1, 0);	// ÉèÖÃÏÔÊ¾Ïî
 
-						showName = true;	// è¡¨ç¤ºæ­£åœ¨æ˜¾ç¤ºåå•
-						store.currentShowList = str;	// å­˜å‚¨æ˜¾ç¤ºçš„åå•
-						ifTypeName = false;	// æ ‡å¿—æ²¡æœ‰åœ¨è¾“å…¥æ–°åå•åå­—
+						showName = true;	// ±íÊ¾ÕıÔÚÏÔÊ¾Ãûµ¥
+						store.currentShowList = str;	// ´æ´¢ÏÔÊ¾µÄÃûµ¥
+						ifTypeName = false;	// ±êÖ¾Ã»ÓĞÔÚÊäÈëĞÂÃûµ¥Ãû×Ö
 					}
 				}
 				break;
@@ -317,7 +320,7 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				char inputFont[LF_FACESIZE];
 				GetWindowText(hFontName, inputFont, LF_FACESIZE);
 
-				// æ£€æŸ¥è¾“å…¥çš„å­—ä½“æ˜¯å¦æœ‰æ•ˆ
+				// ¼ì²éÊäÈëµÄ×ÖÌåÊÇ·ñÓĞĞ§
 				bool isValidFont = false;
 				HDC hdc = GetDC(hwnd);
 				LOGFONTA logFont = { 0 };
@@ -332,20 +335,20 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 					(LPARAM)&isValidFont, 0);
 				ReleaseDC(hwnd, hdc);
 
-				if (isValidFont)	// å­—ä½“å­˜åœ¨
+				if (isValidFont)	// ×ÖÌå´æÔÚ
 				{
-					// å…ˆåˆ é™¤æ—§å­—ä½“ï¼Œé˜²æ­¢å†…å­˜æ³„æ¼
+					// ÏÈÉ¾³ı¾É×ÖÌå£¬·ÀÖ¹ÄÚ´æĞ¹Â©
 					static HFONT hCurrentFont = NULL;
 					if (hCurrentFont) DeleteObject(hCurrentFont);
 					DeleteObject(hFSetting);
 
-					// åˆ›å»ºæ–°å­—ä½“
+					// ´´½¨ĞÂ×ÖÌå
 					hFSetting = CreateFont(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
 						OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, 
 						inputFont);
 
 					data.fontName = inputFont;
-					// è®¾ç½®å­—ä½“
+					// ÉèÖÃ×ÖÌå
 					SendMessage(hFontName, WM_SETFONT, (WPARAM)hFSetting, TRUE);
 
 					fontStore(inputFont);
@@ -359,11 +362,11 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			{
 			case IDL_defaultList:
 			{
-				store.ifRight = true;	// ä¿è¯å…¨éƒ¨é‡ç»˜æ—¶æ­£ç¡®
+				store.ifRight = true;	// ±£Ö¤È«²¿ÖØ»æÊ±ÕıÈ·
 				std::string listName;
 				selectChange(hDefaultList, listName);
 				store.defaultList = listName;
-				listName = "# ã€Š" + listName + "ã€‹";	// è®¾ç½®æ ¼å¼ä»¥åœ¨allä¸­æŸ¥æ‰¾
+				listName = "# ¡¶" + listName + "¡·";	// ÉèÖÃ¸ñÊ½ÒÔÔÚallÖĞ²éÕÒ
 				for (std::vector<std::string> strVec : store.all)
 				{
 					if (strVec[0] != listName)
@@ -382,9 +385,9 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				{
 					char selectedFont[LF_FACESIZE] = { 0 };
 					SendMessage(hFontName, CB_GETLBTEXT, index, (LPARAM)selectedFont);
-					// ä¿®æ”¹æ•°æ®
+					// ĞŞ¸ÄÊı¾İ
 					data.fontName = selectedFont;
-					// é‡æ–°è®¾ç½®å­—ä½“
+					// ÖØĞÂÉèÖÃ×ÖÌå
 					hFSetting = CreateFont(
 						20, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
 						DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
@@ -396,22 +399,22 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				}
 				break;
 
-			case IDL_showList:	// ä¿®æ”¹æ˜¾ç¤ºçš„åå•åå­—ç¼–è¾‘æ¡†
+			case IDL_showList:	// ĞŞ¸ÄÏÔÊ¾µÄÃûµ¥Ãû×Ö±à¼­¿ò
 			{
 				std::string listName;
 				selectChange(hShowList, listName);
-				store.currentShowList = listName;	// ä¿å­˜æ­£åœ¨æ˜¾ç¤ºçš„åå•
-				listName = "# ã€Š" + listName + "ã€‹";	// åœ¨store.allé‡Œé¢æœç´¢æœ‰æ ¼å¼è¦æ±‚
+				store.currentShowList = listName;	// ±£´æÕıÔÚÏÔÊ¾µÄÃûµ¥
+				listName = "# ¡¶" + listName + "¡·";	// ÔÚstore.allÀïÃæËÑË÷ÓĞ¸ñÊ½ÒªÇó
 				for (short i = 0; i < store.all.size(); i++)
 				{
 					if (store.all[i][0] != listName)
 						continue;
-					// ä¿®æ”¹åå­—æ˜¾ç¤º
+					// ĞŞ¸ÄÃû×ÖÏÔÊ¾
 					std::string showStr;
 					for (short j = 2; j < store.all[i].size(); j++)
 						showStr += store.all[i][j] + "\r\n";
 					SetWindowText(hNameEdit, showStr.c_str());
-					// ä¿å­˜åå­—ç¼–è¾‘æ¡†çš„ä¿®æ”¹
+					// ±£´æÃû×Ö±à¼­¿òµÄĞŞ¸Ä
 					readName.resize(store.all[i].size() - 2);
 					std::copy(store.all[i].begin() + 2, store.all[i].end(), readName.begin());
 					break;
@@ -426,7 +429,7 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			switch (LOWORD(wParam))
 			{
 			case IDE_names:
-				readName = readEdit(hwnd, IDE_names);	// åœ¨å¤±å»ç„¦ç‚¹æ—¶è®°å½•åå­—ç¼–è¾‘æ¡†é‡Œé¢çš„å†…å®¹
+				readName = readEdit(hwnd, IDE_names);	// ÔÚÊ§È¥½¹µãÊ±¼ÇÂ¼Ãû×Ö±à¼­¿òÀïÃæµÄÄÚÈİ
 				break;
 
 			case IDE_captionBC16:
@@ -450,28 +453,28 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		break;
 
 	case WM_CTLCOLORSTATIC:
-		// è·å–è®¾å¤‡ä¸Šä¸‹æ–‡ï¼ˆDCï¼‰
+		// »ñÈ¡Éè±¸ÉÏÏÂÎÄ£¨DC£©
 		HDC hdcStatic;
 		hdcStatic = (HDC)wParam;
 
-		// è®¾ç½®èƒŒæ™¯é¢œè‰²ä¸ºé€æ˜ï¼Œæ¶ˆé™¤ä¸å¥½çœ‹å¥‡æ€ªçš„åº•è‰²
+		// ÉèÖÃ±³¾°ÑÕÉ«ÎªÍ¸Ã÷£¬Ïû³ı²»ºÃ¿´Ææ¹ÖµÄµ×É«
 		SetBkMode(hdcStatic, TRANSPARENT);
 
-		// å¼ºè°ƒâ€œçœ‹ä¸æ‡‚å°±æ–°å»ºâ€
+		// Ç¿µ÷¡°¿´²»¶®¾ÍĞÂ½¨¡±
 		if ((HWND)lParam == hAttention)
-			SetTextColor(hdcStatic, RGB(255, 0, 0));  // çº¢è‰²æ–‡æœ¬
+			SetTextColor(hdcStatic, RGB(255, 0, 0));  // ºìÉ«ÎÄ±¾
 		else if((HWND)lParam==hCopyright)
-			SetTextColor(hdcStatic, RGB(82, 184, 235));  // é™äº®åº¦å¤©ä¾è“æ–‡æœ¬
+			SetTextColor(hdcStatic, RGB(82, 184, 235));  // ½µÁÁ¶ÈÌìÒÀÀ¶ÎÄ±¾
 		else
-			SetTextColor(hdcStatic, RGB(0, 0, 0));	// é»‘è‰²æ–‡æœ¬
-		// è¿”å›ä¸€ä¸ªç”»åˆ·ï¼Œç”¨æ¥è®¾ç½®èƒŒæ™¯é¢œè‰²
+			SetTextColor(hdcStatic, RGB(0, 0, 0));	// ºÚÉ«ÎÄ±¾
+		// ·µ»ØÒ»¸ö»­Ë¢£¬ÓÃÀ´ÉèÖÃ±³¾°ÑÕÉ«
 		HBRUSH hBrush;
-		hBrush = CreateSolidBrush(RGB(255, 255, 255));  // ç™½è‰²èƒŒæ™¯
-		return (LRESULT)hBrush;  // è¿”å›ç”»åˆ·
+		hBrush = CreateSolidBrush(RGB(255, 255, 255));  // °×É«±³¾°
+		return (LRESULT)hBrush;  // ·µ»Ø»­Ë¢
 		break;
 
 	case WM_DESTROY:
-		chooseModeDestroy();	// ç”¨äºå¤„ç†å¯èƒ½çš„æ­£å¸¸ã€å›¾æ ‡èµ„æº
+		chooseModeDestroy();	// ÓÃÓÚ´¦Àí¿ÉÄÜµÄÕı³£¡¢Í¼±ê×ÊÔ´
 
 		DeleteObject(hFSetting);
 		for (auto& pair : fontMap)
@@ -486,10 +489,10 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 	case WM_MEASUREITEM:
 	{
-		if (wParam == (WPARAM)IDL_fontName)  // æ£€æŸ¥æ¶ˆæ¯æ˜¯å¦é’ˆå¯¹ä½ çš„ ComboBox
+		if (wParam == (WPARAM)IDL_fontName)  // ¼ì²éÏûÏ¢ÊÇ·ñÕë¶ÔÄãµÄ ComboBox
 		{
 			LPMEASUREITEMSTRUCT lpMeasureItem = (LPMEASUREITEMSTRUCT)lParam;
-			lpMeasureItem->itemHeight = 30;  // è®¾ç½®æ¯ä¸ªåˆ—è¡¨é¡¹çš„é«˜åº¦ä»¥åŠ å¼ºè§†è§‰æ•ˆæœ
+			lpMeasureItem->itemHeight = 30;  // ÉèÖÃÃ¿¸öÁĞ±íÏîµÄ¸ß¶ÈÒÔ¼ÓÇ¿ÊÓ¾õĞ§¹û
 		}
 		return TRUE;
 	}
@@ -502,17 +505,15 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		EndPaint(hwnd, &ps);
 		break;
 	}
-	return DefWindowProc(hwnd, uMsg, wParam, lParam); // é»˜è®¤å¤„ç†
+	return DefWindowProc(hwnd, uMsg, wParam, lParam); // Ä¬ÈÏ´¦Àí
 }
 
-std::string versionText = "ç‚¹åå™¨1.3";
 export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
 	case WM_CREATE:
-		SetTimer(hwnd, IDT_wait, 1000, nullptr);	// ç­‰å¾…5ç§’åˆ‡æ¢è‡³å›¾æ ‡æ¨¡å¼ç”¨
-		chooseTitle = versionText;
+		SetTimer(hwnd, IDT_wait, 1000, nullptr);	// µÈ´ı5ÃëÇĞ»»ÖÁÍ¼±êÄ£Ê½ÓÃ
 		break;
 
 	case WM_DESTROY:
@@ -528,17 +529,17 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			HDC hdc = pDrawItem->hDC;
 			RECT rc = pDrawItem->rcItem;
 
-			// 1. ç»˜åˆ¶èƒŒæ™¯
+			// 1. »æÖÆ±³¾°
 			FillRect(hdc, &rc, CreateSolidBrush(data.clientBC));
 
-			// 2. ç»˜åˆ¶è¾¹æ¡†
+			// 2. »æÖÆ±ß¿ò
 			FrameRect(hdc, &rc, CreateSolidBrush(data.captionBC));
 
-			// 3. è®¾ç½®æ–‡æœ¬é¢œè‰²å’Œé€æ˜èƒŒæ™¯
+			// 3. ÉèÖÃÎÄ±¾ÑÕÉ«ºÍÍ¸Ã÷±³¾°
 			SetTextColor(hdc, data.clientFC);
 			SetBkMode(hdc, TRANSPARENT);
 
-			// 4. ç»˜åˆ¶æ–‡æœ¬
+			// 4. »æÖÆÎÄ±¾
 			DrawText(hdc, chooseText.c_str(), -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
 			return TRUE;
@@ -556,39 +557,39 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		break;
 
 	case WM_LBUTTONUP:
-	CHOOSE:	// æŠ½å–æ“ä½œ
-		if (chooseTitle == versionText)	// ä¿®æ”¹æ ‡é¢˜
+	CHOOSE:	// ³éÈ¡²Ù×÷
+		if (chooseTitle == "µãÃûÆ÷" + versionText)	// ĞŞ¸Ä±êÌâ
 		{
-			chooseTitle = std::format("{}", data.defaultNames.size()) + "ã€Š" + data.defaultList + "ã€‹";
+			chooseTitle = std::format("{}", data.defaultNames.size()) + "¡¶" + data.defaultList + "¡·";
 		}
 
-		// æ¸…é™¤å¯èƒ½çš„é€æ˜åº¦
+		// Çå³ı¿ÉÄÜµÄÍ¸Ã÷¶È
 		if (currentAlpha != 255 && changeAlpha == false)
 		{
 			currentAlpha = 255;
 			changeAlpha = false;
 			KillTimer(hwnd, IDT_transparency);
 			transparencyTimerActive = false;
-			SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA); // æ›´æ–°é€æ˜åº¦
+			SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA); // ¸üĞÂÍ¸Ã÷¶È
 		}
 
-		// æ¸…ç©ºwaitNumå¹¶é¢„ç•™æ—¶é—´ç»™æ»šåŠ¨æ•ˆæœ
+		// Çå¿ÕwaitNum²¢Ô¤ÁôÊ±¼ä¸ø¹ö¶¯Ğ§¹û
 		waitNum = -1;
-		// æŠ½å–åå­—æ“ä½œ
-		SetTimer(hwnd, IDT_scroll, scrollT, nullptr);	// æ»šåŠ¨æ•ˆæœé€Ÿåº¦è®¾ç½®
+		// ³éÈ¡Ãû×Ö²Ù×÷
+		SetTimer(hwnd, IDT_scroll, scrollT, nullptr);	// ¹ö¶¯Ğ§¹ûËÙ¶ÈÉèÖÃ
 		break;
 
 	case WM_NCHITTEST:
 		if (captionMessage(hwnd, lParam))
 		{
 			if (captionButton(hwnd, lParam))
-				return HTCLOSE;	// å¯èƒ½æ˜¯å…³é—­æŒ‰é’®ï¼Œä¹Ÿå¯èƒ½æ˜¯è®¾ç½®æŒ‰é’®
+				return HTCLOSE;	// ¿ÉÄÜÊÇ¹Ø±Õ°´Å¥£¬Ò²¿ÉÄÜÊÇÉèÖÃ°´Å¥
 			else
 				return HTCAPTION;
 		}
 		break;
 
-	case WM_NCLBUTTONDOWN:	// ä½¿ç”¨UPä¼šå› å“ªæ€•æå°çš„æ‹–åŠ¨è€Œä¸è§¦å‘
+	case WM_NCLBUTTONDOWN:	// Ê¹ÓÃUP»áÒòÄÄÅÂ¼«Ğ¡µÄÍÏ¶¯¶ø²»´¥·¢
 		switch (wParam)
 		{
 		case HTCLOSE:
@@ -596,12 +597,12 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			switch (button)
 			{
 			case close:
-				PostMessage(hwnd, WM_CLOSE, 0, 0);	// æ‰‹åŠ¨å‘é€ WM_CLOSE æ¶ˆæ¯
+				PostMessage(hwnd, WM_CLOSE, 0, 0);	// ÊÖ¶¯·¢ËÍ WM_CLOSE ÏûÏ¢
 				break;
 
 			case setting:
-				ShowWindow(hwnd, SW_HIDE);	// å…³é—­çª—å£
-				KillTimer(hwnd, IDT_wait);	// å…³é—­è®¡æ—¶
+				ShowWindow(hwnd, SW_HIDE);	// ¹Ø±Õ´°¿Ú
+				KillTimer(hwnd, IDT_wait);	// ¹Ø±Õ¼ÆÊ±
 				waitNum = 0;
 				settingPage(GetModuleHandle(nullptr));
 				break;
@@ -626,24 +627,27 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case IDT_scroll:
 			scrollNum--;
 			RECT invalida;
-			GetClientRect(hwnd, &invalida); // è·å–å®¢æˆ·åŒºå°ºå¯¸
-			if (!scrollNum)	// æ»šåŠ¨æ¬¡æ•°ç”¨å°½
+			GetClientRect(hwnd, &invalida); // »ñÈ¡¿Í»§Çø³ß´ç
+			if (!scrollNum)	// ¹ö¶¯´ÎÊıÓÃ¾¡
 			{
-				chooseText = data.leftNames.back();	// æœ€ç»ˆåå­—
-				data.leftNames.pop_back();	// åˆ é™¤åå­—
+				chooseText = data.leftNames.back();	// ×îÖÕÃû×Ö
+				recordHistory(chooseText);	// ¼ÇÂ¼ÀúÊ·
+				data.leftNames.pop_back();	// É¾³ıÃû×Ö
+
+				// ¼ì²éÃû×Ö
 				if (data.leftNames.empty())
 				{
-					data.leftNames = data.defaultNames;	// é‡ç½®åå­—
+					data.leftNames = data.defaultNames;	// ÖØÖÃÃû×Ö
 					shuffle(data.leftNames.begin(), data.leftNames.end(), engine);
-					data.leftNames.push_back("ä¸€è½®æŠ½å®Œ");	// ç”¨äºæç¤º
+					data.leftNames.push_back("Ò»ÂÖ³éÍê");	// ÓÃÓÚÌáÊ¾
 				}
 				scrollNum = scrollMax;
-				KillTimer(hwnd, IDT_scroll);	// å…³é—­è®¡æ—¶
+				KillTimer(hwnd, IDT_scroll);	// ¹Ø±Õ¼ÆÊ±
 			}
 			else
-				chooseText = data.defaultNames[engine() % data.defaultNames.size()];	// éšæœºåå­—
+				chooseText = data.defaultNames[engine() % data.defaultNames.size()];	// Ëæ»úÃû×Ö
 
-			SetWindowText(hChooseText, chooseText.c_str());	// è®¾ç½®æ˜¾ç¤ºæ–‡æœ¬
+			SetWindowText(hChooseText, chooseText.c_str());	// ÉèÖÃÏÔÊ¾ÎÄ±¾
 			break;
 
 		case IDT_transparency:
@@ -654,18 +658,18 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			waitNum++;
 			if (waitNum == 8)
 			{
-				waitNum = 0;	// æ¸…é›¶waitNum
-				SetTimer(hwnd, IDT_transparency, transparencyT, nullptr);// ç”¨äºè®¾ç½®é€æ˜åº¦ä¿®æ”¹æ—¶é—´
+				waitNum = 0;	// ÇåÁãwaitNum
+				SetTimer(hwnd, IDT_transparency, transparencyT, nullptr);// ÓÃÓÚÉèÖÃÍ¸Ã÷¶ÈĞŞ¸ÄÊ±¼ä
 				transparencyTimerActive = true;
 			}
 			break;
 		}
 	}
-	return DefWindowProc(hwnd, uMsg, wParam, lParam); // é»˜è®¤å¤„ç†
+	return DefWindowProc(hwnd, uMsg, wParam, lParam); // Ä¬ÈÏ´¦Àí
 }
 
-POINT ptOld;	// è®°å½•é¼ æ ‡ç‚¹å‡»æ—¶çš„ä½ç½®ä»¥åˆ¤æ–­æ˜¯å¦æ˜¯ç‚¹å‡»
-bool isDragging;	// æ ‡å¿—æ˜¯å¦æ˜¯ç§»åŠ¨
+POINT ptOld;	// ¼ÇÂ¼Êó±êµã»÷Ê±µÄÎ»ÖÃÒÔÅĞ¶ÏÊÇ·ñÊÇµã»÷
+bool isDragging;	// ±êÖ¾ÊÇ·ñÊÇÒÆ¶¯
 export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -677,17 +681,17 @@ export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	case WM_LBUTTONDOWN:
 		ptOld.x = GET_X_LPARAM(lParam);
 		ptOld.y = GET_Y_LPARAM(lParam);
-		// è½¬æ¢ä¸ºå±å¹•åæ ‡ï¼ˆå› ä¸ºçª—å£å¯èƒ½è¢«ç§»åŠ¨ï¼Œå±€éƒ¨åæ ‡ä¸è¶³ä»¥å¤„ç†ï¼‰
+		// ×ª»»ÎªÆÁÄ»×ø±ê£¨ÒòÎª´°¿Ú¿ÉÄÜ±»ÒÆ¶¯£¬¾Ö²¿×ø±ê²»×ãÒÔ´¦Àí£©
 		ClientToScreen(hwnd, &ptOld);
-		isDragging = false;	// é‡ç½®isDragging
-		// æ•è·é¼ æ ‡äº‹ä»¶ï¼Œç¡®ä¿æ‹–åŠ¨ä¸ä¼šå› é¼ æ ‡ç§»å‡ºçª—å£è€Œä¸­æ–­
+		isDragging = false;	// ÖØÖÃisDragging
+		// ²¶»ñÊó±êÊÂ¼ş£¬È·±£ÍÏ¶¯²»»áÒòÊó±êÒÆ³ö´°¿Ú¶øÖĞ¶Ï
 		SetCapture(hwnd);
 		break;
 
 	case WM_LBUTTONUP:
 		if (!isDragging)
 		{
-			SetTimer(hwnd, IDT_transparency, transparencyT, nullptr);	// åŠ¨æ€å›å¤æŠ½å–çª—å£
+			SetTimer(hwnd, IDT_transparency, transparencyT, nullptr);	// ¶¯Ì¬»Ø¸´³éÈ¡´°¿Ú
 			transparencyTimerActive = true;
 		}
 		ReleaseCapture();
@@ -696,27 +700,27 @@ export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	case WM_MOUSEMOVE:
 		if (wParam & MK_LBUTTON)
 		{
-			// å¦‚æœé¼ æ ‡å·¦é”®æŒ‰ä¸‹å¹¶ä¸”å‘ç”Ÿäº†ç§»åŠ¨ï¼Œåˆ™å¼€å§‹æ‹–åŠ¨
+			// Èç¹ûÊó±ê×ó¼ü°´ÏÂ²¢ÇÒ·¢ÉúÁËÒÆ¶¯£¬Ôò¿ªÊ¼ÍÏ¶¯
 			POINT ptNew;
 			ptNew.x = GET_X_LPARAM(lParam);
 			ptNew.y = GET_Y_LPARAM(lParam);
 			ClientToScreen(hwnd, &ptNew);
-			// åˆ¤æ–­é¼ æ ‡æ˜¯å¦ç§»åŠ¨äº†ï¼Œå¦‚æœç§»åŠ¨äº†ï¼Œåˆ™è®¤ä¸ºæ˜¯æ‹–åŠ¨
+			// ÅĞ¶ÏÊó±êÊÇ·ñÒÆ¶¯ÁË£¬Èç¹ûÒÆ¶¯ÁË£¬ÔòÈÏÎªÊÇÍÏ¶¯
 			int dx = ptNew.x - ptOld.x;
 			int dy = ptNew.y - ptOld.y;
 
 			if (abs(dx) > 5 || abs(dy) > 5)
-			{  // å¦‚æœç§»åŠ¨çš„è·ç¦»å¤§äºé˜ˆå€¼ï¼Œè®¤ä¸ºæ˜¯æ‹–åŠ¨
+			{  // Èç¹ûÒÆ¶¯µÄ¾àÀë´óÓÚãĞÖµ£¬ÈÏÎªÊÇÍÏ¶¯
 				isDragging = true;
 			}
 
 			if (isDragging)
 			{
-				// ç§»åŠ¨çª—å£
+				// ÒÆ¶¯´°¿Ú
 				RECT rect;
 				GetWindowRect(hwnd, &rect);
 				SetWindowPos(hwnd, NULL, rect.left + dx, rect.top + dy, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-				ptOld = ptNew;  // æ›´æ–°é¼ æ ‡ä½ç½®
+				ptOld = ptNew;  // ¸üĞÂÊó±êÎ»ÖÃ
 			}
 		}
 		break;
@@ -730,5 +734,5 @@ export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		}
 		break;
 	}
-	return DefWindowProc(hwnd, uMsg, wParam, lParam); // é»˜è®¤å¤„ç†
+	return DefWindowProc(hwnd, uMsg, wParam, lParam); // Ä¬ÈÏ´¦Àí
 }

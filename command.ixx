@@ -17,12 +17,6 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-// 其它数据
-int captionHeight = GetSystemMetrics(SM_CYCAPTION);
-int buttonSize = 20;
-
-// 用于设置页面绘制
-
 // 设置页面
 export void settingPage(_In_ HINSTANCE hInstance)
 {
@@ -42,8 +36,8 @@ export void settingPage(_In_ HINSTANCE hInstance)
 
 	RegisterClass(&wc);
 
-	int nWidth = 742 * 1.5;
-	int nHeight = 550;
+	int nWidth = 742 * 1.5 * dpiScale;
+	int nHeight = 550 * dpiScale;
 	LPCSTR lpWindowName = "点名器设置";
 	// 创建窗口
 	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -81,7 +75,7 @@ void AddEdit(HWND hwnd, HWND& control, std::string text,
 
 void AddStatic(HWND& hwnd, LPCSTR text, short& x, short& y, short& sizeY)
 {
-	CreateWindow("STATIC", text, WS_CHILD | WS_VISIBLE, x, y, 150, sizeY, hwnd, NULL, NULL, NULL);
+	CreateWindow("STATIC", text, WS_CHILD | WS_VISIBLE, x, y, 150 * dpiScale, sizeY, hwnd, NULL, NULL, NULL);
 }
 
 // 回调函数，用于遍历所有子窗口
@@ -187,7 +181,7 @@ void addColor(HWND& hWnd, short& width, std::string staticText, COLORREF& color,
 	std::string color16 = std::format("{:06x}", color);
 	colorCorrect(color16);
 	AddEdit(hWnd, child, color16, xCommand, y, width * 3, sizeY, (HMENU)id);
-	y += 40;
+	y += yAdd;
 }
 
 // 句柄
@@ -196,11 +190,12 @@ HWND hTopMostYes, hTopMostNo;
 export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 {
 	// 坐标用
-	short sizeY = 20;
-	short x = 10;
-	short y = 10;
-	short xCommandFirst = 160;
+	short sizeY = 20 * dpiScale;
+	short x = 10 * dpiScale;
+	short y = 10 * dpiScale;
+	short xCommandFirst = 160 * dpiScale;
 	short xCommand = xCommandFirst;
+
 	// 设置字体
 	if (!hFSetting)
 	{
@@ -213,17 +208,18 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 	GetTextExtentPoint32(hdc, "一", 3, &sizeOfFont);
 	short width = sizeOfFont.cx;
 
+	/* 置顶选项 */
 	AddStatic(hwnd, "是否置顶", x, y, sizeY);
 	AddControl(hwnd, hTopMostYes, "是", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
-		xCommand, y, 40, 25, (HMENU)IDB_topYes);
+		xCommand, y, 40 * dpiScale, 25 * dpiScale, (HMENU)IDB_topYes);
 	AddControl(hwnd, hTopMostNo, "否", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-		xCommand + 50, 10, 40, 25, (HMENU)IDB_topNo);
+		xCommand + 50 * dpiScale, 10 * dpiScale, 40 * dpiScale, 25 * dpiScale, (HMENU)IDB_topNo);
 	// 设置初始值
 	if (store.ifRight && !store.ifTop)
 		SendMessage(hTopMostNo, BM_SETCHECK, BST_CHECKED, 0);
 	else
 		SendMessage(hTopMostYes, BM_SETCHECK, BST_CHECKED, 0);
-	y += 40;
+	y += yAdd;
 
 	addColor(hwnd, width, "标题栏背景颜色", store.captionBC, hCaptionBC16, IDE_captionBC16,
 		x, y, sizeY, xCommand);
@@ -239,11 +235,10 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 
 	AddStatic(hwnd, "选择字体", x, y, sizeY);
 	hFontName = CreateWindow("COMBOBOX", "",
-		WS_CHILD | WS_VISIBLE | WS_VSCROLL |
-		CBS_DROPDOWN | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS,
-		xCommand, y, 200, sizeY * 10, hwnd, (HMENU)IDL_fontName, NULL, NULL);
+		WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWN,
+		xCommand, y, 200 * dpiScale, sizeY * 10, hwnd, (HMENU)IDL_fontName, NULL, NULL);
 	PopulateFontList(hFontName, fontMap);
-	y += 40;
+	y += yAdd * 2;
 
 	// 教学文本
 	hCopyright = CreateWindow("STATIC", "软件著作权由github用户yukigamau所有，服从BSD 3-Clause。",
@@ -261,30 +256,31 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 	CreateWindow("STATIC", "软件8秒时间不用会变圆。",
 		WS_CHILD | WS_VISIBLE, x, y, width * 23, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "产品将在github网站上更新，可在浏览器搜索RandomChoser找到。",
+	CreateWindow("STATIC", "更新网站1：www.github.com/yukigamau/RandomChoser",
 		WS_CHILD | WS_VISIBLE, x, y, width * 30, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "如果用户不会用github，可在网上搜索，但这样的话不建议更新。",
+	CreateWindow("STATIC", "更新网站2：randomChoser.netlify.app【没有www】",
 		WS_CHILD | WS_VISIBLE, x, y, width * 23, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "当前产品版本：1.0",
+	std::string nowVersion = "当前产品版本：" + versionText;
+	CreateWindow("STATIC", nowVersion.c_str(),
 		WS_CHILD | WS_VISIBLE, x, y, width * 23, sizeY, hwnd, NULL, NULL, NULL);
-	y += 40;
+	y += yAdd;
 
 	hConfirmBtn = CreateWindow("BUTTON", "确定好～\\(≧▽≦)/～啦啦啦（包括右边的名单）",
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
 		x, y, width * 22, sizeY + 10, hwnd, (HMENU)IDB_confirm, NULL, NULL);
 
 	// 右边的名单区域
-	short span = 650;	// 到右边的跨度
+	short span = 650 * dpiScale;	// 到右边的跨度
 	x += span;
-	y = 10;
+	y = 10 * dpiScale;
 	xCommand += span;
 
 	AddStatic(hwnd, "选择默认名单", x, y, sizeY);
 	hDefaultList = CreateWindow("COMBOBOX", "",
-		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
-		xCommand, y, 200, sizeY * 10, hwnd, (HMENU)IDL_defaultList, NULL, NULL);
+		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
+		xCommand, y, 200 * dpiScale, sizeY * 10, hwnd, (HMENU)IDL_defaultList, NULL, NULL);
 	SendMessage(hDefaultList, CB_SETEDITSEL, 0, MAKELPARAM(-1, 0));	// 取消选中
 	if (store.defaultList == "")
 		EnableWindow(hDefaultList, FALSE);	// 禁用控件
@@ -299,12 +295,12 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 			store.currentShowList = store.defaultList;
 		}
 	}
-	y += 40;
+	y += yAdd;
 
 	AddStatic(hwnd, "选择显示名单", x, y, sizeY);
 	hShowList = CreateWindow("COMBOBOX", "",
-		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
-		xCommand, y, 200, sizeY * 10, hwnd, (HMENU)IDL_showList, NULL, NULL);
+		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
+		xCommand, y, 200 * dpiScale, sizeY * 10, hwnd, (HMENU)IDL_showList, NULL, NULL);
 	SendMessage(hShowList, CB_SETEDITSEL, 0, MAKELPARAM(-1, 0));	// 取消选中
 	if (!store.ifRight || ifTypeName)
 	{
@@ -323,24 +319,24 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 		}
 		showName = true;
 	}
-	y += 40;
+	y += yAdd;
 
 	AddControl(hwnd, hNewListBtn, "新建名单", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
-		x, y, width * 5, sizeY + 10, (HMENU)IDB_newList);
+		x, y, width * 5, sizeY + 10 * dpiScale, (HMENU)IDB_newList);
 	AddControl(hwnd, hModifyBtn, "修改名单", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
-		x + width * 5 + 10, y, width * 5, sizeY + 10, (HMENU)IDB_modify);
+		x + width * 5 + 24 * dpiScale, y, width * 5, sizeY + 10 * dpiScale, (HMENU)IDB_modify);
 	if (!store.ifRight)
 		EnableWindow(hModifyBtn, FALSE);	// 由于没有正确的名单，所以禁用
 	AddControl(hwnd, hDeleteBtn, "删除名单", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
-		x + width * 10 + 20, y, width * 5, sizeY + 10, (HMENU)IDB_delete);
+		x + width * 10 + 48 * dpiScale, y, width * 5, sizeY + 10 * dpiScale, (HMENU)IDB_delete);
 	if (!store.ifRight)
 		EnableWindow(hDeleteBtn, FALSE);	// 由于没有正确的名单，所以禁用
-	y += 40;
+	y += yAdd;
 	
 	RECT rect;
 	GetClientRect(hwnd, &rect);
-	short nWidth = rect.right - 10 - x;
-	short nHeight = rect.bottom - 10 - y;
+	short nWidth = rect.right - x;
+	short nHeight = rect.bottom - y;
 	// 处理显示文本
 	std::string nameStr;
 	if (store.ifRight && store.defaultList != "" && createSetting)
@@ -386,7 +382,6 @@ export void drawFontList(LPARAM lParam)
 
 // 抽取页面
 HWND hChoose;	// 方便频繁转换
-short nWidth = 200, nHeight = 90;	// 方便窗口位置调节调用
 export void choosePage(_In_ HINSTANCE hInstance)
 {
 	if(hChoose==NULL)// 创建窗口
@@ -407,9 +402,9 @@ export void choosePage(_In_ HINSTANCE hInstance)
 			WS_EX_LAYERED | WS_EX_TOPMOST,
 			className, lpWindowName,
 			WS_POPUP,
-			(GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2,
-			(GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2,   // 窗口位置
-			nWidth, nHeight,                // 窗口大小
+			(GetSystemMetrics(SM_CXSCREEN) - chooseWidth) / 2,
+			(GetSystemMetrics(SM_CYSCREEN) - chooseHeight) / 2,   // 窗口位置
+			chooseWidth, chooseHeight,                // 窗口大小
 			nullptr,                        // 父窗口句柄
 			nullptr,                        // 菜单句柄
 			wc.hInstance,                   // 实例句柄
@@ -440,7 +435,7 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 	DeleteObject(hBrushBk);
 	
 	// 创建画笔和画刷
-	HPEN hPen = CreatePen(PS_SOLID, 2, data.captionBC); // 边框画笔
+	HPEN hPen = CreatePen(PS_SOLID, 2 * dpiScale, data.captionBC); // 边框画笔
 	HBRUSH hBrush = CreateSolidBrush(data.captionBC);   // 背景画刷
 	SelectObject(hdc, hPen);
 	SelectObject(hdc, hBrush);
@@ -455,15 +450,15 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 	SetBkMode(hdc, TRANSPARENT);	// 背景透明
 	// 计算标题位置
 	RECT textRect = { 0,0,clientRect.right,captionHeight };
-	textRect.left += 10;	// 给文字留点空间
-	textRect.right -= 50;	// 避开关闭按钮
+	textRect.left += 10 * dpiScale;	// 给文字留点空间
+	textRect.right -= 50 * dpiScale;	// 避开关闭按钮
 	// 字体
 	if (!hFCaption)
 	{
 		hFCaption = CreateFont(
 			(textRect.bottom - textRect.top) * 0.8,	// 字体高度
 			0, 0, 0,
-			FW_NORMAL,		// 字体粗细（FW_NORMAL, FW_BOLD 等）
+			FW_NORMAL,	// 字体粗细
 			FALSE,          // 是否斜体
 			FALSE,          // 是否下划线
 			FALSE,          // 是否删除线
@@ -480,7 +475,8 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 	DrawText(hdc, chooseTitle.c_str(), -1, &textRect, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
 
 	// 关闭按钮
-	RECT buttonRect = { clientRect.right - buttonSize - 10, 2, clientRect.right - 10, buttonSize + 2 };
+	RECT buttonRect = { clientRect.right - buttonSize - 10 * dpiScale, 2 * dpiScale,
+		clientRect.right - 10 * dpiScale, buttonSize + 2 * dpiScale };
 	// 绘制关闭按钮上的“×”，与标题使用同一字体
 	DrawText(hdc, "×", -1, &buttonRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
@@ -500,7 +496,7 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 			0,              // 字体宽度（为 0 表示根据高度自动计算）
 			0,              // 字体倾斜角度（单位 0.1 度）
 			0,              // 字体基线方向角度
-			FW_NORMAL,		// 字体粗细（FW_NORMAL, FW_BOLD等）
+			FW_NORMAL,		// 字体粗细
 			FALSE,          // 是否斜体
 			FALSE,          // 是否下划线
 			FALSE,          // 是否删除线
@@ -511,12 +507,6 @@ export void chooseDraw(HWND& hWnd, HDC& hdc)	// mode表示是否处于滚动状态
 			DEFAULT_PITCH | FF_SWISS,	// 字体间距和家族
 			data.fontName.c_str()
 		);
-	}
-	// 选择显示文字
-	if (data.leftNames.size() == 0)
-	{
-		data.leftNames = data.defaultNames;
-		data.leftNames.push_back("抽完一轮");
 	}
 	// 打印文本
 	hChooseText = CreateWindow("STATIC", chooseText.c_str(), WS_CHILD | WS_VISIBLE | SS_OWNERDRAW,
@@ -544,9 +534,9 @@ export short captionButton(HWND& hWnd, LPARAM& lParam)
 	ScreenToClient(hWnd, &ptMouse);
 	RECT windowRect;
 	GetWindowRect(hWnd, &windowRect);
-	if (ptMouse.x >= windowRect.right - windowRect.left - buttonSize - 10)
+	if (ptMouse.x >= windowRect.right - windowRect.left - buttonSize - 10 * dpiScale)
 		return 1;
-	else if (ptMouse.x >= windowRect.right - windowRect.left - 2 * buttonSize - 10)
+	else if (ptMouse.x >= windowRect.right - windowRect.left - 2 * buttonSize - 10 * dpiScale)
 		return 2;
 	else
 		return 0;
@@ -660,7 +650,7 @@ export void ExitIconMode()
 	SetTimer(hChoose, IDT_wait, 1000, 0);
 
 	RECT newPosition;
-	offset(hIcon, newPosition, nWidth, nHeight);
+	offset(hIcon, newPosition, chooseWidth, chooseHeight);
 	SetWindowPos(hChoose, nullptr, newPosition.left, newPosition.top, 0, 0, SWP_NOSIZE);
 }
 

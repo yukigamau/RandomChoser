@@ -19,8 +19,9 @@ void ShowError(const char* msg)
 	MessageBox(NULL, result.c_str(), "错误", MB_OK | MB_ICONERROR);
 }
 
-// 加密函数：将 vector<string> 序列化后加密，并保存到 "data.bin" 文件中
-export bool EncryptData(const std::vector<std::string>& vec)
+// 加密函数：将 vector<string> 序列化后加密，并保存到文件中
+export template <typename Container>
+bool EncryptData(Container& vec, std::string file)
 {
 	// 1. 序列化 vector<string>
 	// 格式： [DWORD: 字符串数量] { [DWORD: 字符串长度][字符串内容] }...
@@ -37,9 +38,9 @@ export bool EncryptData(const std::vector<std::string>& vec)
 
 	// 2. 获取加密上下文
 	HCRYPTPROV hProv = 0;
-	if (!CryptAcquireContextA(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
+	if (!CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
 	{
-		ShowError("CryptAcquireContextA 失败");
+		ShowError("CryptAcquireContext 失败");
 		return false;
 	}
 
@@ -53,7 +54,7 @@ export bool EncryptData(const std::vector<std::string>& vec)
 		return false;
 	}
 
-	// 4. 导出密钥到一个 blob 中，便于存入文件中（注意：出于演示目的，此处密钥是以明文形式存储的）
+	// 4. 导出密钥到一个 blob 中，便于存入文件中
 	DWORD dwKeyBlobLen = 0;
 	if (!CryptExportKey(hKey, 0, PLAINTEXTKEYBLOB, 0, NULL, &dwKeyBlobLen))
 	{
@@ -85,11 +86,13 @@ export bool EncryptData(const std::vector<std::string>& vec)
 		return false;
 	}
 
-	// 6. 打开文件 "data.bin"（写模式），写入： [DWORD: key blob 长度] + [key blob] + [DWORD: 加密数据长度] + [加密数据]
-	HANDLE hFile = CreateFile("data.bin", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	// 6. 打开文件（写模式），写入：
+	// [DWORD: key blob 长度] + [key blob] + [DWORD: 加密数据长度] + [加密数据]
+	HANDLE hFile = CreateFile(file.c_str(),
+		GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		ShowError("CreateFileA 失败");
+		ShowError("文件创建失败");
 		CryptDestroyKey(hKey);
 		CryptReleaseContext(hProv, 0);
 		return false;
@@ -135,14 +138,16 @@ export bool EncryptData(const std::vector<std::string>& vec)
 	return true;
 }
 
-// 解密函数：从 "data.bin" 文件中读取密钥 blob 与加密数据，解密后还原为 vector<string>
-export bool DecryptData(std::vector<std::string>& vec)
+// 解密函数：从 文件中读取密钥 blob 与加密数据，解密后还原为 vector<string>
+export template <typename Container>
+bool DecryptData(Container& vec, std::string file)
 {
-	// 1. 打开文件 "data.bin"（读模式）
-	HANDLE hFile = CreateFileA("data.bin", GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	// 1. 打开文件（读模式）
+	HANDLE hFile = CreateFile(file.c_str(),
+		GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		ShowError("打开 data.bin 失败");
+		ShowError("打开文件失败");
 		return false;
 	}
 	DWORD dwRead = 0;
@@ -178,9 +183,9 @@ export bool DecryptData(std::vector<std::string>& vec)
 
 	// 2. 获取加密上下文
 	HCRYPTPROV hProv = 0;
-	if (!CryptAcquireContextA(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
+	if (!CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
 	{
-		ShowError("CryptAcquireContextA 失败");
+		ShowError("CryptAcquireContext失败");
 		return false;
 	}
 

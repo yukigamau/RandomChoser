@@ -24,7 +24,7 @@ public:
 };
 export Data data;
 
-std::string binaryFile = "data.bin";	// 加密文件
+export std::string binaryFile = "data.bin";	// 加密文件
 export std::random_device rd;	// 硬件生成随机数
 export std::mt19937 engine(rd());	// 用于随机数
 
@@ -32,7 +32,7 @@ export std::mt19937 engine(rd());	// 用于随机数
 export bool initializeData()
 {
 	std::vector<std::string> splitLines;
-	if (!DecryptData(splitLines))
+	if (!DecryptData(splitLines, binaryFile))
 		return false;
 
 	// 将解密后的数据保存
@@ -76,7 +76,7 @@ export bool initializeData()
 
 	// 随机修改
 	if (!(engine() % 10))
-		EncryptData(splitLines);
+		EncryptData(splitLines, "data.bin");
 
 	return true;
 }
@@ -95,7 +95,7 @@ export void initializeStore()
 {
 	// 确认是否可以继续初始化
 	std::vector<std::string> splitLines;
-	if (!DecryptData(splitLines))
+	if (!DecryptData(splitLines, "data.bin"))
 	{
 		store.ifRight = false;
 		return;	// 维持默认态
@@ -188,4 +188,55 @@ export void fontStore(std::string fontName)
 export std::string removeFormat(std::string& str)
 {
 	return str.substr(4, str.size() - 6);
+}
+
+// 用于记录，加强伪随机性
+export std::deque<std::string> history;
+short historyNum = 0;	// 用于记录当前已历史记录的序号
+short historyMax = 1;	// 最大历史记录数
+// 读取历史记录
+export void readHistory()
+{
+	if(!DecryptData(history, "history.bin"))
+	{
+		std::ofstream filemake("history.bin", std::ios::binary | std::ios::trunc);
+		filemake.close();
+		return;
+	}
+
+	historyMax = data.defaultNames.size() / 6;
+
+	// 逆序遍历 history，确保后出现的名字更靠近末尾
+	short i = 0;	// 已经处理的历史记录数
+	for (std::string target : history)
+	{
+		// 在 leftNames 中查找目标
+		auto it = std::find(data.leftNames.begin(), data.leftNames.end(), target);
+		if (it != data.leftNames.begin())
+		{
+			// 将找到的元素移动到名单末尾
+			std::rotate(data.leftNames.begin() + i, it, data.leftNames.end());
+			i++;
+		}
+	}
+}
+// 写入历史记录
+export void writeHistory()
+{
+	// 限制历史记录数
+	if (history.size() > historyMax)
+		history.resize(historyMax);
+
+	EncryptData(history, "history.bin");
+}
+// 记录历史
+export void recordHistory(std::string& name)
+{
+	if (historyNum >= historyMax)
+		return;	// 不再记录
+	else
+	{
+		history.insert(history.begin(), name);
+		historyNum++;
+	}
 }

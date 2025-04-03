@@ -80,7 +80,8 @@ export std::map<std::string, HFONT> fontMap; // 存储字体对象
 export HINSTANCE settingInstance;	// 存储设置页面使用的实例
 
 export std::string
-chooseTitle,	// 抽取界面标题栏标题
+versionText = "1.4",
+chooseTitle = "点名器" + versionText,	// 抽取界面标题栏标题
 chooseText = "点击抽取";	// 抽取名字
 
 // 用于图标分层窗口
@@ -120,4 +121,37 @@ export void swapHexParts(COLORREF& original)
 
 	// 交换前后两位，合并中间部分
 	original = (end << 16) | middle | front;
+}
+
+// 高DPI处理
+export double dpiScale = 1;	// 默认DPI
+// 获取当前主显示器的 DPI 缩放比例
+export UINT GetDPIScalingFactor()
+{
+	HDC hdc = GetDC(NULL);
+	UINT dpi = GetDeviceCaps(hdc, LOGPIXELSX); // 96 DPI 为 100% 缩放
+	ReleaseDC(NULL, hdc);
+	return MulDiv(dpi, 100, 96); // 返回百分比（如 200 表示 200%）
+}
+// 受DPI影响的尺寸
+export int buttonSize = 20;	// 按钮大小
+export short chooseWidth = 200, chooseHeight = 90;	// 抽取窗口大小
+export int captionHeight;	// 标题栏高度
+export short yAdd = 30;	// 设置页面控件纵向间距
+export void sizeByDPI()
+{
+	dpiScale = GetDPIScalingFactor() / 96.0;
+
+	// 图标窗口
+	g_sizeWnd.cx *= dpiScale;
+	g_sizeWnd.cy *= dpiScale;
+
+	// 抽取窗口
+	buttonSize *= dpiScale;
+	chooseWidth *= dpiScale;
+	chooseHeight *= dpiScale;
+	captionHeight = GetSystemMetrics(SM_CYCAPTION);
+
+	// 设置页面
+	yAdd *= dpiScale;
 }
