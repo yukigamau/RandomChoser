@@ -16,6 +16,7 @@ using namespace Gdiplus;
 export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+//export LRESULT CALLBACK WPcloseTip(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 // 设置页面
 export void settingPage(_In_ HINSTANCE hInstance)
@@ -244,22 +245,19 @@ export void settingDraw(HWND& hwnd, HDC& hdc, LPARAM& lParam)
 	hCopyright = CreateWindow("STATIC", "软件著作权由github用户yukigamau所有，服从BSD 3-Clause。",
 		WS_CHILD | WS_VISIBLE, x, y, width * 26, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	hAttention = CreateWindow("STATIC", "如果看不懂，就直接创建名单。",
+	hAttention = CreateWindow("STATIC", "可以直接创建名单。",
 		WS_CHILD | WS_VISIBLE, x, y, width * 13, sizeY, hwnd, NULL, NULL, NULL);	// 将被标红
 	y += sizeY;
-	CreateWindow("STATIC", "设置将以…的样子显示在抽取区上面那个标题栏上，用户使用时可看到。",
-		WS_CHILD | WS_VISIBLE, x, y, width * 26, sizeY, hwnd, NULL, NULL, NULL);
-	y += sizeY;
-	CreateWindow("STATIC", "用户请不要私自修改本产品的任何文件于不会更新软件时。",
+	CreateWindow("STATIC", "用户请不要私自修改本产品的任何文件。",
 		WS_CHILD | WS_VISIBLE, x, y, width * 28, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
 	CreateWindow("STATIC", "软件8秒时间不用会变圆。",
 		WS_CHILD | WS_VISIBLE, x, y, width * 23, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "更新网站1：www.github.com/yukigamau/RandomChoser",
+	CreateWindow("STATIC", "源码网站：www.github.com/yukigamau/RandomChoser",
 		WS_CHILD | WS_VISIBLE, x, y, width * 30, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
-	CreateWindow("STATIC", "更新网站2：randomChoser.netlify.app【没有www】",
+	CreateWindow("STATIC", "更新网站：randomChoser.netlify.app【没有www】",
 		WS_CHILD | WS_VISIBLE, x, y, width * 23, sizeY, hwnd, NULL, NULL, NULL);
 	y += sizeY;
 	std::string nowVersion = "当前产品版本：" + versionText;
@@ -654,6 +652,46 @@ export void ExitIconMode()
 	SetWindowPos(hChoose, nullptr, newPosition.left, newPosition.top, 0, 0, SWP_NOSIZE);
 }
 
+//// 关闭提示
+//export void closeTip()
+//{
+//	// 创建提示窗口
+//	const char* className = "关闭提示";
+//	WNDCLASS wc = {};
+//	wc.hbrBackground = 0;
+//	wc.lpfnWndProc = WPcloseTip;	// 设置窗口过程函数
+//	wc.hInstance = GetModuleHandle(nullptr);	// 获取实例句柄
+//	wc.lpszClassName = className;
+//	wc.style = CS_HREDRAW | CS_VREDRAW;
+//	RegisterClass(&wc);
+//	LPCSTR lpWindowName = "点名器";
+//	int x = GetSystemMetrics(SM_CXSCREEN);
+//	int y = GetSystemMetrics(SM_CYSCREEN);
+//	int width = x * 0.6;
+//	int height = y * 0.6;
+//	HWND hCloseTip = CreateWindowEx(
+//#ifdef _DEBUG
+//		WS_EX_LAYERED,
+//#else
+//		WS_EX_LAYERED | WS_EX_TOPMOST,
+//#endif
+//		className, lpWindowName,
+//		WS_POPUP,
+//		(x - width) / 2,
+//		(y - height) / 2,   // 窗口位置
+//		width,
+//		height,			// 窗口大小
+//		nullptr,                        // 父窗口句柄
+//		nullptr,                        // 菜单句柄
+//		wc.hInstance,                   // 实例句柄
+//		nullptr                         // 附加数据
+//	);
+//
+//	photoTip(hCloseTip);
+//	ShowWindow(hCloseTip, SW_SHOW); // 显示窗口
+//	UpdateWindow(hCloseTip);
+//}
+
 // 其它
 export void deleteAllCommand(HWND& hWnd)
 {
@@ -695,6 +733,7 @@ export std::vector<std::string> readEdit(HWND& hwnd, short ID)
 export bool deleteVoid(std::vector<std::string>& vec)
 {
 	int size = vec.size();
+	bool ifNeedReshow = false;	// 用于记录是否调整了用户输入的#开头的文本
 
 	for (int i = 0; i < size; i++)
 	{
@@ -704,6 +743,22 @@ export bool deleteVoid(std::vector<std::string>& vec)
 			i--;	// 防止遗漏
 			size--;	// 防止溢出
 		}
+		else
+		{
+			if (vec[i][0] == '#')	// 如果有#符，则加入空格防止被认为是名单标记用的格式
+			{
+				vec[i].insert(vec[i].begin(), ' ');
+				ifNeedReshow = true;
+			}
+		}
+	}
+
+	if (ifNeedReshow)	// 重置名字编辑窗口
+	{
+		std::string text;
+		for (std::string str : vec)
+			text += str + "\r\n";
+		SetWindowText(hNameEdit, (LPCSTR)text.c_str());
 	}
 
 	if (!vec.size())	// 没有元素

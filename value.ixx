@@ -33,7 +33,8 @@ IDL_showList	= 203
 export constexpr short
 IDT_scroll			= 301,
 IDT_wait			= 302,
-IDT_transparency	= 303
+IDT_transparency	= 303,
+IDT_closeTip		= 304
 ;
 // 文本框
 export constexpr short
@@ -80,7 +81,7 @@ export std::map<std::string, HFONT> fontMap; // 存储字体对象
 export HINSTANCE settingInstance;	// 存储设置页面使用的实例
 
 export std::string
-versionText = "1.4",
+versionText = "1.6",
 chooseTitle = "点名器" + versionText,	// 抽取界面标题栏标题
 chooseText = "点击抽取";	// 抽取名字
 

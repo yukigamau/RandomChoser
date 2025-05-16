@@ -1,18 +1,22 @@
-module;
+ï»¿module;
 #include <windows.h>
-#include <commctrl.h>
 #include <gdiplus.h>
+#include <commctrl.h>
+#include <shlwapi.h>
 #include "resource.h"
 #pragma comment(lib,"gdiplus.lib")
+#pragma comment(lib, "shlwapi.lib")
 export module png;
+import data;
+import std;
 import value;
 using namespace Gdiplus;
 
-// ¸¨Öúº¯Êı£º´Ó×ÊÔ´ÖĞ¼ÓÔØ PNG Í¼Ïñ
-Bitmap* LoadPNGFromResource(HINSTANCE hInstance, int resourceID)
+// è¾…åŠ©å‡½æ•°ï¼šä»èµ„æºä¸­åŠ è½½å›¾åƒ
+Bitmap* loadPhotoFromResource(HINSTANCE hInstance, int resourceID, std::string type)
 {
-	// ²éÕÒ PNG ×ÊÔ´£¬×ÊÔ´ÀàĞÍÎª "PNG"
-	HRSRC hResource = FindResource(hInstance, MAKEINTRESOURCE(resourceID), "PNG");
+	// æŸ¥æ‰¾ PNG èµ„æºï¼Œèµ„æºç±»å‹ä¸º "PNG"
+	HRSRC hResource = FindResource(hInstance, MAKEINTRESOURCE(resourceID), type.c_str());
 	if (!hResource)
 		return nullptr;
 
@@ -28,7 +32,7 @@ Bitmap* LoadPNGFromResource(HINSTANCE hInstance, int resourceID)
 	if (!pResourceData)
 		return nullptr;
 
-	// ·ÖÅäÈ«¾ÖÄÚ´æ±£´æ×ÊÔ´Êı¾İ
+	// åˆ†é…å…¨å±€å†…å­˜ä¿å­˜èµ„æºæ•°æ®
 	HGLOBAL hBuffer = GlobalAlloc(GMEM_MOVEABLE, imageSize);
 	if (!hBuffer)
 		return nullptr;
@@ -43,7 +47,7 @@ Bitmap* LoadPNGFromResource(HINSTANCE hInstance, int resourceID)
 	memcpy(pBuffer, pResourceData, imageSize);
 	GlobalUnlock(hBuffer);
 
-	// ´´½¨Ò»¸öÁ÷£¬½«ÄÚ´æÊı¾İ·â×°µ½Á÷ÖĞ
+	// åˆ›å»ºä¸€ä¸ªæµï¼Œå°†å†…å­˜æ•°æ®å°è£…åˆ°æµä¸­
 	IStream* pStream = nullptr;
 	if (CreateStreamOnHGlobal(hBuffer, TRUE, &pStream) != S_OK)
 	{
@@ -51,17 +55,17 @@ Bitmap* LoadPNGFromResource(HINSTANCE hInstance, int resourceID)
 		return nullptr;
 	}
 
-	// ´ÓÁ÷ÖĞ´´½¨ Bitmap ¶ÔÏó
+	// ä»æµä¸­åˆ›å»º Bitmap å¯¹è±¡
 	Bitmap* pBitmap = Bitmap::FromStream(pStream);
 	pStream->Release();
 
 	return pBitmap;
 }
 
-// »æÖÆ PNG Í¼ÏñÔÚ·Ö²ãÍ¼±ê´°¿ÚÉÏ
+// ç»˜åˆ¶ PNG å›¾åƒåœ¨åˆ†å±‚å›¾æ ‡çª—å£ä¸Š
 export void iconPng(HWND hwnd)
 {
-	// »ñÈ¡ÆÁÄ» DC ¼°´´½¨ÄÚ´æ DC
+	// è·å–å±å¹• DC åŠåˆ›å»ºå†…å­˜ DC
 	HDC hdcScreen = GetDC(hwnd);
 	g_hdcMem = CreateCompatibleDC(hdcScreen);
 
@@ -77,25 +81,25 @@ export void iconPng(HWND hwnd)
 	HBITMAP hBitmap = CreateDIBSection(g_hdcMem, &bmi, DIB_RGB_COLORS, &pvBits, NULL, 0);
 	HBITMAP hOldBitmap = (HBITMAP)SelectObject(g_hdcMem, hBitmap);
 
-	// Ê¹ÓÃ GDI+ »æÖÆ£º´Ó×ÊÔ´ÖĞ¼ÓÔØ PNG Í¼Ïñ²¢»æÖÆµ½ÄÚ´æ DC
+	// ä½¿ç”¨ GDI+ ç»˜åˆ¶ï¼šä»èµ„æºä¸­åŠ è½½ PNG å›¾åƒå¹¶ç»˜åˆ¶åˆ°å†…å­˜ DC
 	{
 		Gdiplus::Graphics graphics(g_hdcMem);
 		graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
-		// Çå¿Õ±³¾°£¬È·±£Í¸Ã÷
+		// æ¸…ç©ºèƒŒæ™¯ï¼Œç¡®ä¿é€æ˜
 		graphics.Clear(Gdiplus::Color(0, 0, 0, 0));
 
-		// ¼ÓÔØ×ÊÔ´ IDB_PNG1 ¶ÔÓ¦µÄ PNG Í¼Ïñ
+		// åŠ è½½èµ„æº IDB_PNG å¯¹åº”çš„ PNG å›¾åƒ
 		HINSTANCE hInstance = GetModuleHandle(nullptr);
-		Gdiplus::Bitmap* pPngBitmap = LoadPNGFromResource(hInstance, IDB_PNG1);
+		Gdiplus::Bitmap* pPngBitmap = loadPhotoFromResource(hInstance, IDB_PNG1, "png");
 		if (pPngBitmap)
 		{
-			// »æÖÆ PNG Í¼Ïñµ½´°¿Ú£¨ÈôÍ¼Ïñ³ß´çÓë´°¿Ú²»Ò»ÖÂ£¬¿É×Ô¶¯À­Éì£©
+			// ç»˜åˆ¶ PNG å›¾åƒåˆ°çª—å£ï¼ˆè‹¥å›¾åƒå°ºå¯¸ä¸çª—å£ä¸ä¸€è‡´ï¼Œå¯è‡ªåŠ¨æ‹‰ä¼¸ï¼‰
 			graphics.DrawImage(pPngBitmap, 0, 0, g_sizeWnd.cx, g_sizeWnd.cy);
 			delete pPngBitmap;
 		}
 	}
 
-	// ³õÊ¼¸üĞÂ·Ö²ã´°¿ÚÏÔÊ¾ÄÚÈİ
+	// åˆå§‹æ›´æ–°åˆ†å±‚çª—å£æ˜¾ç¤ºå†…å®¹
 	BLENDFUNCTION blend = { 0 };
 	blend.BlendOp = AC_SRC_OVER;
 	blend.SourceConstantAlpha = (BYTE)0;
@@ -106,8 +110,131 @@ export void iconPng(HWND hwnd)
 	POINT ptSrc = { 0, 0 };
 	UpdateLayeredWindow(hwnd, hdcScreen, &ptWnd, &g_sizeWnd, g_hdcMem, &ptSrc, 0, &blend, ULW_ALPHA);
 
-	// ÇåÀí×ÊÔ´
+	// æ¸…ç†èµ„æº
 	SelectObject(g_hdcMem, hOldBitmap);
 	DeleteObject(hBitmap);
 	ReleaseDC(hwnd, hdcScreen);
 }
+
+//Image* g_pImage;
+//bool LoadMyImage() {
+//	if (PathFileExistsA("png.png")) {
+//		WCHAR wszPath[MAX_PATH];
+//		MultiByteToWideChar(CP_ACP, 0, "png.png", -1, wszPath, MAX_PATH);
+//		g_pImage = Image::FromFile(wszPath);
+//		return g_pImage && g_pImage->GetLastStatus() == Ok;
+//	}
+//	else {
+//		HINSTANCE hInst = GetModuleHandle(nullptr);
+//		HRSRC hRes = FindResourceA(hInst, MAKEINTRESOURCEA(IDB_PNG2), "PNG");
+//		if (!hRes) return false;
+//		HGLOBAL hMem = LoadResource(hInst, hRes);
+//		DWORD size = SizeofResource(hInst, hRes);
+//		void* pData = LockResource(hMem);
+//		IStream* pStream = nullptr;
+//		CreateStreamOnHGlobal(nullptr, TRUE, &pStream);
+//		ULONG written;
+//		pStream->Write(pData, size, &written);
+//		LARGE_INTEGER li = { 0 };
+//		pStream->Seek(li, STREAM_SEEK_SET, nullptr);
+//		g_pImage = Image::FromStream(pStream);
+//		pStream->Release();
+//		return g_pImage && g_pImage->GetLastStatus() == Ok;
+//	}
+//}
+
+//export void photoTip(HWND hwnd)
+//{
+//	LoadMyImage();
+//	if (!g_pImage) return;
+//
+//	int winW, winH;
+//	RECT rc;
+//	GetClientRect(hwnd, &rc);
+//	winW = rc.right - rc.left;
+//	winH = rc.bottom - rc.top;
+//
+//	int imgW = g_pImage->GetWidth();
+//	int imgH = g_pImage->GetHeight();
+//
+//	double scale = min((double)winW / imgW, (double)winH / imgH);
+//	int drawW = (int)(imgW * scale);
+//	int drawH = (int)(imgH * scale);
+//	int offsetX = (winW - drawW) / 2;
+//	int offsetY = (winH - drawH) / 2;
+//
+//	HDC hdcScreen = GetDC(hwnd);
+//	HDC hdcMem = CreateCompatibleDC(hdcScreen);
+//
+//	BITMAPINFO bmi = { 0 };
+//	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+//	bmi.bmiHeader.biWidth = winW;
+//	bmi.bmiHeader.biHeight = -winH;  // top-down
+//	bmi.bmiHeader.biPlanes = 1;
+//	bmi.bmiHeader.biBitCount = 32;
+//	bmi.bmiHeader.biCompression = BI_RGB;
+//
+//	void* pvBits = nullptr;
+//	HBITMAP hBitmap = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, &pvBits, nullptr, 0);
+//	HBITMAP hOldBmp = (HBITMAP)SelectObject(hdcMem, hBitmap);
+//
+//	Gdiplus::Graphics graphics(hdcMem);
+//	graphics.SetSmoothingMode(SmoothingModeHighQuality);
+//	graphics.Clear(Color(0, 0, 0, 0));
+//	graphics.DrawImage(g_pImage, offsetX, offsetY, drawW, drawH);
+//
+//	// è·å–å­—ä½“åç§°ï¼ˆANSI â†’ WCHARï¼‰
+//	WCHAR wszFont[LF_FACESIZE] = { 0 };
+//	MultiByteToWideChar(CP_ACP, 0, data.fontName.c_str(), -1, wszFont, LF_FACESIZE);
+//
+//	// åˆ›å»ºå­—ä½“
+//	Gdiplus::Font font(wszFont, 72 * dpiScale, FontStyleRegular, UnitPixel);
+//	Gdiplus::StringFormat format;
+//	format.SetAlignment(StringAlignmentCenter);
+//	format.SetLineAlignment(StringAlignmentCenter);
+//
+//	// è¦æ˜¾ç¤ºçš„æ–‡æœ¬
+//	const WCHAR* text = L"æ„Ÿè°¢ä½¿ç”¨";
+//
+//	// æµ‹é‡æ–‡å­—å°ºå¯¸
+//	Gdiplus::RectF measuredSize;
+//	graphics.MeasureString(text, -1, &font, Gdiplus::PointF(0, 0), &measuredSize);
+//
+//	// å¡ç‰‡èƒŒæ™¯å°ºå¯¸ä¸ä½ç½®ï¼ˆåŠ  paddingï¼‰
+//	int paddingX = 40 * dpiScale;
+//	int paddingY = 20 * dpiScale;
+//	REAL bgWidth = measuredSize.Width + paddingX;
+//	REAL bgHeight = measuredSize.Height + paddingY;
+//	REAL bgX = (winW - bgWidth) / 2.0f;
+//	REAL bgY = (winH - bgHeight) / 2.0f; // å‚ç›´å±…ä¸­
+//
+//	// åœ†è§’å¡ç‰‡è·¯å¾„
+//	Gdiplus::GraphicsPath path;
+//	REAL radius = 25.0f * dpiScale;
+//	path.AddArc(bgX, bgY, radius, radius, 180, 90);
+//	path.AddArc(bgX + bgWidth - radius, bgY, radius, radius, 270, 90);
+//	path.AddArc(bgX + bgWidth - radius, bgY + bgHeight - radius, radius, radius, 0, 90);
+//	path.AddArc(bgX, bgY + bgHeight - radius, radius, radius, 90, 90);
+//	path.CloseFigure();
+//
+//	// å¡ç‰‡èƒŒæ™¯ï¼ˆåŠé€æ˜æ·±è‰²ï¼‰
+//	Gdiplus::SolidBrush bgBrush(Gdiplus::Color(180, 30, 30, 30));
+//	graphics.FillPath(&bgBrush, &path);
+//
+//	// æ–‡æœ¬åŒºåŸŸï¼ˆä½¿ç”¨æ•´ä¸ªçª—å£ï¼Œä½†å‚ç›´å±…ä¸­ï¼Œè€Œä¸”è¦ä½¿ç”¨åç§»ï¼‰
+//	Gdiplus::RectF textRect(bgX, bgY + 10 * dpiScale, bgWidth, bgHeight);
+//
+//	// æ–‡å­—ç”»åˆ·
+//	Gdiplus::SolidBrush whiteBrush(Gdiplus::Color(255, 255, 255));
+//	graphics.DrawString(text, -1, &font, textRect, &format, &whiteBrush);
+//	SIZE sizeWin = { winW, winH };
+//	POINT ptSrc = { 0, 0 };
+//
+//	BLENDFUNCTION blend = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+//	UpdateLayeredWindow(hwnd, hdcScreen, nullptr, &sizeWin, hdcMem, &ptSrc, 0, &blend, ULW_ALPHA);
+//
+//	SelectObject(hdcMem, hOldBmp);
+//	DeleteObject(hBitmap);
+//	DeleteDC(hdcMem);
+//	ReleaseDC(nullptr, hdcScreen);
+//}

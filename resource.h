@@ -11,7 +11,6 @@
 #define IDC_PASSWORD_EDIT               1005
 #define IDC_YES                         1007
 #define IDC_NO                          1008
-#define ID_OK                           1009
 #define IDC_BUTTON1                     1010
 #define IDC_EDIT1                       1011
 #define IDC_PASSWORD_CHECK              1011
@@ -23,7 +22,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        116
+#define _APS_NEXT_RESOURCE_VALUE        120
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1015
 #define _APS_NEXT_SYMED_VALUE           101

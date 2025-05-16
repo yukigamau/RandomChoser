@@ -25,7 +25,7 @@ LRESULT CALLBACK DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if (uMsg == WM_INITDIALOG)
 		CheckDlgButton(hwnd, IDC_YES, BST_CHECKED);	// 默认选择第一个单选按钮
 
-	if (uMsg == WM_COMMAND && LOWORD(wParam) == ID_OK)
+	if (uMsg == WM_COMMAND && LOWORD(wParam) == IDOK)
 	{
 		// 获取输入的名单名字
 		char name[100];
@@ -176,7 +176,10 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 					// 保存在data.bin文件中
 					std::ofstream fileMake(binaryFile, std::ios::binary | std::ios::trunc);	// 创建文件
 					fileMake.close();
-																						EncryptData(splitLines, binaryFile);
+					EncryptData(splitLines, binaryFile);
+
+					// 调整历史记录
+					rewriteHistory();
 
 					// 重启程序
 					selfRestart(hwnd);
@@ -220,7 +223,7 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				}
 				break;
 
-			case IDB_modify:
+			case IDB_modify:	// 确定名单的修改
 				// 获取输入的名单
 				char name[100];
 				GetDlgItemText(hwnd, IDL_showList, name, sizeof(name));
@@ -235,8 +238,9 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				{
 					readName.clear();
 					readName = readEdit(hwnd, IDE_names);
-					store.all[listNum].resize(2 + readName.size());
+					store.all[listNum].resize(2 + readName.size());	// listNum已经在密码检查时确定
 					std::copy(readName.begin(), readName.end(), store.all[listNum].begin() + 2);
+					store.changedNames.push_back(name);	// 记录修改名单
 
 					MessageBox(nullptr, "已记录，记得点“确定好啦”。", "好啦\\(^o^)/~", NULL);
 				}
@@ -253,7 +257,7 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				break;
 
 			case IDB_newList:
-				if (showName)	// 当前正在显示名字
+				if (showName)	// 当前正在显示名字时清空显示文本
 				{
 					readName = newNameTip;	// 重置名单显示文本
 					std::string setText;
@@ -275,14 +279,14 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 						break;
 					}
 
-					// 打开名字、密码输入对话框
+					// 打开名字、密码输入对话框然后进行进一步操作
 					if (DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG1), hwnd, DialogProc))
 					{
 						store.ifRight = true;	// 确保正常全部重绘
 
 						MessageBox(nullptr, "已记录，记得点“确定好啦”。", "好啦\\(^o^)/~", NULL);
 
-						// 显示当前名单
+						// 显示当前名单的名单编辑框上面的栏目调整
 						EnableWindow(hModifyBtn, TRUE);	// 可用修改名单
 						EnableWindow(hDeleteBtn, TRUE);	// 可用删除名单
 						EnableWindow(hDefaultList, TRUE);	// 可用默认名单
@@ -597,7 +601,10 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			switch (button)
 			{
 			case close:
-				PostMessage(hwnd, WM_CLOSE, 0, 0);	// 手动发送 WM_CLOSE 消息
+				//ShowWindow(hwnd, SW_HIDE);	// 关闭窗口
+				//closeTip();
+
+				chooseModeDestroy();	// 正常关闭软件
 				break;
 
 			case setting:
@@ -736,3 +743,28 @@ export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam); // 默认处理
 }
+
+//export LRESULT CALLBACK WPcloseTip(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+//{
+//	switch (uMsg)
+//	{
+//	case WM_CREATE:
+//#ifdef _DEBUG
+//		SetTimer(hwnd, IDT_closeTip, 3000, nullptr);
+//#else
+//		SetTimer(hwnd, IDT_closeTip, 1200, nullptr);
+//#endif
+//		break;
+//
+//	case WM_DESTROY:
+//		chooseModeDestroy();
+//		break;
+//
+//	case WM_TIMER:
+//		if(wParam==IDT_closeTip)
+//			PostMessage(hwnd, WM_CLOSE, 0, 0);	// 手动发送 WM_CLOSE 消息
+//		KillTimer(hwnd, IDT_closeTip);	// 关闭计时器
+//		break;
+//	}
+//	return DefWindowProc(hwnd, uMsg, wParam, lParam); // 默认处理
+//}
