@@ -601,10 +601,11 @@ export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			switch (button)
 			{
 			case close:
-				//ShowWindow(hwnd, SW_HIDE);	// 关闭窗口
+				PostMessage(hwnd, WM_CLOSE, 0, 0);
+				//ShowWindow(hwnd, SW_HIDE);	// 关闭窗口（一定要有）
 				//closeTip();
 
-				chooseModeDestroy();	// 正常关闭软件
+				//chooseModeDestroy();	// 正常关闭软件
 				break;
 
 			case setting:
