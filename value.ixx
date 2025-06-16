@@ -4,6 +4,7 @@ module;
 
 export module value;
 import std;
+using namespace std;
 
 // 按钮
 export constexpr short
@@ -63,6 +64,14 @@ close	= 1,
 setting	= 2
 ;
 
+// 量化设置页面修改的颜色的位置
+export const short
+cliBC = 0,
+cliFC = 1,
+capBC = 2,
+capFC = 3
+;
+
 export short
 transparencyT = 5,	// 透明度修改定时器
 scrollT = 50
@@ -77,11 +86,11 @@ transparencyTimerActive = false	// command要用
 ;
 
 export BYTE currentAlpha = 255; // 当前透明度，初始为完全不透明，command要用
-export std::map<std::string, HFONT> fontMap; // 存储字体对象
+export map<string, HFONT> fontMap; // 存储字体对象
 export HINSTANCE settingInstance;	// 存储设置页面使用的实例
 
-export std::string
-versionText = "1.6",
+export const string versionText = "1.7";
+export string
 chooseTitle = "点名器" + versionText,	// 抽取界面标题栏标题
 chooseText = "点击抽取";	// 抽取名字
 

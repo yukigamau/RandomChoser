@@ -16,7 +16,6 @@ using namespace Gdiplus;
 export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 export LRESULT CALLBACK WPchoose(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 export LRESULT CALLBACK WPicon(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-//export LRESULT CALLBACK WPcloseTip(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 // 设置页面
 export void settingPage(_In_ HINSTANCE hInstance)
@@ -652,46 +651,6 @@ export void ExitIconMode()
 	SetWindowPos(hChoose, nullptr, newPosition.left, newPosition.top, 0, 0, SWP_NOSIZE);
 }
 
-//// 关闭提示
-//export void closeTip()
-//{
-//	// 创建提示窗口
-//	const char* className = "关闭提示";
-//	WNDCLASS wc = {};
-//	wc.hbrBackground = 0;
-//	wc.lpfnWndProc = WPcloseTip;	// 设置窗口过程函数
-//	wc.hInstance = GetModuleHandle(nullptr);	// 获取实例句柄
-//	wc.lpszClassName = className;
-//	wc.style = CS_HREDRAW | CS_VREDRAW;
-//	RegisterClass(&wc);
-//	LPCSTR lpWindowName = "点名器";
-//	int x = GetSystemMetrics(SM_CXSCREEN);
-//	int y = GetSystemMetrics(SM_CYSCREEN);
-//	int width = x * 0.6;
-//	int height = y * 0.6;
-//	HWND hCloseTip = CreateWindowEx(
-//#ifdef _DEBUG
-//		WS_EX_LAYERED,
-//#else
-//		WS_EX_LAYERED | WS_EX_TOPMOST,
-//#endif
-//		className, lpWindowName,
-//		WS_POPUP,
-//		(x - width) / 2,
-//		(y - height) / 2,   // 窗口位置
-//		width,
-//		height,			// 窗口大小
-//		nullptr,                        // 父窗口句柄
-//		nullptr,                        // 菜单句柄
-//		wc.hInstance,                   // 实例句柄
-//		nullptr                         // 附加数据
-//	);
-//
-//	photoTip(hCloseTip);
-//	ShowWindow(hCloseTip, SW_SHOW); // 显示窗口
-//	UpdateWindow(hCloseTip);
-//}
-
 // 其它
 export void deleteAllCommand(HWND& hWnd)
 {
@@ -703,31 +662,6 @@ export void deleteAllCommand(HWND& hWnd)
 		DestroyWindow(child); // 销毁子窗口
 		child = GetWindow(hWnd, GW_CHILD); // 获取下一个子窗口
 	}
-}
-
-export std::vector<std::string> readEdit(HWND& hwnd, short ID)
-{
-	std::vector<std::string> lines;
-
-	// 获取 EditBox 句柄
-	HWND hEdit = GetDlgItem(hwnd, ID);
-	if (!hEdit) return lines;
-
-	// 获取文本长度
-	int len = GetWindowTextLengthA(hEdit);
-	if (!len) return lines;  // 如果没有内容，直接返回
-
-	// 读取文本
-	std::vector<char> buffer(len + 1);
-	GetWindowTextA(hEdit, buffer.data(), len + 1);
-
-	// 按行分割字符串
-	std::stringstream ss(buffer.data());
-	std::string line;
-	while (std::getline(ss, line))
-		lines.push_back(line);
-
-	return lines;
 }
 
 export bool deleteVoid(std::vector<std::string>& vec)
@@ -834,29 +768,14 @@ export void selectChange(HWND& hwnd, std::string& str)
 	SendMessage(hwnd, CB_GETLBTEXT, index, (LPARAM)str.data());	// 获取文本
 }
 
-export void selfRestart(HWND& hwnd)
-{
-	// 获取当前程序的路径
-	wchar_t szPath[MAX_PATH];
-	GetModuleFileNameW(NULL, szPath, MAX_PATH);
+//————————————————————
+// 用于读取EditBox中的文本内容
+export std::vector<std::string> readEdit(HWND& hwnd, short ID);	// 读取后一行一行的vector
 
-	// 创建进程启动信息
-	STARTUPINFOW si = { sizeof(STARTUPINFOW) };
-	PROCESS_INFORMATION pi;
+//————————————————————
+// 用于处理16进制颜色的读取和检查
+void color(HWND& hwnd, short id, short which);
 
-	// 启动新的进程
-	CreateProcessW(
-		szPath,   // 当前程序路径
-		NULL,      // 命令行参数
-		NULL,      // 进程安全属性
-		NULL,      // 线程安全属性
-		FALSE,     // 不继承句柄
-		0,         // 创建标志
-		NULL,      // 环境变量
-		NULL,      // 当前目录
-		&si,       // 启动信息
-		&pi);    // 进程信息
-
-	// 退出当前进程
-	ExitProcess(0);
-}
+//————————————————————
+// 用于重启
+export void selfRestart();

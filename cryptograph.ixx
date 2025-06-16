@@ -6,18 +6,8 @@ module;
 #pragma comment(lib, "advapi32.lib")
 
 export module cryptograph;
+import error;
 import std;
-
-void ShowError(const char* msg)
-{
-	DWORD errorCode = GetLastError();
-
-	std::ostringstream oss;
-	oss << msg << " (错误代码: " << errorCode << ")";
-
-	std::string result = oss.str();
-	MessageBox(NULL, result.c_str(), "错误", MB_OK | MB_ICONERROR);
-}
 
 // 加密函数：将 vector<string> 序列化后加密，并保存到文件中
 export template <typename Container>

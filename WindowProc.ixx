@@ -182,7 +182,7 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 					rewriteHistory();
 
 					// 重启程序
-					selfRestart(hwnd);
+					selfRestart();
 				}
 				break;
 
@@ -436,21 +436,18 @@ export LRESULT CALLBACK WPsetting(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				readName = readEdit(hwnd, IDE_names);	// 在失去焦点时记录名字编辑框里面的内容
 				break;
 
+			// 处理颜色设置
 			case IDE_captionBC16:
-				store.captionBC = std::stoi(readEdit(hwnd, IDE_captionBC16)[0], nullptr, 16);
-				swapHexParts(store.captionBC);
+				color(hwnd, IDE_captionBC16, capBC);
 				break;
 			case IDE_captionFC16:
-				store.captionFC = std::stoi(readEdit(hwnd, IDE_captionFC16)[0], nullptr, 16);
-				swapHexParts(store.captionFC);
+				color(hwnd, IDE_captionFC16, capFC);
 				break;
 			case IDE_clientBC16:
-				store.clientBC = std::stoi(readEdit(hwnd, IDE_clientBC16)[0], nullptr, 16);
-				swapHexParts(store.clientBC);
+				color(hwnd, IDE_clientBC16, cliBC);
 				break;
 			case IDE_clientFC16:
-				store.clientFC = std::stoi(readEdit(hwnd, IDE_clientFC16)[0], nullptr, 16);
-				swapHexParts(store.clientFC);
+				color(hwnd, IDE_clientFC16, cliFC);
 				break;
 			}
 		}
