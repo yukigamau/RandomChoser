@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="documentation/documentation.vcxproj" Id="52ce9767-6f47-4c18-945c-bdbb3e6e820a" />
+  <Project Path="randomChoser/randomChoser.vcxproj" Id="6e340d05-32af-4636-a93f-a0aee765421a" />
+  <Project Path="sqlite/sqlite.vcxproj" Id="2fe49ed6-b0ca-4291-b627-4be6a905de44" />
+</Solution>
