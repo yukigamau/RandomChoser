@@ -1,9 +1,11 @@
 #include <Windows.h>
 
+import dataread;
 import std;
 import window;
 import "resource.h";
 
+using dataread::data;
 using std::wstring;
 using window::WindowPages;
 
@@ -80,14 +82,31 @@ void WindowPages::settingOnCreate(HWND hwnd)
 	HWND welcomeStatic = CreateWindow(L"STATIC", welcome.c_str(), WS_CHILD | WS_VISIBLE,
 		welcomeX, welcomeY, welcomeW + 4, welcomeH + 2, hwnd, nullptr, hInstance, nullptr);
 	SendMessage(welcomeStatic, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+
+	int nextX = welcomeX;
+	int nextY = welcomeY + welcomeH + 2 + style.textIntervalDistance;
+	if (data.defaultList == L"")
+	{
+		wstring ifListOK = L"您尚未选择要抽取的名单。";
+		int width, height;
+		getSize(hSetting, style.settingStaticF, ifListOK, &width, &height);
+		HWND ifListOKStatic = CreateWindow(L"STATIC", ifListOK.c_str(), WS_CHILD | WS_VISIBLE,
+			nextX, nextY, width, height, hwnd, (HMENU)IDC_IFLISTOK, hInstance, nullptr);
+		SendMessage(ifListOKStatic, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+	}
 }
 
 LRESULT WindowPages::settingOnCtlColorStatic(WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc = (HDC)wParam;
 	HWND hCtrl = (HWND)lParam;
+	int id = GetDlgCtrlID(hCtrl);
 
+	if (id == IDC_IFLISTOK)
+		SetTextColor(hdc, RGB(255, 0, 0));
+	else
 	SetTextColor(hdc, style.textColor());
-	SetBkMode(hdc, TRANSPARENT);         // 透明背景
+
+	SetBkMode(hdc, TRANSPARENT);
 	return (INT_PTR)GetStockObject(NULL_BRUSH);
 }

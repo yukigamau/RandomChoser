@@ -29,6 +29,7 @@ export namespace window
 	constexpr int IDT_TRANSPARENCY = 3;
 	constexpr int IDC_SETTING = 1501;
 	constexpr int IDC_TEXT = 1502;
+	constexpr int IDC_IFLISTOK = 1503;
 
 	void buttonStyleTurnOn();
 
@@ -60,6 +61,8 @@ export namespace window
 	private:
 		double dpiScale = 1.0;
 		ColorStyle color = dark;	// 大部分电脑的默认设置应该
+	public:
+		int textIntervalDistance = 1;
 
 	public:
 		~Style();

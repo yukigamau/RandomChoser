@@ -14,6 +14,8 @@ Style::~Style()
 void Style::dpi(double dpiSacle)
 {
 	this->dpiScale = dpiSacle;
+
+	textIntervalDistance *= dpiSacle;
 }
 
 void Style::ini(DWORD styleValue)
