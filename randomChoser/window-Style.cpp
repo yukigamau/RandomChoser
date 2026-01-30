@@ -48,7 +48,7 @@ void Style::iniFont()
 	);
 }
 
-HBRUSH Style::backgroundColor()
+HBRUSH Style::backgroundBrush()
 {
 	// 防止下次访问的时候出现内存问题，使用static存储
 	static HBRUSH darkBrush = CreateSolidBrush(RGB(30, 30, 30));
@@ -58,12 +58,9 @@ HBRUSH Style::backgroundColor()
 		return (HBRUSH)(COLOR_WINDOW + 1);
 }
 
-HBRUSH Style::buttonColor()
+HBRUSH Style::buttonBkBrush()
 {
-	if (color == dark)
-		return CreateSolidBrush(RGB(41, 41, 41));
-	else
-		return (HBRUSH)(COLOR_WINDOW + 1);
+	return backgroundBrush();
 }
 
 COLORREF Style::textColor()

@@ -14,10 +14,10 @@ using window::buttonStyleTurnOn, window::Gdi, window::wps;
 int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdshow)
 try
 {
+	buttonStyleTurnOn();
+	
 	// ∆Ù”√GDI+
 	Gdi gdi;
-
-	buttonStyleTurnOn();
 
 	wps.ini(hInstance);
 	wps.createWindow(hInstance);

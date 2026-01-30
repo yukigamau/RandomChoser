@@ -1,6 +1,8 @@
 #include <Windows.h>;
 #include <commctrl.h>
 
+#pragma comment(lib, "comctl32.lib")
+
 import window;
 
 void window::buttonStyleTurnOn()

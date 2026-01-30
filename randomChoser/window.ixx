@@ -27,9 +27,12 @@ export namespace window
 	constexpr int IDT_SCROLL_INTERVAL = 50;
 	constexpr int IDT_WAIT = 2;
 	constexpr int IDT_TRANSPARENCY = 3;
-	constexpr int IDC_SETTING = 1501;
-	constexpr int IDC_TEXT = 1502;
-	constexpr int IDC_IFLISTOK = 1503;
+	constexpr int IDC_BTN_OPEN_SOURCE_SITE = 1501;
+	constexpr int IDC_BTN_SETTING = 1502;
+	constexpr int IDC_BTN_TEXT = 1503;
+	constexpr int IDC_BTN_WRITE_LIST = 1504;
+	constexpr int IDC_COMBO_LISTS = 1551;
+	constexpr int IDC_STATIC_RED = 1601;
 
 	void buttonStyleTurnOn();
 
@@ -57,12 +60,19 @@ export namespace window
 
 	class Style
 	{
+		// 按钮的比例调整
+	public:
+		// 横向
+		double btnOuterSizeScaleH = 1.6;
+		// 垂直
+		double btnOuterSizeScaleV = 1.8;
+
 		// 颜色
 	private:
 		double dpiScale = 1.0;
 		ColorStyle color = dark;	// 大部分电脑的默认设置应该
 	public:
-		int textIntervalDistance = 1;
+		int textIntervalDistance = 3;
 
 	public:
 		~Style();
@@ -74,8 +84,8 @@ export namespace window
 		void iniFont();
 
 	public:
-		HBRUSH backgroundColor();
-		HBRUSH buttonColor();
+		HBRUSH backgroundBrush();
+		HBRUSH buttonBkBrush();
 		COLORREF textColor();
 
 		// 字体
@@ -178,6 +188,7 @@ export namespace window
 		void getWindowStyle();
 	public:
 		void settingOnCreate(HWND hwnd);
+		LRESULT settingOnCtlColorBtn(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		LRESULT settingOnCtlColorStatic(WPARAM wParam, LPARAM lParam);
 	private:
 		static LRESULT CALLBACK settingWP(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -264,7 +275,7 @@ void window::WindowPages::chooseOnCommand(WPARAM wParam)
 
 	switch (id)
 	{
-	case IDC_TEXT:
+	case IDC_BTN_TEXT:
 		switch(code)
 		{
 		case BN_CLICKED:
@@ -306,7 +317,7 @@ void window::WindowPages::chooseOnCreate()
 		settingBtnRect.left, settingBtnRect.top,
 		settingBtnRect.right - settingBtnRect.left, settingBtnRect.bottom - settingBtnRect.top,
 		hChoose,
-		(HMENU)IDC_SETTING,
+		(HMENU)IDC_BTN_SETTING,
 		hInstance,
 		nullptr
 	);
@@ -331,7 +342,7 @@ void window::WindowPages::chooseOnCreate()
 		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		hPenWidth, captionHeight, choosePageSize.cx - hPenWidth, choosePageSize.cy - hPenWidth,
 		hChoose,
-		(HMENU)IDC_TEXT,
+		(HMENU)IDC_BTN_TEXT,
 		hInstance,
 		nullptr
 	);
@@ -887,13 +898,16 @@ void window::WindowPages::getWindowStyle()
 		style.ini(value);
 }
 
-LRESULT CALLBACK window::WindowPages::settingWP(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK window::WindowPages::settingWP(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
 	case WM_CREATE:
-		wps.settingOnCreate(hwnd);
+		wps.settingOnCreate(hWnd);
 		break;
+
+	case WM_CTLCOLORBTN:
+		return wps.settingOnCtlColorBtn(hWnd, uMsg, wParam, lParam);
 
 	case WM_CTLCOLORSTATIC:
 		return wps.settingOnCtlColorStatic(wParam, lParam);
@@ -903,7 +917,7 @@ LRESULT CALLBACK window::WindowPages::settingWP(HWND hwnd, UINT uMsg, WPARAM wPa
 		break;
 
 	default:
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 
 	return 0;
