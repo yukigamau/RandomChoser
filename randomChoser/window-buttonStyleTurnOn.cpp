@@ -5,7 +5,7 @@
 
 import window;
 
-void window::buttonStyleTurnOn()
+void window::moreControlTurnOn()
 {
 	INITCOMMONCONTROLSEX icex;
 	icex.dwSize = sizeof(icex);

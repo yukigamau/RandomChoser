@@ -1,20 +1,15 @@
 #include <Windows.h>;
-#include <gdiplus.h>
-#include <ShellScalingAPI.h>
-
-#pragma comment(lib, "Gdiplus.lib")
-#pragma comment(lib, "Shcore.lib")
 
 import std;
 import window;
 
 using std::exception, std::string, std::wstring;
-using window::buttonStyleTurnOn, window::Gdi, window::wps;
+using window::moreControlTurnOn, window::Gdi, window::wps;
 
 int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdshow)
 try
 {
-	buttonStyleTurnOn();
+	moreControlTurnOn();
 	
 	// ∆Ù”√GDI+
 	Gdi gdi;

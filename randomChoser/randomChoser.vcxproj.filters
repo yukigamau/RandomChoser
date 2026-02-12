@@ -18,7 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="window.ixx">
+    <ClCompile Include="windowPages.ixx">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="window-Style.cpp">
@@ -34,6 +34,21 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="window-buttonStyleTurnOn.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="windowAdjuster.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="window.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="window-Page.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Page-listModify.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="windowPages-ini.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

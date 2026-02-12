@@ -133,12 +133,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Page-listModify.ixx" />
     <ClCompile Include="window-buttonStyleTurnOn.cpp" />
     <ClCompile Include="window-choosePage.cpp" />
     <ClCompile Include="window-Gdi.cpp" />
+    <ClCompile Include="window-Page.cpp" />
     <ClCompile Include="window-settingPage.cpp" />
     <ClCompile Include="window-Style.cpp" />
     <ClCompile Include="window.ixx" />
+    <ClCompile Include="windowPages-ini.cpp" />
+    <ClCompile Include="windowPages.ixx" />
+    <ClCompile Include="windowAdjuster.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\sqlite\sqlite.vcxproj">

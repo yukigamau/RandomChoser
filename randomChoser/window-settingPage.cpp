@@ -7,13 +7,10 @@ import "resource.h";
 
 using dataread::data;
 using std::vector, std::wstring;
-using window::WindowPages;
+using window::WindowAdjuster, window::WindowPages;
 
 void WindowPages::createSettingPage()
 {
-	// 获取系统主题
-	getWindowStyle();
-
 	// 注册窗口类
 	const wchar_t* className = L"设置页面";
 	WNDCLASS wc = {};
@@ -36,14 +33,12 @@ void WindowPages::createSettingPage()
 
 	LPCWSTR lpWindowName = L"点名器设置";
 	// 创建窗口
-
-	int x = (screenSize.cx - settingPageSize.cx) / 2;
-	int y = (screenSize.cy - settingPageSize.cy) / 2;
 	hSetting = CreateWindow(
 		className, lpWindowName,
 		WS_OVERLAPPEDWINDOW,
-		x, y,
-		settingPageSize.cx, settingPageSize.cy,
+		// 等创建控件之后根据控件调整窗口大小和位置
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT,
 		nullptr, nullptr,
 		wc.hInstance,	// 实例句柄
 		nullptr			// 附加数据
@@ -52,22 +47,6 @@ void WindowPages::createSettingPage()
 	ShowWindow(hSetting, SW_SHOW);
 	SetForegroundWindow(hSetting);	// 把窗口显示到最前面
 	UpdateWindow(hSetting);
-}
-
-void getSize(HWND hWnd, HFONT hFont, const wstring& text, int* const width, int* const height)
-{
-	RECT rc = { 0, 0, 0, 0 };
-
-	HDC hdc = GetDC(hWnd);
-	HFONT font = (HFONT)SelectObject(hdc, hFont);
-
-	DrawText(hdc, text.c_str(), -1, &rc, DT_CALCRECT);
-
-	SelectObject(hdc, font);
-	ReleaseDC(hWnd, hdc);
-
-	*width = rc.right - rc.left;
-	*height = rc.bottom - rc.top;
 }
 
 void maxSize(HWND hWnd, HFONT hFont, const vector<wstring>& texts, int* const width, int* const height)
@@ -87,72 +66,116 @@ void maxSize(HWND hWnd, HFONT hFont, const vector<wstring>& texts, int* const wi
 	ReleaseDC(hWnd, hdc);
 }
 
-void WindowPages::settingOnCreate(HWND hwnd)
+LRESULT WindowPages::settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	int id = LOWORD(wParam);
+	switch (id)
+	{
+	case IDC_BTN_EDIT_LIST:
+
+		return 0;
+
+	case IDC_BTN_OPEN_SOURCE_SITE:
+
+		return 0;
+
+	case IDC_BTN_WRITE_LIST:
+		listModify.ini(hInstance, style);
+		listModify.createWindow(L"listModify", L"创建名单", WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+		return 0;
+
+	default:
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+}
+
+void WindowPages::settingOnCreate(HWND hWnd)
+{
+	const int xBegin = 10;
+	const int yBegin = 10;
+	WindowAdjuster wa(hWnd, style.settingStaticF, style.interval, xBegin, yBegin);
+
 	const wstring welcome = L"欢迎使用本程序！当前版本：" + VERSION + L"\n"
 		L"如果您在使用本产品时遇到程序漏洞，请发邮件至yvehuanghun@outlook.com" + L"\n"
 		L"本项目己经在github上开源：https://github.com/yukigamau/RandomChoser";
-	const int welcomeX = 10, welcomeY = 10;
-	int welcomeW, welcomeH;
-	getSize(hSetting, style.settingStaticF, welcome, &welcomeW, &welcomeH);
+	int width, height;
+	wa.getCtlSize(welcome, &width, &height);
 	HWND welcomeStatic = CreateWindow(L"STATIC", welcome.c_str(), WS_CHILD | WS_VISIBLE,
-		welcomeX, welcomeY, welcomeW, welcomeH, hwnd, nullptr, hInstance, nullptr);
+		wa.x, wa.y, width, height, hWnd, nullptr, hInstance, nullptr);
 	SendMessage(welcomeStatic, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
 
-	int nextX = welcomeX;
-	int nextY = welcomeY + welcomeH + style.textIntervalDistance;
+	wa.ctlNext(height);
+
 	if (data.defaultList == L"")
 	{
 		wstring ifListOK = L"您尚未选择要抽取的名单。";
 		int width, height;
-		getSize(hSetting, style.settingStaticF, ifListOK, &width, &height);
+		wa.getCtlSize(ifListOK, &width, &height);
 		HWND ifListOKStatic = CreateWindow(L"STATIC", ifListOK.c_str(), WS_CHILD | WS_VISIBLE,
-			nextX, nextY, width, height, hwnd, (HMENU)IDC_STATIC_RED, hInstance, nullptr);
+			wa.x, wa.y, width, height, hWnd, (HMENU)IDC_STATIC_RED, hInstance, nullptr);
 		SendMessage(ifListOKStatic, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
 
-		nextY += height + style.textIntervalDistance;
+		wa.ctlNext(height);
 	}
 
 	if (data.lists.empty())
 	{
-		wstring haveNoLists = L"您还没有创建名单。";
+		wstring haveNoLists = L"您尚未创建名单。";
 		int width, height;
-		getSize(hSetting, style.settingStaticF, haveNoLists, &width, &height);
+		wa.getCtlSize(haveNoLists, &width, &height);
 		HWND haveNolistsStatic = CreateWindow(L"STATIC", haveNoLists.c_str(), WS_CHILD | WS_VISIBLE,
-			nextX, nextY, width, height, hwnd, (HMENU)IDC_STATIC_RED, hInstance, nullptr);
+			wa.x, wa.y, width, height, hWnd, (HMENU)IDC_STATIC_RED, hInstance, nullptr);
 		SendMessage(haveNolistsStatic, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
 
-		nextY += height + style.textIntervalDistance;
+		wa.ctlNext(height);
 	}
 	else
 	{
 		int width, height;
-		maxSize(hwnd, style.settingStaticF, data.lists, &width, &height);
+		maxSize(hWnd, style.settingStaticF, data.lists, &width, &height);
 
 		HWND chooseListCombo = CreateWindow(L"COMBOBOX", nullptr,
 			WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
-			nextX, nextY, width, height, hwnd, nullptr, hInstance, nullptr);
+			wa.x, wa.y, width, height, hWnd, nullptr, hInstance, nullptr);
+
+		wa.ctlNext(height);
 	}
 
 	// 同行的按钮
 	wstring writeList = L"创建名单";
-	int width, height;
-	getSize(hSetting, style.settingStaticF, writeList, &width, &height);
+	wa.getCtlSize(writeList, &width, &height);
 	width *= style.btnOuterSizeScaleH;
 	height *= style.btnOuterSizeScaleV;
 	HWND writeListBtn = CreateWindowEx(0, L"BUTTON", writeList.c_str(), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-		nextX, nextY, width, height, hwnd, (HMENU)IDC_BTN_WRITE_LIST, hInstance, nullptr);
+		wa.x, wa.y, width, height, hWnd, (HMENU)IDC_BTN_WRITE_LIST, hInstance, nullptr);
 	SendMessage(writeListBtn, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
-	// Y值是相同的
-	nextX += width + style.textIntervalDistance;
+	
+	wa.ctlBeside(width);
 
 	wstring openSourceSite = L"打开源码网站";
-	getSize(hSetting, style.settingStaticF, openSourceSite, &width, &height);
+	wa.getCtlSize(openSourceSite, &width, &height);
 	width *= style.btnOuterSizeScaleH;
 	height *= style.btnOuterSizeScaleV;
 	HWND openSourceSiteBtn = CreateWindow(L"BUTTON", openSourceSite.c_str(), WS_CHILD | WS_VISIBLE,
-		nextX, nextY, width, height, hwnd, (HMENU)IDC_BTN_OPEN_SOURCE_SITE, hInstance, nullptr);
+		wa.x, wa.y, width, height, hWnd, (HMENU)IDC_BTN_OPEN_SOURCE_SITE, hInstance, nullptr);
 	SendMessage(openSourceSiteBtn, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+
+	wa.ctlBeside(width);
+
+	wstring editList = L"修改已有名单";
+	wa.getCtlSize(editList, &width, &height);
+	width *= style.btnOuterSizeScaleH;
+	height *= style.btnOuterSizeScaleV;
+	HWND editListBtn = CreateWindow(L"BUTTON", editList.c_str(), WS_CHILD | WS_VISIBLE,
+		wa.x, wa.y, width, height, hWnd, (HMENU)IDC_BTN_EDIT_LIST, hInstance, nullptr);
+	SendMessage(editListBtn, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+
+	// 如果没有名单，那么就不会启用【修改已有名单】
+	if (data.lists.empty())
+		EnableWindow(editListBtn, false);
+
+	wa.apply();
 }
 
 LRESULT WindowPages::settingOnCtlColorBtn(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -163,6 +186,8 @@ LRESULT WindowPages::settingOnCtlColorBtn(HWND hwnd, UINT uMsg, WPARAM wParam, L
 
 	switch (id)
 	{
+	case IDC_BTN_EDIT_LIST:
+		[[fallthrough]];
 	case IDC_BTN_OPEN_SOURCE_SITE:
 		[[fallthrough]];
 	case IDC_BTN_WRITE_LIST:
@@ -186,4 +211,32 @@ LRESULT WindowPages::settingOnCtlColorStatic(WPARAM wParam, LPARAM lParam)
 
 	SetBkMode(hdc, TRANSPARENT);
 	return (INT_PTR)GetStockObject(NULL_BRUSH);
+}
+
+LRESULT CALLBACK window::WindowPages::settingWP(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_COMMAND:
+		return wps.settingOnCommand(hWnd, uMsg, wParam, lParam);
+
+	case WM_CREATE:
+		wps.settingOnCreate(hWnd);
+		break;
+
+	case WM_CTLCOLORBTN:
+		return wps.settingOnCtlColorBtn(hWnd, uMsg, wParam, lParam);
+
+	case WM_CTLCOLORSTATIC:
+		return wps.settingOnCtlColorStatic(wParam, lParam);
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+
+	default:
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+
+	return 0;
 }
