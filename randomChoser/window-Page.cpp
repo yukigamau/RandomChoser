@@ -13,24 +13,15 @@ void window::Page::createWindow(const wstring& className, const wstring& windowN
 {
 	// 注册窗口类
 	WNDCLASS wc = {};
-	wc.hbrBackground = style.backgroundBrush();
+	wc.hbrBackground = style->textBkBrush();
 	wc.lpfnWndProc = process; // 设置窗口过程函数
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wc.hInstance = GetModuleHandle(nullptr); // 获取实例句柄
 	wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wc.lpszClassName = className.c_str();
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 
-#if _DEBUG
-	if (!RegisterClass(&wc))
-	{
-		DWORD err = GetLastError();
-		if (err != ERROR_CLASS_ALREADY_EXISTS) // 可以忽略已存在
-		{
-			MessageBox(nullptr, L"窗口注册失败", L"Error", MB_ICONERROR);
-			return;
-		}
-	}
-#endif
+	RegisterClass(&wc);
 
 	// 创建窗口
 	hWnd = CreateWindow(
@@ -47,7 +38,7 @@ void window::Page::createWindow(const wstring& className, const wstring& windowN
 	UpdateWindow(hWnd);
 }
 
-void window::Page::ini(HINSTANCE hInstance, Style style)
+void window::Page::ini(HINSTANCE hInstance, Style* style)
 {
 	this->hInstance = hInstance;
 	this->style = style;

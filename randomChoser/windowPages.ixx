@@ -67,10 +67,10 @@ export namespace window
 		double btnOuterSizeScaleH = 1.6;
 		// 垂直
 		double btnOuterSizeScaleV = 1.8;
+		double dpiScale = 1.0;
 
 		// 颜色
 	private:
-		double dpiScale = 1.0;
 		ColorStyle color = dark;	// 大部分电脑的默认设置应该
 	public:
 		int interval = 15;
@@ -86,24 +86,25 @@ export namespace window
 		void iniFont();
 
 	public:
-		HBRUSH backgroundBrush();
 		HBRUSH buttonBkBrush();
+		HBRUSH textBkBrush();
+		COLORREF textBkColor();
 		COLORREF textColor();
 
 		// 字体
 	public:
-		HFONT settingStaticF = nullptr;
+		HFONT hFStatic = nullptr;
 	};
 
 	class Page
 	{
 	public:
 		WNDPROC process;
+		Style* style;
+		HINSTANCE hInstance = nullptr;
 
 	private:
-		HINSTANCE hInstance = nullptr;
 		HWND hWnd = nullptr;
-		Style style;
 
 	public:
 		Page() = default;
@@ -112,7 +113,7 @@ export namespace window
 	public:
 		void createWindow(const wstring& className, const wstring& windowName, DWORD dwstyle,
 			int x, int y, int width, int height);
-		void ini(HINSTANCE hInstance, Style style);
+		void ini(HINSTANCE hInstance, Style* style);
 	};
 
 	class WindowPages
@@ -133,6 +134,7 @@ export namespace window
 		void createWindow(HINSTANCE hInstance);
 
 	public:
+		Style style;
 		// 新的页面规则
 		Page listModify;
 
@@ -205,7 +207,6 @@ export namespace window
 	private:
 		int settingFontHeight = 20;
 		HWND hSetting;
-		Style style;
 	private:
 		void createSettingPage();
 	public:

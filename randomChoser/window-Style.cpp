@@ -8,7 +8,7 @@ using window::Style;
 
 Style::~Style()
 {
-	DeleteObject(settingStaticF);
+	DeleteObject(hFStatic);
 }
 
 void Style::dpi(double dpiSacle)
@@ -69,7 +69,7 @@ void Style::ini(DWORD styleValue)
 
 void Style::iniFont()
 {
-	settingStaticF = CreateFont(
+	hFStatic = CreateFont(
 		18 * dpiScale,			// 字体高度
 		0, 0, 0,
 		FW_NORMAL,	// 字体粗细
@@ -85,19 +85,25 @@ void Style::iniFont()
 	);
 }
 
-HBRUSH Style::backgroundBrush()
+HBRUSH Style::buttonBkBrush()
 {
-	// 防止下次访问的时候出现内存问题，使用static存储
-	static HBRUSH darkBrush = CreateSolidBrush(RGB(30, 30, 30));
+	return textBkBrush();
+}
+
+HBRUSH Style::textBkBrush()
+{
 	if (color == dark)
-		return darkBrush;
+		return CreateSolidBrush(RGB(30, 30, 30));
 	else
 		return (HBRUSH)(COLOR_WINDOW + 1);
 }
 
-HBRUSH Style::buttonBkBrush()
+COLORREF Style::textBkColor()
 {
-	return backgroundBrush();
+	if (color == dark)
+		return RGB(30, 30, 30);
+	else
+		return RGB(255, 255, 255);
 }
 
 COLORREF Style::textColor()

@@ -1,6 +1,7 @@
 module;
 #include <Windows.h>
 export module window:listModify;
+import listModifyWPFun;
 
 export namespace window
 {
@@ -15,21 +16,21 @@ LRESULT CALLBACK window::listModifyWP(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		break;
 
 	case WM_CREATE:
-		break;
+		return listModifyOnCreate(hWnd, uMsg, wParam, lParam);
 
 	case WM_CTLCOLORBTN:
 		break;
 
+	case WM_CTLCOLOREDIT:
+		return listModifyOnCtlColorEdit(hWnd, uMsg, wParam, lParam);
+
 	case WM_CTLCOLORSTATIC:
-		break;
+		return listModifyOnCtlColorStatic(hWnd, uMsg, wParam, lParam);
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-
-	default:
-		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 
-	return 0;
+	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }

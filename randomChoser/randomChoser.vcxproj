@@ -124,7 +124,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
+      <AdditionalModuleDependencies>C:\code\vs\randomChoser\sqlite\x64\Release\sqlite.ixx.ifc;C:\code\vs\randomChoser\sqlite\x64\Release\dataRead.ixx.ifc;%(AdditionalModuleDependencies)</AdditionalModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -132,6 +134,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="listModifyWPFun.cpp" />
+    <ClCompile Include="listModifyWPFun.ixx" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Page-listModify.ixx" />
     <ClCompile Include="window-buttonStyleTurnOn.cpp" />

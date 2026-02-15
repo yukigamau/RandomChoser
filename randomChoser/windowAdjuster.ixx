@@ -4,7 +4,7 @@ module;
 
 export module window:windowAdjuster;
 import std;
-using std::wstring;
+using std::tuple, std::wstring;
 using std::max;
 
 export namespace window
@@ -16,11 +16,11 @@ export namespace window
 		const int left;
 		int x = 0;
 		int y = 0;
+		int interval = 0;
 
 	private:
 		int maxX = 0;
 		int maxY = 0;
-		int interval = 0;
 
 	private:
 		HWND hWnd = nullptr;
@@ -30,11 +30,18 @@ export namespace window
 		WindowAdjuster(HWND hWnd, HFONT hFont, int interval, int xBegin, int yBegin);
 
 	public:
+		// 用于判断窗口的尺寸，每次增加新的控件都需要重新调整
 		void adjust(int width, int height);
+		void adjustMaxXChange(int w);
+		void adjustMaxYAddon(int h);
 		void apply();
 		void ctlBeside(int width);
+		void ctlLeft(int xLeft);
 		void ctlNext(int height);
-		void getCtlSize(const wstring& text, int* const width, int* const height);
+		void getCtrlSize(const wstring& text, int* const width, int* const height);
+		tuple<int, int> getCtlSize(const wstring& text);
+		// 获取maxX值
+		int outMaxWidth();
 	};
 }
 
@@ -47,6 +54,16 @@ void window::WindowAdjuster::adjust(int width, int height)
 	maxX = max(width, maxX);
 	// Y值是积累的
 	maxY += height + interval;
+}
+
+void window::WindowAdjuster::adjustMaxXChange(int w)
+{
+	maxX = max(maxX, w);
+}
+
+void window::WindowAdjuster::adjustMaxYAddon(int h)
+{
+	maxY += h + interval;
 }
 
 void window::WindowAdjuster::apply()
@@ -67,12 +84,17 @@ void window::WindowAdjuster::ctlBeside(int width)
 	x += width + interval;
 }
 
+void window::WindowAdjuster::ctlLeft(int xLeft)
+{
+	x = xLeft;
+}
+
 void window::WindowAdjuster::ctlNext(int height)
 {
 	y += height + interval;
 }
 
-void window::WindowAdjuster::getCtlSize(const wstring& text, int* const width, int* const height)
+void window::WindowAdjuster::getCtrlSize(const wstring& text, int* const width, int* const height)
 {
 	RECT rc = { 0, 0, 0, 0 };
 
@@ -88,4 +110,28 @@ void window::WindowAdjuster::getCtlSize(const wstring& text, int* const width, i
 	*height = rc.bottom - rc.top;
 
 	adjust(*width, *height);
+}
+tuple<int, int> window::WindowAdjuster::getCtlSize(const wstring& text)
+{
+	RECT rc{ 0,0,0,0 };
+
+	HDC hdc = GetDC(hWnd);
+	HFONT font = (HFONT)SelectObject(hdc, hFont);
+
+	DrawText(hdc, text.c_str(), -1, &rc, DT_CALCRECT);
+
+	SelectObject(hdc, font);
+	ReleaseDC(hWnd, hdc);
+
+	auto width{ rc.right - rc.left };
+	auto height{ rc.bottom - rc.top };
+
+	adjust(width, height);
+
+	return { width,height };
+}
+
+int window::WindowAdjuster::outMaxWidth()
+{
+	return maxX;
 }

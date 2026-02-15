@@ -14,8 +14,9 @@ void WindowPages::createSettingPage()
 	// 注册窗口类
 	const wchar_t* className = L"设置页面";
 	WNDCLASS wc = {};
-	wc.hbrBackground = style.backgroundBrush();
+	wc.hbrBackground = style.textBkBrush();
 	wc.lpfnWndProc = settingWP; // 设置窗口过程函数
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wc.hInstance = GetModuleHandle(nullptr); // 获取实例句柄
 	wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wc.lpszClassName = className;
@@ -80,9 +81,10 @@ LRESULT WindowPages::settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		return 0;
 
 	case IDC_BTN_WRITE_LIST:
-		listModify.ini(hInstance, style);
+		listModify.ini(hInstance, &style);
 		listModify.createWindow(L"listModify", L"创建名单", WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+		ShowWindow(hWnd, SW_HIDE);
 		return 0;
 
 	default:
@@ -94,16 +96,16 @@ void WindowPages::settingOnCreate(HWND hWnd)
 {
 	const int xBegin = 10;
 	const int yBegin = 10;
-	WindowAdjuster wa(hWnd, style.settingStaticF, style.interval, xBegin, yBegin);
+	WindowAdjuster wa(hWnd, style.hFStatic, style.interval, xBegin, yBegin);
 
 	const wstring welcome = L"欢迎使用本程序！当前版本：" + VERSION + L"\n"
 		L"如果您在使用本产品时遇到程序漏洞，请发邮件至yvehuanghun@outlook.com" + L"\n"
 		L"本项目己经在github上开源：https://github.com/yukigamau/RandomChoser";
 	int width, height;
-	wa.getCtlSize(welcome, &width, &height);
+	wa.getCtrlSize(welcome, &width, &height);
 	HWND welcomeStatic = CreateWindow(L"STATIC", welcome.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, nullptr, hInstance, nullptr);
-	SendMessage(welcomeStatic, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+	SendMessage(welcomeStatic, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
 	wa.ctlNext(height);
 
@@ -111,10 +113,10 @@ void WindowPages::settingOnCreate(HWND hWnd)
 	{
 		wstring ifListOK = L"您尚未选择要抽取的名单。";
 		int width, height;
-		wa.getCtlSize(ifListOK, &width, &height);
+		wa.getCtrlSize(ifListOK, &width, &height);
 		HWND ifListOKStatic = CreateWindow(L"STATIC", ifListOK.c_str(), WS_CHILD | WS_VISIBLE,
 			wa.x, wa.y, width, height, hWnd, (HMENU)IDC_STATIC_RED, hInstance, nullptr);
-		SendMessage(ifListOKStatic, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+		SendMessage(ifListOKStatic, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
 		wa.ctlNext(height);
 	}
@@ -123,17 +125,17 @@ void WindowPages::settingOnCreate(HWND hWnd)
 	{
 		wstring haveNoLists = L"您尚未创建名单。";
 		int width, height;
-		wa.getCtlSize(haveNoLists, &width, &height);
+		wa.getCtrlSize(haveNoLists, &width, &height);
 		HWND haveNolistsStatic = CreateWindow(L"STATIC", haveNoLists.c_str(), WS_CHILD | WS_VISIBLE,
 			wa.x, wa.y, width, height, hWnd, (HMENU)IDC_STATIC_RED, hInstance, nullptr);
-		SendMessage(haveNolistsStatic, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+		SendMessage(haveNolistsStatic, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
 		wa.ctlNext(height);
 	}
 	else
 	{
 		int width, height;
-		maxSize(hWnd, style.settingStaticF, data.lists, &width, &height);
+		maxSize(hWnd, style.hFStatic, data.lists, &width, &height);
 
 		HWND chooseListCombo = CreateWindow(L"COMBOBOX", nullptr,
 			WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
@@ -144,32 +146,32 @@ void WindowPages::settingOnCreate(HWND hWnd)
 
 	// 同行的按钮
 	wstring writeList = L"创建名单";
-	wa.getCtlSize(writeList, &width, &height);
+	wa.getCtrlSize(writeList, &width, &height);
 	width *= style.btnOuterSizeScaleH;
 	height *= style.btnOuterSizeScaleV;
 	HWND writeListBtn = CreateWindowEx(0, L"BUTTON", writeList.c_str(), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		wa.x, wa.y, width, height, hWnd, (HMENU)IDC_BTN_WRITE_LIST, hInstance, nullptr);
-	SendMessage(writeListBtn, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+	SendMessage(writeListBtn, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 	
 	wa.ctlBeside(width);
 
 	wstring openSourceSite = L"打开源码网站";
-	wa.getCtlSize(openSourceSite, &width, &height);
+	wa.getCtrlSize(openSourceSite, &width, &height);
 	width *= style.btnOuterSizeScaleH;
 	height *= style.btnOuterSizeScaleV;
 	HWND openSourceSiteBtn = CreateWindow(L"BUTTON", openSourceSite.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, (HMENU)IDC_BTN_OPEN_SOURCE_SITE, hInstance, nullptr);
-	SendMessage(openSourceSiteBtn, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+	SendMessage(openSourceSiteBtn, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
 	wa.ctlBeside(width);
 
 	wstring editList = L"修改已有名单";
-	wa.getCtlSize(editList, &width, &height);
+	wa.getCtrlSize(editList, &width, &height);
 	width *= style.btnOuterSizeScaleH;
 	height *= style.btnOuterSizeScaleV;
 	HWND editListBtn = CreateWindow(L"BUTTON", editList.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, (HMENU)IDC_BTN_EDIT_LIST, hInstance, nullptr);
-	SendMessage(editListBtn, WM_SETFONT, (WPARAM)style.settingStaticF, TRUE);
+	SendMessage(editListBtn, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
 	// 如果没有名单，那么就不会启用【修改已有名单】
 	if (data.lists.empty())
