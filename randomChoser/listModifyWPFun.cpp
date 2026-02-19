@@ -1,16 +1,143 @@
 #include <Windows.h>
+#include <commctrl.h>
 import dataread;
+import id;
 import listModifyWPFun;
 import std;
+import subclass;
 import window;
 
 using dataread::data;
-using std::wstring;
-using std::tie;
-using window::Page, window::WindowAdjuster;
+using std::vector, std::wstring;
+using std::any_of, std::tie;
+using window::Follow, window::IfButton, window::Page, window::Style, window::WindowAdjuster;
 
 auto& listModify{ window::wps.listModify };
-const auto idc_static_red{ 1501 };
+auto& hSetting{ window::wps.hSetting };
+
+bool isAllWspace(const wstring& text)
+{
+	return !any_of(
+		text.begin(), text.end(),
+		[](wchar_t c) { return !iswspace(c); }
+	);
+}
+
+bool haveText(const vector<int>& idEdits)
+{
+	for (auto i : idEdits)
+	{
+		HWND hEdit = GetDlgItem(listModify.getHWND(), i);
+		auto len{ GetWindowTextLength(hEdit) };
+		if (!len)
+			return false;
+
+		wstring text;
+		text.resize(len);
+
+		GetWindowText(hEdit, text.data(), len + 1);
+
+		if (isAllWspace(text))
+			return false;
+		else
+			continue;
+	}
+
+	return true;
+}
+
+void backSettingPage(HWND hSetting, HWND hCur)
+{
+	ShowWindow(hCur, SW_HIDE);
+	ShowWindow(hSetting, SW_SHOW);
+}
+
+auto getWindowText(HWND hWnd)
+-> wstring
+{
+	auto len = GetWindowTextLength(hWnd);
+	wstring text;
+	text.resize(len + 1);
+	GetWindowText(hWnd, text.data(), len + 1);
+	return text;
+}
+
+// 检查是否重名
+auto checkListName(HWND hWnd)
+{
+	auto text{ getWindowText(hWnd) };
+	for (const auto& t : data.lists)
+		if (t == text)
+			return false;
+
+	return true;
+}
+
+auto openPasswordPage(HWND hWnd)
+{
+	if (checkListName(hWnd))
+	{
+		ShowWindow(hWnd, SW_HIDE);
+		window::wps.password.ini(listModify.hInstance, listModify.style);
+		window::wps.password.createWindow(L"password", L"密码", WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+	}
+
+	return 0;
+}
+
+LRESULT listModifyOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto id{ LOWORD(wParam) };
+	auto msg{ HIWORD(wParam) };
+
+	switch (id)
+	{
+	case idc_btn_backSettingPage:
+		switch (msg)
+		{
+		case BN_CLICKED:
+			backSettingPage(hSetting, hWnd);
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+	case idc_btn_save:
+		switch (msg)
+		{
+		case BN_CLICKED:
+			return openPasswordPage(hWnd);
+		}
+		break;
+
+	case idc_edit_listName:
+		[[fallthrough]];
+	case idc_edit_writeName:
+		switch (msg)
+		{
+		case EN_CHANGE:
+		{
+			auto hBSave{ GetDlgItem(hWnd, idc_btn_save) };
+			auto enable{ false };
+			if (haveText({ idc_edit_listName,idc_edit_writeName }))
+				enable = true;
+			EnableWindow(hBSave, enable);
+		}
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+	default:
+		break;
+	}
+	return 0;
+}
 
 LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -33,18 +160,20 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	width *= 9;
 	const auto halfMargin{ 5 * listModify.style->dpiScale };
 	HWND hEListName = CreateWindow(L"EDIT", L"", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
-		wa.x, wa.y - halfMargin, width, height + halfMargin, hWnd, nullptr, listModify.hInstance, nullptr);
+		wa.x, wa.y - halfMargin, width, height + halfMargin, hWnd,
+		(HMENU)idc_edit_listName, listModify.hInstance, nullptr);
 	SendMessage(hEListName, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
 	SendMessage(hEListName, EM_SETMARGINS, EC_LEFTMARGIN | EC_RIGHTMARGIN,
 		MAKELPARAM(halfMargin, halfMargin));
-	
+	SetWindowSubclass(hEListName, subclass::subclassEListName, (UINT_PTR)idc_edit_listName, 0);
+
 	maxX += width;
 	wa.adjustMaxXChange(maxX);
 
 	wa.ctlNext(height + halfMargin);
 	wa.ctlLeft(xBegin);
 
-	wstring wsWriteNamesTip{ L"在下方写下名字，一行一个。\n不支持用空格和制表符！！！" };
+	wstring wsWriteNamesTip{ L"在下方写下名字，用换行或tab区分各个名字。\n不支持用空格！！！" };
 	tie(width, height) = wa.getCtlSize(wsWriteNamesTip);
 	HWND hSWriteNamesTip = CreateWindow(L"STATIC", wsWriteNamesTip.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, (HMENU)idc_static_red, listModify.hInstance, nullptr);
@@ -52,14 +181,34 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	wa.ctlNext(height);
 
-	height *= 16;	// 这里是2*32行内容，对于大部分情况下应该是够用的
+	wstring wsSaveBtnText{ L"保存名单进入下一步" };
+	tie(width, height) = wa.getCtlSize(wsSaveBtnText, IfButton::button);
+	HWND hBSave = CreateWindow(L"BUTTON", wsSaveBtnText.c_str(), WS_CHILD | WS_VISIBLE,
+		wa.x, wa.y, width, height, hWnd, (HMENU)idc_btn_save, listModify.hInstance, nullptr);
+	SendMessage(hBSave, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
+	EnableWindow(hBSave, false);
+
+	wa.ctlBeside(width);
+
+	wstring wsBackSettingPageBtnText{ L"返回设置页面" };
+	tie(width, height) = wa.getCtlSize(wsBackSettingPageBtnText, IfButton::button, Follow::beside);
+	HWND hBBackSettingPage = CreateWindow(L"BUTTON", wsBackSettingPageBtnText.c_str(), WS_CHILD | WS_VISIBLE,
+		wa.x, wa.y, width, height, hWnd, (HMENU)idc_btn_backSettingPage, listModify.hInstance, nullptr);
+	SendMessage(hBBackSettingPage, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
+
+	wa.ctlLeft(xBegin);
+	wa.ctlNext(height);
+	
+	height = wa.getMultipleLinesHeight(32);	// 这里是32行内容，对于大部分情况下应该是够用的
 	width = maxX;
 	HWND hEWriteName = CreateWindowEx(0, L"EDIT", L"",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | WS_VSCROLL,
-		wa.x, wa.y, width, height, hWnd, nullptr, listModify.hInstance, nullptr);
+		wa.x, wa.y, width, height, hWnd, (HMENU)idc_edit_writeName, listModify.hInstance, nullptr);
 	SendMessage(hEWriteName, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
 	SendMessage(hEWriteName, EM_SETMARGINS, EC_LEFTMARGIN | EC_RIGHTMARGIN,
 		MAKELPARAM(halfMargin, halfMargin));
+	SetWindowSubclass(hEWriteName, subclass::subclassEWriteNames, (UINT_PTR)idc_edit_writeName, 0);
+	Style::setTapStops(hEWriteName, 64);
 
 	// 这里的多余的值用于处理不知道为什么出现的编辑框无法完整出现的问题
 	wa.adjustMaxYAddon(height + halfMargin * 4 + wa.interval);
@@ -67,6 +216,24 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	wa.apply();
 
 	return 0;
+}
+
+LRESULT listModifyOnCtlColorButton(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	HDC hdc = (HDC)wParam;
+	HWND hCtrl = (HWND)lParam;
+	int id = GetDlgCtrlID(hCtrl);
+
+	switch (id)
+	{
+	case idc_btn_backSettingPage:
+		[[fallthrough]];
+	case idc_btn_save:
+		return (INT_PTR)listModify.style->buttonBkBrush();
+
+	default:
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
 }
 
 LRESULT listModifyOnCtlColorEdit(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

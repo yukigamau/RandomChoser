@@ -94,6 +94,9 @@ export namespace window
 		// 字体
 	public:
 		HFONT hFStatic = nullptr;
+
+	public:
+		static void setTapStops(HWND hWnd, int tab);
 	};
 
 	class Page
@@ -113,6 +116,7 @@ export namespace window
 	public:
 		void createWindow(const wstring& className, const wstring& windowName, DWORD dwstyle,
 			int x, int y, int width, int height);
+		auto getHWND() -> HWND;
 		void ini(HINSTANCE hInstance, Style* style);
 	};
 
@@ -137,6 +141,7 @@ export namespace window
 		Style style;
 		// 新的页面规则
 		Page listModify;
+		Page password;
 
 	private:
 		int waitNum = 0;
@@ -206,6 +211,7 @@ export namespace window
 		/* 设置窗口 */
 	private:
 		int settingFontHeight = 20;
+	public:
 		HWND hSetting;
 	private:
 		void createSettingPage();

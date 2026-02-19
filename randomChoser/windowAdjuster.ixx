@@ -9,6 +9,19 @@ using std::max;
 
 export namespace window
 {
+	// 控件是在上一个控件的哪个方向
+	enum class Follow
+	{
+		next,
+		beside
+	};
+
+	enum class IfButton
+	{
+		button,
+		others
+	};
+
 	class WindowAdjuster
 	{
 	public:
@@ -38,8 +51,15 @@ export namespace window
 		void ctlBeside(int width);
 		void ctlLeft(int xLeft);
 		void ctlNext(int height);
-		void getCtrlSize(const wstring& text, int* const width, int* const height);
-		tuple<int, int> getCtlSize(const wstring& text);
+
+	private:
+		tuple<int, int> calcRect(const wstring& text);
+	public:
+		void getCtlSize(const wstring& text, int* const width, int* const height);
+		tuple<int, int> getCtlSize(const wstring& text,
+			IfButton ifButton = IfButton::others, Follow follow = Follow::next);
+		int getMultipleLinesHeight(int n);
+
 		// 获取maxX值
 		int outMaxWidth();
 	};
@@ -94,7 +114,25 @@ void window::WindowAdjuster::ctlNext(int height)
 	y += height + interval;
 }
 
-void window::WindowAdjuster::getCtrlSize(const wstring& text, int* const width, int* const height)
+tuple<int, int> window::WindowAdjuster::calcRect(const wstring& text)
+{
+	RECT rc{ 0,0,0,0 };
+
+	HDC hdc = GetDC(hWnd);
+	HFONT font = (HFONT)SelectObject(hdc, hFont);
+
+	DrawText(hdc, text.c_str(), -1, &rc, DT_CALCRECT);
+
+	SelectObject(hdc, font);
+	ReleaseDC(hWnd, hdc);
+
+	auto width{ rc.right - rc.left };
+	auto height{ rc.bottom - rc.top };
+
+	return { width,height };
+}
+
+void window::WindowAdjuster::getCtlSize(const wstring& text, int* const width, int* const height)
 {
 	RECT rc = { 0, 0, 0, 0 };
 
@@ -111,24 +149,43 @@ void window::WindowAdjuster::getCtrlSize(const wstring& text, int* const width, 
 
 	adjust(*width, *height);
 }
-tuple<int, int> window::WindowAdjuster::getCtlSize(const wstring& text)
+tuple<int, int> window::WindowAdjuster::getCtlSize(const wstring& text, IfButton ifButton, Follow follow)
 {
-	RECT rc{ 0,0,0,0 };
+	auto [width, height] = calcRect(text);
 
-	HDC hdc = GetDC(hWnd);
-	HFONT font = (HFONT)SelectObject(hdc, hFont);
+	if (ifButton == IfButton::button)
+	{
+		// 横向
+		constexpr double btnOuterSizeScaleH = 1.6;
+		// 垂直
+		constexpr double btnOuterSizeScaleV = 1.8;
 
-	DrawText(hdc, text.c_str(), -1, &rc, DT_CALCRECT);
+		width *= btnOuterSizeScaleH;
+		height *= btnOuterSizeScaleV;
+	}
 
-	SelectObject(hdc, font);
-	ReleaseDC(hWnd, hdc);
+	switch (follow)
+	{
+	case window::Follow::next:
+		adjust(width, height);
+		break;
 
-	auto width{ rc.right - rc.left };
-	auto height{ rc.bottom - rc.top };
-
-	adjust(width, height);
+	case window::Follow::beside:
+	{
+		const auto no_add_height{ -interval };
+		adjust(width, no_add_height);
+		break;
+	}
+	}
 
 	return { width,height };
+}
+
+int window::WindowAdjuster::getMultipleLinesHeight(int n)
+{
+	auto [_, height] = calcRect(L"正");
+	height *= n;
+	return height;
 }
 
 int window::WindowAdjuster::outMaxWidth()

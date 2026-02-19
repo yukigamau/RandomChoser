@@ -107,6 +107,7 @@
       <LanguageStandard>stdcpp23</LanguageStandard>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <AdditionalModuleDependencies>C:\code\vs\randomChoser\sqlite\x64\Debug\sqlite.ixx.ifc;C:\code\vs\randomChoser\sqlite\x64\Debug\dataRead.ixx.ifc;%(AdditionalModuleDependencies)</AdditionalModuleDependencies>
+      <AdditionalIncludeDirectories>page;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -134,10 +135,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\documentation\website.ixx" />
+    <ClCompile Include="id.ixx" />
     <ClCompile Include="listModifyWPFun.cpp" />
     <ClCompile Include="listModifyWPFun.ixx" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Page-listModify.ixx" />
+    <ClCompile Include="password.ixx" />
+    <ClCompile Include="passwordWPFun.ixx" />
+    <ClCompile Include="subclass-listModify.cpp" />
+    <ClCompile Include="subclass.ixx" />
     <ClCompile Include="window-buttonStyleTurnOn.cpp" />
     <ClCompile Include="window-choosePage.cpp" />
     <ClCompile Include="window-Gdi.cpp" />

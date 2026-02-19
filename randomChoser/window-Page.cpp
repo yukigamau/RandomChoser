@@ -38,6 +38,11 @@ void window::Page::createWindow(const wstring& className, const wstring& windowN
 	UpdateWindow(hWnd);
 }
 
+auto window::Page::getHWND() -> HWND
+{
+	return hWnd;
+}
+
 void window::Page::ini(HINSTANCE hInstance, Style* style)
 {
 	this->hInstance = hInstance;

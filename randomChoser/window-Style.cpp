@@ -113,3 +113,9 @@ COLORREF Style::textColor()
 	else
 		return RGB(0, 0, 0);
 }
+
+void window::Style::setTapStops(HWND hWnd, int tab)
+{
+	int t[]{ tab };
+	SendMessage(hWnd, EM_SETTABSTOPS, 1, (LPARAM)t);
+}

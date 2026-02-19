@@ -5,3 +5,4 @@ export import :windowAdjuster;
 
 // 页面的具体实现
 export import :listModify;
+export import :password;

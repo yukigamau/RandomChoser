@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="window/WP">
+      <UniqueIdentifier>{ae3d9ff7-5531-4476-a84c-cb52d330792b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -57,6 +60,24 @@
     <ClCompile Include="listModifyWPFun.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\documentation\website.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="subclass.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="subclass-listModify.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="id.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="password.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="passwordWPFun.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -77,6 +98,8 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="app.manifest" />
+    <Manifest Include="app.manifest">
+      <Filter>资源文件</Filter>
+    </Manifest>
   </ItemGroup>
 </Project>

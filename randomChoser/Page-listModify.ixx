@@ -13,13 +13,13 @@ LRESULT CALLBACK window::listModifyWP(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	switch (uMsg)
 	{
 	case WM_COMMAND:
-		break;
+		return listModifyOnCommand(hWnd, uMsg, wParam, lParam);
 
 	case WM_CREATE:
 		return listModifyOnCreate(hWnd, uMsg, wParam, lParam);
 
 	case WM_CTLCOLORBTN:
-		break;
+		return listModifyOnCtlColorButton(hWnd, uMsg, wParam, lParam);
 
 	case WM_CTLCOLOREDIT:
 		return listModifyOnCtlColorEdit(hWnd, uMsg, wParam, lParam);
