@@ -16,6 +16,9 @@
     <Filter Include="window/WP">
       <UniqueIdentifier>{ae3d9ff7-5531-4476-a84c-cb52d330792b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="command">
+      <UniqueIdentifier>{86a75253-2e3f-4f94-9f30-d94cf3ccfccf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -54,19 +57,7 @@
     <ClCompile Include="windowPages-ini.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="listModifyWPFun.ixx">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="listModifyWPFun.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\documentation\website.ixx">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="subclass.ixx">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="subclass-listModify.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="id.ixx">
@@ -76,6 +67,36 @@
       <Filter>window/WP</Filter>
     </ClCompile>
     <ClCompile Include="passwordWPFun.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="passwordWPFun.cpp">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="listModifySubclass.cpp">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="listModifyWPFun.cpp">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="passwordSubclass.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="listModifySubclass.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="listModifyWPFun.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="margin.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="command.ixx">
+      <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="commandEdit.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="passwordSubclass.cpp">
       <Filter>window/WP</Filter>
     </ClCompile>
   </ItemGroup>

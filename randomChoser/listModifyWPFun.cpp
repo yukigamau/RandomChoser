@@ -2,12 +2,16 @@
 #include <commctrl.h>
 import dataread;
 import id;
+import listModifySubclass;
 import listModifyWPFun;
+import margin;
 import std;
-import subclass;
 import window;
 
+using namespace listModifyID;
+
 using dataread::data;
+using margin::Margin;
 using std::vector, std::wstring;
 using std::any_of, std::tie;
 using window::Follow, window::IfButton, window::Page, window::Style, window::WindowAdjuster;
@@ -16,6 +20,7 @@ auto& listModify{ window::wps.listModify };
 auto& hSetting{ window::wps.hSetting };
 
 bool isAllWspace(const wstring& text)
+noexcept
 {
 	return !any_of(
 		text.begin(), text.end(),
@@ -78,7 +83,7 @@ auto openPasswordPage(HWND hWnd)
 	if (checkListName(hWnd))
 	{
 		ShowWindow(hWnd, SW_HIDE);
-		window::wps.password.ini(listModify.hInstance, listModify.style);
+		window::wps.password.ini(listModify.hInstance, &(window::wps.style));
 		window::wps.password.createWindow(L"password", L"密码", WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
 	}
@@ -152,32 +157,31 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	auto [width, height] = wa.getCtlSize(wsListName);
 	HWND hSListName = CreateWindow(L"STATIC", wsListName.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, nullptr, listModify.hInstance, nullptr);
-	SendMessage(hSListName, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
+	listModify.style->setFont(hSListName);
 
 	wa.ctlBeside(width);
 	maxX += width + wa.interval;
 
 	width *= 9;
-	const auto halfMargin{ 5 * listModify.style->dpiScale };
+	Margin margin(listModify.style->dpiScale);
 	HWND hEListName = CreateWindow(L"EDIT", L"", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
-		wa.x, wa.y - halfMargin, width, height + halfMargin, hWnd,
+		wa.x, wa.y - margin.getHalfMargin(), width, height + margin.getHalfMargin(), hWnd,
 		(HMENU)idc_edit_listName, listModify.hInstance, nullptr);
-	SendMessage(hEListName, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
-	SendMessage(hEListName, EM_SETMARGINS, EC_LEFTMARGIN | EC_RIGHTMARGIN,
-		MAKELPARAM(halfMargin, halfMargin));
+	listModify.style->setFont(hEListName);
+	margin.apply(hEListName);
 	SetWindowSubclass(hEListName, subclass::subclassEListName, (UINT_PTR)idc_edit_listName, 0);
 
 	maxX += width;
 	wa.adjustMaxXChange(maxX);
 
-	wa.ctlNext(height + halfMargin);
+	wa.ctlNext(height + margin.getHalfMargin());
 	wa.ctlLeft(xBegin);
 
 	wstring wsWriteNamesTip{ L"在下方写下名字，用换行或tab区分各个名字。\n不支持用空格！！！" };
 	tie(width, height) = wa.getCtlSize(wsWriteNamesTip);
 	HWND hSWriteNamesTip = CreateWindow(L"STATIC", wsWriteNamesTip.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, (HMENU)idc_static_red, listModify.hInstance, nullptr);
-	SendMessage(hSWriteNamesTip, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
+	listModify.style->setFont(hSWriteNamesTip);
 
 	wa.ctlNext(height);
 
@@ -205,13 +209,14 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | WS_VSCROLL,
 		wa.x, wa.y, width, height, hWnd, (HMENU)idc_edit_writeName, listModify.hInstance, nullptr);
 	SendMessage(hEWriteName, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
-	SendMessage(hEWriteName, EM_SETMARGINS, EC_LEFTMARGIN | EC_RIGHTMARGIN,
-		MAKELPARAM(halfMargin, halfMargin));
+	margin.apply(hEWriteName);
 	SetWindowSubclass(hEWriteName, subclass::subclassEWriteNames, (UINT_PTR)idc_edit_writeName, 0);
 	Style::setTapStops(hEWriteName, 64);
 
+	wa.ctlNext(height);
+
 	// 这里的多余的值用于处理不知道为什么出现的编辑框无法完整出现的问题
-	wa.adjustMaxYAddon(height + halfMargin * 4 + wa.interval);
+	wa.adjustMaxYAddon(height + margin.getHalfMargin() * 4 + wa.interval);
 
 	wa.apply();
 

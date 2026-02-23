@@ -114,6 +114,11 @@ COLORREF Style::textColor()
 		return RGB(0, 0, 0);
 }
 
+void window::Style::setFont(HWND hWnd)
+{
+	SendMessage(hWnd, WM_SETFONT, (WPARAM)hFStatic, TRUE);
+}
+
 void window::Style::setTapStops(HWND hWnd, int tab)
 {
 	int t[]{ tab };

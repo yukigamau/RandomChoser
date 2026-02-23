@@ -45,6 +45,7 @@ export namespace window
 	public:
 		// 用于判断窗口的尺寸，每次增加新的控件都需要重新调整
 		void adjust(int width, int height);
+		// 需要用控件的右x值来调整应该的maxX
 		void adjustMaxXChange(int w);
 		void adjustMaxYAddon(int h);
 		void apply();

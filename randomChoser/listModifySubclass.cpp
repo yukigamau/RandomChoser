@@ -1,10 +1,12 @@
 /*
-* subclass中的subclassWP需要使用到可能的id之类的独存在于模块中的数据
+* subclass中的subclassWP需要使用到可能的id之类的单独存在于模块中的数据
 */
 #include <Windows.h>
 #include <commctrl.h>
 import id;
-import subclass;
+import listModifySubclass;
+
+using namespace listModifyID;
 
 enum class SpecialKey :int
 {
@@ -50,6 +52,10 @@ LRESULT CALLBACK subclass::subclassEListName(HWND hWnd, UINT uMsg, WPARAM wParam
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
+		case VK_RETURN:
+			[[fallthrough]];
+		case VK_SEPARATOR:
+			[[fallthrough]];
 		case VK_TAB:
 		{
 			auto hParent{ GetParent(hWnd) };

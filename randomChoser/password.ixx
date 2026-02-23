@@ -12,6 +12,12 @@ LRESULT CALLBACK window::passwordWP(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 {
 	switch (uMsg)
 	{
+	case WM_COMMAND:		return passwordOnCommand		(hWnd, uMsg, wParam, lParam);
+	case WM_CREATE:			return passwordOnCreate			(hWnd, uMsg, wParam, lParam);
+	case WM_CTLCOLORBTN:	return passwordOnCtlColorBtn	(hWnd, uMsg, wParam, lParam);
+	case WM_CTLCOLOREDIT:	return passwordOnCtlColorEdit	(hWnd, uMsg, wParam, lParam);
+	case WM_CTLCOLORSTATIC:	return passwordOnCtlColorStatic	(hWnd, uMsg, wParam, lParam);
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

@@ -17,7 +17,7 @@ import std;
 
 using dataread::data, dataread::ifDataExists;
 using Gdiplus::Bitmap, Gdiplus::Color, Gdiplus::Graphics, Gdiplus::SmoothingModeAntiAlias;
-using std::wstring;
+using std::unique_ptr, std::wstring;
 
 export const wstring VERSION = L"2.0.0";
 
@@ -96,6 +96,7 @@ export namespace window
 		HFONT hFStatic = nullptr;
 
 	public:
+		void setFont(HWND hWnd);
 		static void setTapStops(HWND hWnd, int tab);
 	};
 
@@ -112,6 +113,7 @@ export namespace window
 	public:
 		Page() = default;
 		Page(HINSTANCE hInstance);
+		~Page() {};
 
 	public:
 		void createWindow(const wstring& className, const wstring& windowName, DWORD dwstyle,

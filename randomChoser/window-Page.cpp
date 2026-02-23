@@ -3,6 +3,7 @@
 import std;
 import window;
 using std::wstring;
+using std::make_unique;
 
 window::Page::Page(HINSTANCE hInstance)
 	:hInstance{ hInstance }

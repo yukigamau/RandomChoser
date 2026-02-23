@@ -136,15 +136,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\documentation\website.ixx" />
+    <ClCompile Include="command.ixx" />
+    <ClCompile Include="commandEdit.cpp" />
     <ClCompile Include="id.ixx" />
     <ClCompile Include="listModifyWPFun.cpp" />
     <ClCompile Include="listModifyWPFun.ixx" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="margin.ixx" />
     <ClCompile Include="Page-listModify.ixx" />
     <ClCompile Include="password.ixx" />
+    <ClCompile Include="passwordSubclass.cpp" />
+    <ClCompile Include="passwordSubclass.ixx" />
+    <ClCompile Include="passwordWPFun.cpp" />
     <ClCompile Include="passwordWPFun.ixx" />
-    <ClCompile Include="subclass-listModify.cpp" />
-    <ClCompile Include="subclass.ixx" />
+    <ClCompile Include="listModifySubclass.cpp" />
+    <ClCompile Include="listModifySubclass.ixx" />
     <ClCompile Include="window-buttonStyleTurnOn.cpp" />
     <ClCompile Include="window-choosePage.cpp" />
     <ClCompile Include="window-Gdi.cpp" />
