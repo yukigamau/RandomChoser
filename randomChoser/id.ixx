@@ -17,8 +17,10 @@ export namespace listModifyID
 export namespace passwordID
 {
 	constexpr auto
-		idc_btn_needPasswordNo{ 1501 },
-		idc_btn_needPasswordYes{ 1502 },
+		idc_btn_backListModify { 1501 },
+		idc_btn_needPasswordNo{ 1502 },
+		idc_btn_needPasswordYes{ 1503 },
+		idc_btn_yes{ 1504 },
 		idc_edit_password{ 1551 },
 		idc_edit_passwordRe{ 1552 },
 		idc_static_ifNeedPassword{ 1601 },

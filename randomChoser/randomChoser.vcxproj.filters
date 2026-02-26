@@ -99,6 +99,15 @@
     <ClCompile Include="passwordSubclass.cpp">
       <Filter>window/WP</Filter>
     </ClCompile>
+    <ClCompile Include="Match.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="rgb.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="commandButton.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

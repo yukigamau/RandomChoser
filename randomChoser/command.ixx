@@ -38,6 +38,24 @@ export namespace command
 		void setSubclass(SUBCLASSPROC subProc);
 	};
 
+	class Button :public Command
+	{
+	public:
+		wstring text;
+
+	public:
+		Button(HWND hParent, HINSTANCE hInstance, wstring text);
+
+	public:
+		void create() override
+		{
+			HWND hCur = CreateWindow(L"BUTTON", text.c_str(), WS_CHILD | WS_VISIBLE, x, y, w, h,
+				hParent, (HMENU)id, hInstance, nullptr);
+			if (hFont)
+				SendMessage(hCur, WM_SETFONT, (WPARAM)hFont, TRUE);
+		}
+	};
+
 	class Static :public Command
 	{
 	public:
@@ -51,7 +69,6 @@ export namespace command
 		{
 			HWND hCur = CreateWindow(L"STATIC", text.c_str(), WS_CHILD | WS_VISIBLE, x, y, w, h,
 				hParent, (HMENU)id, hInstance, nullptr);
-			assert(hCur != nullptr);
 			if (hFont)
 				SendMessage(hCur, WM_SETFONT, (WPARAM)hFont, TRUE);
 		}

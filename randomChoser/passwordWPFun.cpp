@@ -4,29 +4,39 @@
 import command;
 import id;
 import margin;
+import match;
 import passwordSubclass;
 import passwordWPFun;
+import rgb;
 import std;
 import window;
 
 using namespace passwordID;
 
-using command::Edit, command::Static, command::WinStyle;
+using command::Button, command::Edit, command::Static, command::WinStyle;
 using margin::Margin;
+using match::Match, match::MatchDegree;
+using rgb::Color, rgb::Rgb;
 using std::wstring;
 using std::tie;
-using window::WindowAdjuster;
+using window::Follow, window::IfButton, window::WindowAdjuster;
 
 auto& password{ window::wps.password };
 
-auto ifNeedPassword{ true };
+#pragma region Command消息
+
+bool ifNeedPassword{ true };
+
 const wstring needPasswordNoOff = L"○ 不需要";
 const wstring needPasswordNoOn = L"⊙ 不需要";
 const wstring needPasswordYesOff = L"○ 需要";
 const wstring needPasswordYesOn = L"⊙ 需要";
+
+Match mt;
+
 void changeNeedPasswordGroup()
 {
-	auto hBIfNeedPasswordNo{ GetDlgItem(password.getHWND(), idc_btn_needPasswordNo)};
+	auto hBIfNeedPasswordNo{ GetDlgItem(password.getHWND(), idc_btn_needPasswordNo) };
 	auto hBIfNeedPasswordYes{ GetDlgItem(password.getHWND(), idc_btn_needPasswordYes) };
 
 	if (ifNeedPassword)
@@ -44,6 +54,43 @@ void changeNeedPasswordGroup()
 	HWND hSPasswordTip{ GetDlgItem(password.getHWND(), idc_static_passwordTip) };
 	InvalidateRect(hSPasswordTip, NULL, TRUE);
 }
+
+bool ifSetMatch(HWND hWnd)
+{
+	static auto hPasswordRe = GetDlgItem(hWnd, idc_edit_passwordRe);
+
+	auto passwordReLen = GetWindowTextLength(hPasswordRe);
+	if (!passwordReLen)
+		return mt.change(MatchDegree::none);
+
+	static auto hPassword = GetDlgItem(hWnd, idc_edit_password);
+	auto passwordLen = GetWindowTextLength(hPassword);
+	if (!passwordLen)
+		return mt.change(MatchDegree::diff);
+
+	const int maxLen = 32;	// 应该绰绰有余了
+	wstring password;
+	password.resize(maxLen);
+	GetWindowText(hPassword, password.data(), maxLen);
+	wstring passwordRe;
+	passwordRe.resize(maxLen);
+	GetWindowText(hPasswordRe, passwordRe.data(), maxLen);
+
+	if (password == passwordRe)
+		return mt.change(MatchDegree::same);
+	else
+		return mt.change(MatchDegree::diff);
+}
+
+void invalidatePassword(HWND hParent)
+{
+	static auto h1 = GetDlgItem(hParent, idc_edit_password);
+	static auto h2 = GetDlgItem(hParent, idc_edit_passwordRe);
+
+	InvalidateRect(h1, NULL, TRUE);
+	InvalidateRect(h2, NULL, TRUE);
+}
+
 LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	auto id{ LOWORD(wParam) };
@@ -60,7 +107,7 @@ LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ifNeedPassword = false;
 			changeNeedPasswordGroup();
 			return 0;
-			
+
 		default:
 			break;
 		}
@@ -78,11 +125,28 @@ LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		default:
 			break;
 		}
+
+	case idc_edit_password:
+		[[fallthrough]];
+	case idc_edit_passwordRe:
+		switch (msg)
+		{
+		case EN_CHANGE:
+			if (ifSetMatch(hWnd))
+				invalidatePassword(hWnd);
+			break;
+
+		default:
+			break;
+		}
+
 	default:
 		break;
 	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
+
+#pragma endregion
 
 LRESULT passwordOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -127,6 +191,8 @@ LRESULT passwordOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	wa.ctlNext(height);
 
+#pragma region 两个密码输入
+
 	wstring passwordText{ L"密码：" };
 	wstring passwordReText{ L"确认密码:" };
 	// 为了对齐，以最长的为准
@@ -150,6 +216,7 @@ LRESULT passwordOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	width *= 9;
 	ePassword.w = width;
 	ePassword.h = height;
+	ePassword.id = idc_edit_password;
 	ePassword.hFont = password.style->hFStatic;
 	ePassword.addWinStyle(WinStyle::password);
 	ePassword.setSubclass(subclass::subclassEPassword);
@@ -159,7 +226,10 @@ LRESULT passwordOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	wa.ctlLeft(xBegin);
 	wa.ctlNext(height);
 
+	auto farX{ 0 };
+
 	tie(width, height) = wa.getCtlSize(passwordReText);
+	farX += width;
 	Static stcPasswordReText(hWnd, password.hInstance, passwordReText);
 	stcPasswordReText.x = wa.x;
 	stcPasswordReText.y = wa.y;
@@ -171,50 +241,111 @@ LRESULT passwordOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	wa.ctlBeside(width);
 
 	width *= 9;
+	farX += width;
 	Edit ePasswordRe(hWnd, password.hInstance, &margin);
 	ePasswordRe.x = wa.x;
 	ePasswordRe.y = wa.y;
 	ePasswordRe.w = width;
 	ePasswordRe.h = height;
+	ePasswordRe.id = idc_edit_passwordRe;
 	ePasswordRe.hFont = password.style->hFStatic;
 	ePasswordRe.addWinStyle(WinStyle::password);
 	ePasswordRe.setSubclass(subclass::subclassEPasswordRe);
 	ePasswordRe.create();
 
-	wa.adjustMaxXChange(width);
+	farX += xBegin + wa.interval;
+
+	wa.adjustMaxXChange(farX);
 	wa.ctlLeft(xBegin);
 	wa.ctlNext(height);
+
+	// 重置密码匹配程度
+	mt.change(MatchDegree::none);
+
+#pragma endregion
+
+	wstring yes = L"确认";
+	tie(width, height) = wa.getCtlSize(yes, IfButton::button);
+	Button btnYes(hWnd, password.hInstance, yes);
+	btnYes.x = wa.x;
+	btnYes.y = wa.y;
+	btnYes.w = width;
+	btnYes.h = height;
+	btnYes.id = idc_btn_yes;
+	btnYes.hFont = password.style->hFStatic;
+	btnYes.create();
+
+	wa.ctlBeside(width);
+
+	wstring backListModify = L"返回名单页面";
+	tie(width, height) = wa.getCtlSize(backListModify, IfButton::button, Follow::beside);
+	Button btnBackListModify(hWnd, password.hInstance, backListModify);
+	btnBackListModify.x = wa.x;
+	btnBackListModify.y = wa.y;
+	btnBackListModify.w = width;
+	btnBackListModify.h = height;
+	btnBackListModify.id = idc_btn_backListModify;
+	btnBackListModify.hFont = password.style->hFStatic;
+	btnBackListModify.create();
+
+	wa.apply();
 
 	return 0;
 }
 
 LRESULT passwordOnCtlColorBtn(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	HDC hdc = (HDC)wParam;
-	HWND hCtrl = (HWND)lParam;
-	auto id{ GetDlgCtrlID(hCtrl) };
-
-	switch (id)
-	{
-	default:
-		SetTextColor(hdc, password.style->textColor());
-		break;
-	}
-
-	SetBkMode(hdc, TRANSPARENT);
-	return (INT_PTR)GetStockObject(NULL_BRUSH);
+	return (INT_PTR)password.style->buttonBkBrush();
 }
 
-LRESULT passwordOnCtlColorEdit(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	HDC hdc = (HDC)wParam;
-	HWND hEdit = (HWND)lParam;
+#pragma region 编辑框颜色
 
+LRESULT defaultColor(HDC hdc)
+{
 	SetTextColor(hdc, password.style->textColor());   // 字体颜色
 	SetBkColor(hdc, password.style->textBkColor());	// 背景颜色，同时也改变边框的颜色
 
 	return (INT_PTR)password.style->textBkBrush();
 }
+
+LRESULT setColor(HDC hdc, const Rgb& rgb)
+{
+	SetTextColor(hdc, rgb.cur());
+	SetBkColor(hdc, password.style->textBkColor());
+
+	return (INT_PTR)password.style->textBkBrush();
+}
+
+LRESULT passwordOnCtlColorEdit(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	HDC hdc = (HDC)wParam;
+	HWND hCtrl = (HWND)lParam;
+	auto id{ GetDlgCtrlID(hCtrl) };
+	switch (id)
+	{
+	case idc_edit_password:
+		[[fallthrough]];
+	case idc_edit_passwordRe:
+		switch (mt.degree())
+		{
+		case MatchDegree::diff:
+			// 红色
+			return setColor(hdc, Color::grape);
+
+		case MatchDegree::none:
+			return defaultColor(hdc);
+
+		case MatchDegree::same:
+			// 绿色
+			return setColor(hdc, Color::jade);
+		}
+
+	default:
+		return defaultColor(hdc);
+	}
+}
+
+#pragma endregion
 
 LRESULT passwordOnCtlColorStatic(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
