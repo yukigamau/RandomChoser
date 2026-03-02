@@ -8,7 +8,7 @@ import std;
 
 using sqlite::Sql;
 using sqlitedefault::DATABASE_NAME, sqlitedefault::DB_INI;
-using sqlitedefault::LISTDB, sqlitedefault::SKINDB, sqlitedefault::SPLIT;
+using sqlitedefault::LISTDB, sqlitedefault::SKINDB;
 using std::filesystem::exists, std::filesystem::file_size, std::mt19937, std::random_device;
 using std::stoi, std::shuffle, std::to_wstring, std::uniform_int_distribution, std::vector;
 using std::wstring, std::wstringstream;
@@ -45,6 +45,7 @@ export namespace dataread
 
 	public:
 		void ini(bool ifChoose = true);
+		void save(const wstring& title, const wstring& text);
 
 	private:
 		void getSkin();
@@ -52,6 +53,7 @@ export namespace dataread
 	public:
 		wstring nameOut();
 		wstring nameRandom();
+		// 有正常的可以插入的数据库表格
 		void ok();
 	} data;
 
@@ -70,7 +72,7 @@ dataread::Data::~Data()
 		// 加入DB_INI，防止出现未输入任何信息就直接退出导致程序错误
 		Sql sql(DATABASE_NAME, DB_INI);
 		wstring w = cat(leftNames);
-		sql.insert_replace(LISTDB, { L"name",L"data" }, { defaultList + SPLIT + L"left'", w });
+		sql.insert_replace(LISTDB, { L"name",L"data" }, { defaultList + L"left'", w });
 	}
 }
 
@@ -101,7 +103,7 @@ void dataread::Data::ini(bool ifChoose)
 			defaultNames.push_back(listLine);
 	}
 
-	where = L"name = '" + defaultList + SPLIT + L"left'";
+	where = L"name = '" + defaultList + L"left'";
 	sql.select(LISTDB, list, where);
 	wstring defaultListLeftWS;
 	sql.column(defaultListLeftWS, 0);
@@ -126,6 +128,11 @@ void dataread::Data::ini(bool ifChoose)
 		while (wss >> listsLine)
 			lists.push_back(listsLine);
 	}
+}
+
+void dataread::Data::save(const wstring& title, const wstring& text)
+{
+	//Sql sql
 }
 
 void dataread::Data::getSkin()

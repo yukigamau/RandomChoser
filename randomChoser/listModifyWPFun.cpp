@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <commctrl.h>
+import command;
 import dataread;
 import id;
 import listModifySubclass;
@@ -10,6 +11,7 @@ import window;
 
 using namespace listModifyID;
 
+using command::Button;
 using dataread::data;
 using margin::Margin;
 using std::vector, std::wstring;
@@ -80,16 +82,26 @@ auto checkListName(HWND hWnd)
 
 auto openPasswordPage(HWND hWnd)
 {
-	if (checkListName(hWnd))
+	if (!checkListName(hWnd))
 	{
-		ShowWindow(hWnd, SW_HIDE);
-		window::wps.password.ini(listModify.hInstance, &(window::wps.style));
-		window::wps.password.createWindow(L"password", L"密码", WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+		MessageBox(hWnd, L"存在重名的名单", L"糟糕", MB_ICONERROR);
+		return 0;
 	}
 
+	ShowWindow(hWnd, SW_HIDE);
+
+	if (window::wps.password.getHWND())
+	{
+		ShowWindow(window::wps.password.getHWND(), SW_SHOW);
+		return 0;
+	}
+
+	window::wps.password.ini(listModify.hInstance, &(window::wps.style));
+	window::wps.password.createWindow(L"password", L"密码", WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+
 	return 0;
-}
+};
 
 LRESULT listModifyOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -111,11 +123,8 @@ LRESULT listModifyOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case idc_btn_save:
-		switch (msg)
-		{
-		case BN_CLICKED:
+		if (msg == BN_CLICKED)
 			return openPasswordPage(hWnd);
-		}
 		break;
 
 	case idc_edit_listName:
@@ -187,10 +196,14 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	wstring wsSaveBtnText{ L"保存名单进入下一步" };
 	tie(width, height) = wa.getCtlSize(wsSaveBtnText, IfButton::button);
-	HWND hBSave = CreateWindow(L"BUTTON", wsSaveBtnText.c_str(), WS_CHILD | WS_VISIBLE,
-		wa.x, wa.y, width, height, hWnd, (HMENU)idc_btn_save, listModify.hInstance, nullptr);
-	SendMessage(hBSave, WM_SETFONT, (WPARAM)listModify.style->hFStatic, TRUE);
-	EnableWindow(hBSave, false);
+	Button save(hWnd, listModify.hInstance, wsSaveBtnText);
+	save.x = wa.x;
+	save.y = wa.y;
+	save.w = width;
+	save.h = height;
+	save.id = idc_btn_save;
+	save.hFont = listModify.style->hFStatic;
+	save.create();
 
 	wa.ctlBeside(width);
 

@@ -37,5 +37,5 @@ export namespace sqlitedefault
 
 	// 用于在必要时充当数据里面的分割符，常规的空格、换行不好用时使用
 	// 这个字在一般的输入法里面是打不出来的
-	const wstring SPLIT = L"棫";
+	//const wstring SPLIT = L"棫";
 }

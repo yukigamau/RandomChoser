@@ -101,6 +101,21 @@ export namespace command
 		// 限制文本长度
 		void limit(int len);
 	};
+
+	class Toggle : public Command
+	{
+	public:
+		wstring text;
+		wstring first;
+		wstring second;
+
+	public:
+		Toggle(HWND hParent, HINSTANCE hInstance, wstring text, wstring first, wstring second);
+
+	public:
+		void create() override
+
+	};
 }
 
 command::Command::Command(HWND hParent, HINSTANCE hInstance) :hParent{ hParent }, hInstance{ hInstance }

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="三方库">
+      <UniqueIdentifier>{dfe5ba87-0823-499f-b482-ed7fec1f3833}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dataRead.ixx">
@@ -25,18 +28,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdParty\sqlite-amalgamation-3510100\shell.c">
-      <Filter>源文件</Filter>
+      <Filter>三方库</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdParty\sqlite-amalgamation-3510100\sqlite3.c">
-      <Filter>源文件</Filter>
+      <Filter>三方库</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\thirdParty\sqlite-amalgamation-3510100\sqlite3.h">
-      <Filter>源文件</Filter>
+      <Filter>三方库</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdParty\sqlite-amalgamation-3510100\sqlite3ext.h">
-      <Filter>源文件</Filter>
+      <Filter>三方库</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

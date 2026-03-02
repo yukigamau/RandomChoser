@@ -98,6 +98,14 @@ LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (id)
 	{
+	case idc_btn_backListModify:
+		if (msg == STN_CLICKED)
+		{
+			ShowWindow(window::wps.listModify.getHWND(), SW_SHOW);
+			ShowWindow(window::wps.password.getHWND(), SW_HIDE);
+		}
+		break;
+
 	case idc_btn_needPasswordNo:
 		switch (msg)
 		{

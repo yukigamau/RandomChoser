@@ -36,8 +36,8 @@ export namespace sqlite
 		Stmt stmt;
 
 	public:
-		Sql(const wstring& s);
-		Sql(const wstring& s, const wstring& ini);
+		Sql(const wstring& dir);
+		Sql(const wstring& dir, const wstring& ini);
 		~Sql();
 
 	public:
@@ -72,13 +72,13 @@ void sqlite::Stmt::finalize()
 	}
 }
 
-sqlite::Sql::Sql(const wstring& s)
+sqlite::Sql::Sql(const wstring& dir)
 {
-	open(s);
+	open(dir);
 }
-sqlite::Sql::Sql(const wstring& s, const wstring& ini)
+sqlite::Sql::Sql(const wstring& dir, const wstring& ini)
 {
-	open(s);
+	open(dir);
 	exec(ini);
 }
 sqlite::Sql::~Sql()
