@@ -3,9 +3,12 @@ module;
 #include <Windows.h>
 
 export module window:windowAdjuster;
+import command;
 import std;
+import glob;
+using command::Toggle;
 using std::tuple, std::wstring;
-using std::max;
+using std::max, std::tie;
 
 export namespace window
 {
@@ -26,10 +29,13 @@ export namespace window
 	{
 	public:
 		// 用于控件的位置确定
-		const int left;
-		int x = 0;
-		int y = 0;
+		const int left = 0;
+		POINT pt;
 		int interval = 0;
+
+		// 这两个本来是用来兼容之前的pt的改动的，结果发现这样更好用
+		const LONG& x = pt.x;
+		const LONG& y = pt.y;
 
 	private:
 		int maxX = 0;
@@ -40,7 +46,9 @@ export namespace window
 		HFONT hFont = nullptr;
 
 	public:
+		// 这个函数应该用更好的下面的函数代替，因为xBegin和yBegin与interval会出现位置问题
 		WindowAdjuster(HWND hWnd, HFONT hFont, int interval, int xBegin, int yBegin);
+		WindowAdjuster(HWND hWnd, HFONT hFont, int interval, POINT pt);
 
 	public:
 		// 用于判断窗口的尺寸，每次增加新的控件都需要重新调整
@@ -59,6 +67,7 @@ export namespace window
 		void getCtlSize(const wstring& text, int* const width, int* const height);
 		tuple<int, int> getCtlSize(const wstring& text,
 			IfButton ifButton = IfButton::others, Follow follow = Follow::next);
+		tuple<int, int> getCtlSize(Toggle& tg);
 		int getMultipleLinesHeight(int n);
 
 		// 获取maxX值
@@ -67,7 +76,13 @@ export namespace window
 }
 
 window::WindowAdjuster::WindowAdjuster(HWND hWnd, HFONT hFont, int interval, int xBegin, int yBegin)
-	:hWnd{ hWnd }, hFont{ hFont }, interval{ interval }, x{ xBegin }, y{ yBegin }, left{ xBegin }
+	:hWnd{ hWnd }, hFont{ hFont }, interval{ interval }, left{ xBegin }
+{
+	pt.x = xBegin;
+	pt.y = yBegin;
+}
+window::WindowAdjuster::WindowAdjuster(HWND hWnd, HFONT hFont, int interval, POINT pt)
+	:hWnd{ hWnd }, hFont{ hFont }, interval{ interval }, pt{ pt }, left{ pt.x }
 { }
 
 void window::WindowAdjuster::adjust(int width, int height)
@@ -102,17 +117,17 @@ void window::WindowAdjuster::apply()
 
 void window::WindowAdjuster::ctlBeside(int width)
 {
-	x += width + interval;
+	pt.x += width + interval;
 }
 
 void window::WindowAdjuster::ctlLeft(int xLeft)
 {
-	x = xLeft;
+	pt.x = xLeft;
 }
 
 void window::WindowAdjuster::ctlNext(int height)
 {
-	y += height + interval;
+	pt.y += height + interval;
 }
 
 tuple<int, int> window::WindowAdjuster::calcRect(const wstring& text)
@@ -156,30 +171,47 @@ tuple<int, int> window::WindowAdjuster::getCtlSize(const wstring& text, IfButton
 
 	if (ifButton == IfButton::button)
 	{
-		// 横向
-		constexpr double btnOuterSizeScaleH = 1.6;
-		// 垂直
-		constexpr double btnOuterSizeScaleV = 1.8;
-
-		width *= btnOuterSizeScaleH;
-		height *= btnOuterSizeScaleV;
+		width *= glob::btnOuterSizeScaleH;
+		height *= glob::btnOuterSizeScaleV;
 	}
 
-	switch (follow)
-	{
-	case window::Follow::next:
+	if (follow == window::Follow::next)
 		adjust(width, height);
-		break;
-
-	case window::Follow::beside:
+	else
 	{
+		// 这里是因为每次adjust的时候，会出现interval的纵向增加，需要抵消掉。
 		const auto no_add_height{ -interval };
 		adjust(width, no_add_height);
-		break;
-	}
 	}
 
 	return { width,height };
+}
+tuple<int, int> window::WindowAdjuster::getCtlSize(Toggle& tg)
+{
+	auto allWidth{ 0 }, allHeight{ 0 };
+
+	// 标识语
+	auto [width, height] = calcRect(tg.text);
+	allWidth += width;
+	allHeight += height;	// 只有一行
+	
+	// 间隔
+	allWidth += interval;
+
+	// 第一个选项
+	tie(width, height) = calcRect(tg.first);
+	allWidth += width;
+
+	// 间隔
+	allWidth += interval;
+	
+	// 第二个选项
+	tie(width, height) = calcRect(tg.second);
+	allWidth += width;
+
+	adjust(allWidth, allHeight);
+	
+	return { allWidth, allHeight };
 }
 
 int window::WindowAdjuster::getMultipleLinesHeight(int n)

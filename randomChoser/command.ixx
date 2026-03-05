@@ -15,7 +15,8 @@ export namespace command
 		border = WS_BORDER,
 		center = ES_CENTER,
 		left = ES_LEFT,
-		password = ES_PASSWORD
+		password = ES_PASSWORD,
+		notify = SS_NOTIFY
 	};
 
 	class Command
@@ -62,16 +63,22 @@ export namespace command
 		wstring text;
 
 	public:
+		// 主要是用于在toggle类的处理
+		DWORD style = { WS_CHILD | WS_VISIBLE };
+
+	public:
 		Static(HWND hParent, HINSTANCE hInstance, wstring text);
 
 	public:
 		void create() override
 		{
-			HWND hCur = CreateWindow(L"STATIC", text.c_str(), WS_CHILD | WS_VISIBLE, x, y, w, h,
+			HWND hCur = CreateWindow(L"STATIC", text.c_str(), style, x, y, w, h,
 				hParent, (HMENU)id, hInstance, nullptr);
 			if (hFont)
 				SendMessage(hCur, WM_SETFONT, (WPARAM)hFont, TRUE);
 		}
+
+		void addWinStyle(WinStyle ws);
 	};
 
 	class Edit :public Command
@@ -109,12 +116,22 @@ export namespace command
 		wstring first;
 		wstring second;
 
+		int interval;
+		int id1;
+		int id2;
+
 	public:
-		Toggle(HWND hParent, HINSTANCE hInstance, wstring text, wstring first, wstring second);
+		Toggle(HWND hParent, HINSTANCE hInstance, wstring text, wstring first, wstring second, int interval,
+			int id1, int id2);
 
 	public:
 		void create() override
+		{
+			toggleCreate();
+		}
 
+	private:
+		void toggleCreate();
 	};
 }
 
@@ -126,7 +143,3 @@ void command::Command::setSubclass(SUBCLASSPROC subProc)
 	auto hCur{ GetDlgItem(hParent,id) };
 	SetWindowSubclass(hCur, subProc, (UINT_PTR)id, 0);
 }
-
-command::Static::Static(HWND hParent, HINSTANCE hInstance, wstring text)
-	:Command(hParent, hInstance), text{ text }
-{ }

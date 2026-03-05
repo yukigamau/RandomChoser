@@ -135,10 +135,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\documentation\glob.ixx" />
     <ClCompile Include="..\documentation\website.ixx" />
     <ClCompile Include="command.ixx" />
     <ClCompile Include="commandButton.cpp" />
     <ClCompile Include="commandEdit.cpp" />
+    <ClCompile Include="commandStatic.cpp" />
+    <ClCompile Include="commandToggle.cpp" />
     <ClCompile Include="id.ixx" />
     <ClCompile Include="listModifyWPFun.cpp" />
     <ClCompile Include="listModifyWPFun.ixx" />
@@ -146,7 +149,7 @@
     <ClCompile Include="margin.ixx" />
     <ClCompile Include="Match.ixx" />
     <ClCompile Include="Page-listModify.ixx" />
-    <ClCompile Include="password.ixx" />
+    <ClCompile Include="Page-password.ixx" />
     <ClCompile Include="passwordSubclass.cpp" />
     <ClCompile Include="passwordSubclass.ixx" />
     <ClCompile Include="passwordWPFun.cpp" />

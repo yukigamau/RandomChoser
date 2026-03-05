@@ -5,13 +5,14 @@ import dataread;
 import id;
 import listModifySubclass;
 import listModifyWPFun;
+import glob;
 import margin;
 import std;
 import window;
 
 using namespace listModifyID;
 
-using command::Button;
+using command::Button, command::Toggle;
 using dataread::data;
 using margin::Margin;
 using std::vector, std::wstring;
@@ -122,6 +123,54 @@ LRESULT listModifyOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 
+	case idc_btn_ifDefaultNo:
+		if (msg == STN_CLICKED)
+		{
+			HWND hYes = GetDlgItem(hWnd, idc_btn_ifDefaultYes);
+			int len = GetWindowTextLength(hYes);
+			wstring ws;
+			ws.resize(len);
+			GetWindowText(hYes, ws.data(), len + 1);
+
+			ws[0] = L'○';
+			SetWindowText(hYes, ws.c_str());
+
+			HWND hNo = GetDlgItem(hWnd, idc_btn_ifDefaultNo);
+			len = GetWindowTextLength(hNo);
+			ws.resize(len);
+			GetWindowText(hNo, ws.data(), len + 1);
+
+			ws[0] = L'⊙';
+			SetWindowText(hNo, ws.c_str());
+
+			glob::ifNewListDefault = false;
+		}
+		break;
+
+	case idc_btn_ifDefaultYes:
+		if (msg == STN_CLICKED)
+		{
+			HWND hYes = GetDlgItem(hWnd, idc_btn_ifDefaultYes);
+			int len = GetWindowTextLength(hYes);
+			wstring ws;
+			ws.resize(len);
+			GetWindowText(hYes, ws.data(), len + 1);
+
+			ws[0] = L'⊙';
+			SetWindowText(hYes, ws.c_str());
+
+			HWND hNo = GetDlgItem(hWnd, idc_btn_ifDefaultNo);
+			len = GetWindowTextLength(hNo);
+			ws.resize(len);
+			GetWindowText(hNo, ws.data(), len + 1);
+
+			ws[0] = '○';
+			SetWindowText(hNo, ws.c_str());
+
+			glob::ifNewListDefault = true;
+		}
+		break;
+
 	case idc_btn_save:
 		if (msg == BN_CLICKED)
 			return openPasswordPage(hWnd);
@@ -191,6 +240,20 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	HWND hSWriteNamesTip = CreateWindow(L"STATIC", wsWriteNamesTip.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, (HMENU)idc_static_red, listModify.hInstance, nullptr);
 	listModify.style->setFont(hSWriteNamesTip);
+
+	wa.ctlNext(height);
+
+	wstring wsIfDefault{ L"是否设置为默认名单：" };
+	wstring wsIfDefaultYes{ L"是" };
+	wstring wsIfDefaultNO{ L"否" };
+	Toggle ifDefault(hWnd, listModify.hInstance, wsIfDefault, wsIfDefaultYes, wsIfDefaultNO,
+		listModify.style->interval, idc_btn_ifDefaultYes, idc_btn_ifDefaultNo);
+	tie(width, height) = wa.getCtlSize(ifDefault);
+	ifDefault.x = wa.x;
+	ifDefault.y = wa.y;
+	ifDefault.hFont = listModify.style->hFStatic;
+	ifDefault.create();
+	glob::ifNewListDefault = true;
 
 	wa.ctlNext(height);
 
@@ -282,6 +345,6 @@ LRESULT listModifyOnCtlColorStatic(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 		break;
 	}
 
-	SetBkMode(hdc, TRANSPARENT);
-	return (INT_PTR)GetStockObject(NULL_BRUSH);
+	SetBkColor(hdc, listModify.style->textBkColor());
+	return (LRESULT)listModify.style->textBkBrush();
 }

@@ -51,9 +51,6 @@
     <ClCompile Include="window-Page.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Page-listModify.ixx">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="windowPages-ini.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -63,7 +60,7 @@
     <ClCompile Include="id.ixx">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="password.ixx">
+    <ClCompile Include="Page-password.ixx">
       <Filter>window/WP</Filter>
     </ClCompile>
     <ClCompile Include="passwordWPFun.ixx">
@@ -107,6 +104,18 @@
     </ClCompile>
     <ClCompile Include="commandButton.cpp">
       <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\documentation\glob.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="commandToggle.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="commandStatic.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="Page-listModify.ixx">
+      <Filter>window/WP</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
