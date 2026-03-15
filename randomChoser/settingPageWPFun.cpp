@@ -83,9 +83,15 @@ LRESULT WindowPages::settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		return 0;
 
 	case IDC_BTN_WRITE_LIST:
-		listModify.ini(hInstance, &style);
-		listModify.createWindow(L"listModify", L"创建名单", WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+		if (listModify.hInstance)
+			ShowWindow(listModify.getHWND(), SW_SHOW);
+		else
+		{
+			listModify.ini(hInstance, &style);
+			listModify.createWindow(L"listModify", L"创建名单", WS_OVERLAPPEDWINDOW,
+				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+		}
+		
 		ShowWindow(hWnd, SW_HIDE);
 		return 0;
 

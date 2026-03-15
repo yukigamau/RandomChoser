@@ -1,4 +1,4 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include <commctrl.h>
 import command;
 import dataread;
@@ -70,7 +70,7 @@ auto getWindowText(HWND hWnd)
 	return text;
 }
 
-// ¼ì²éÊÇ·ñÖØÃû
+// æ£€æŸ¥æ˜¯å¦é‡å
 auto checkListName(HWND hWnd)
 {
 	auto text{ getWindowText(hWnd) };
@@ -85,7 +85,7 @@ auto openPasswordPage(HWND hWnd)
 {
 	if (!checkListName(hWnd))
 	{
-		MessageBox(hWnd, L"´æÔÚÖØÃûµÄÃûµ¥", L"Ôã¸â", MB_ICONERROR);
+		MessageBox(hWnd, L"å­˜åœ¨é‡åçš„åå•", L"ç³Ÿç³•", MB_ICONERROR);
 		return 0;
 	}
 
@@ -98,7 +98,7 @@ auto openPasswordPage(HWND hWnd)
 	}
 
 	window::wps.password.ini(listModify.hInstance, &(window::wps.style));
-	window::wps.password.createWindow(L"password", L"ÃÜÂë", WS_OVERLAPPEDWINDOW,
+	window::wps.password.createWindow(L"password", L"å¯†ç ", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
 
 	return 0;
@@ -132,7 +132,7 @@ LRESULT listModifyOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ws.resize(len);
 			GetWindowText(hYes, ws.data(), len + 1);
 
-			ws[0] = L'¡ð';
+			ws[0] = L'â—‹';
 			SetWindowText(hYes, ws.c_str());
 
 			HWND hNo = GetDlgItem(hWnd, idc_btn_ifDefaultNo);
@@ -140,7 +140,7 @@ LRESULT listModifyOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ws.resize(len);
 			GetWindowText(hNo, ws.data(), len + 1);
 
-			ws[0] = L'¡Ñ';
+			ws[0] = L'âŠ™';
 			SetWindowText(hNo, ws.c_str());
 
 			glob::ifNewListDefault = false;
@@ -156,7 +156,7 @@ LRESULT listModifyOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ws.resize(len);
 			GetWindowText(hYes, ws.data(), len + 1);
 
-			ws[0] = L'¡Ñ';
+			ws[0] = L'âŠ™';
 			SetWindowText(hYes, ws.c_str());
 
 			HWND hNo = GetDlgItem(hWnd, idc_btn_ifDefaultNo);
@@ -164,7 +164,7 @@ LRESULT listModifyOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ws.resize(len);
 			GetWindowText(hNo, ws.data(), len + 1);
 
-			ws[0] = '¡ð';
+			ws[0] = L'â—‹';
 			SetWindowText(hNo, ws.c_str());
 
 			glob::ifNewListDefault = true;
@@ -208,10 +208,10 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	constexpr auto yBegin{ 10 };
 	WindowAdjuster wa(hWnd, listModify.style->hFStatic, listModify.style->interval, xBegin, yBegin);
 
-	// ÓÃÓÚ¶ÔÆëÏÂÃæµÄÃû×ÖÊäÈë±à¼­¿òºÍÃûµ¥Ãû×Ö¿ò
+	// ç”¨äºŽå¯¹é½ä¸‹é¢çš„åå­—è¾“å…¥ç¼–è¾‘æ¡†å’Œåå•åå­—æ¡†
 	auto maxX{ 0 };
 
-	wstring wsListName{ L"Ãûµ¥Ãû×Ö£º" };
+	wstring wsListName{ L"åå•åå­—ï¼š" };
 	auto [width, height] = wa.getCtlSize(wsListName);
 	HWND hSListName = CreateWindow(L"STATIC", wsListName.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, nullptr, listModify.hInstance, nullptr);
@@ -235,7 +235,7 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	wa.ctlNext(height + margin.getHalfMargin());
 	wa.ctlLeft(xBegin);
 
-	wstring wsWriteNamesTip{ L"ÔÚÏÂ·½Ð´ÏÂÃû×Ö£¬ÓÃ»»ÐÐ»òtabÇø·Ö¸÷¸öÃû×Ö¡£\n²»Ö§³ÖÓÃ¿Õ¸ñ£¡£¡£¡" };
+	wstring wsWriteNamesTip{ L"åœ¨ä¸‹æ–¹å†™ä¸‹åå­—ï¼Œç”¨æ¢è¡Œæˆ–tabåŒºåˆ†å„ä¸ªåå­—ã€‚\nä¸æ”¯æŒç”¨ç©ºæ ¼ï¼ï¼ï¼" };
 	tie(width, height) = wa.getCtlSize(wsWriteNamesTip);
 	HWND hSWriteNamesTip = CreateWindow(L"STATIC", wsWriteNamesTip.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, (HMENU)idc_static_red, listModify.hInstance, nullptr);
@@ -243,9 +243,9 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	wa.ctlNext(height);
 
-	wstring wsIfDefault{ L"ÊÇ·ñÉèÖÃÎªÄ¬ÈÏÃûµ¥£º" };
-	wstring wsIfDefaultYes{ L"ÊÇ" };
-	wstring wsIfDefaultNO{ L"·ñ" };
+	wstring wsIfDefault{ L"æ˜¯å¦è®¾ç½®ä¸ºé»˜è®¤åå•ï¼š" };
+	wstring wsIfDefaultYes{ L"æ˜¯" };
+	wstring wsIfDefaultNO{ L"å¦" };
 	Toggle ifDefault(hWnd, listModify.hInstance, wsIfDefault, wsIfDefaultYes, wsIfDefaultNO,
 		listModify.style->interval, idc_btn_ifDefaultYes, idc_btn_ifDefaultNo);
 	tie(width, height) = wa.getCtlSize(ifDefault);
@@ -257,7 +257,7 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	wa.ctlNext(height);
 
-	wstring wsSaveBtnText{ L"±£´æÃûµ¥½øÈëÏÂÒ»²½" };
+	wstring wsSaveBtnText{ L"ä¿å­˜åå•è¿›å…¥ä¸‹ä¸€æ­¥" };
 	tie(width, height) = wa.getCtlSize(wsSaveBtnText, IfButton::button);
 	Button save(hWnd, listModify.hInstance, wsSaveBtnText);
 	save.x = wa.x;
@@ -267,10 +267,11 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	save.id = idc_btn_save;
 	save.hFont = listModify.style->hFStatic;
 	save.create();
+	save.enable(false);
 
 	wa.ctlBeside(width);
 
-	wstring wsBackSettingPageBtnText{ L"·µ»ØÉèÖÃÒ³Ãæ" };
+	wstring wsBackSettingPageBtnText{ L"è¿”å›žè®¾ç½®é¡µé¢" };
 	tie(width, height) = wa.getCtlSize(wsBackSettingPageBtnText, IfButton::button, Follow::beside);
 	HWND hBBackSettingPage = CreateWindow(L"BUTTON", wsBackSettingPageBtnText.c_str(), WS_CHILD | WS_VISIBLE,
 		wa.x, wa.y, width, height, hWnd, (HMENU)idc_btn_backSettingPage, listModify.hInstance, nullptr);
@@ -279,7 +280,7 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	wa.ctlLeft(xBegin);
 	wa.ctlNext(height);
 	
-	height = wa.getMultipleLinesHeight(32);	// ÕâÀïÊÇ32ÐÐÄÚÈÝ£¬¶ÔÓÚ´ó²¿·ÖÇé¿öÏÂÓ¦¸ÃÊÇ¹»ÓÃµÄ
+	height = wa.getMultipleLinesHeight(32);	// è¿™é‡Œæ˜¯32è¡Œå†…å®¹ï¼Œå¯¹äºŽå¤§éƒ¨åˆ†æƒ…å†µä¸‹åº”è¯¥æ˜¯å¤Ÿç”¨çš„
 	width = maxX;
 	HWND hEWriteName = CreateWindowEx(0, L"EDIT", L"",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | WS_VSCROLL,
@@ -291,7 +292,7 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	wa.ctlNext(height);
 
-	// ÕâÀïµÄ¶àÓàµÄÖµÓÃÓÚ´¦Àí²»ÖªµÀÎªÊ²Ã´³öÏÖµÄ±à¼­¿òÎÞ·¨ÍêÕû³öÏÖµÄÎÊÌâ
+	// è¿™é‡Œçš„å¤šä½™çš„å€¼ç”¨äºŽå¤„ç†ä¸çŸ¥é“ä¸ºä»€ä¹ˆå‡ºçŽ°çš„ç¼–è¾‘æ¡†æ— æ³•å®Œæ•´å‡ºçŽ°çš„é—®é¢˜
 	wa.adjustMaxYAddon(height + margin.getHalfMargin() * 4 + wa.interval);
 
 	wa.apply();
@@ -322,8 +323,8 @@ LRESULT listModifyOnCtlColorEdit(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	HDC hdc = (HDC)wParam;
 	HWND hEdit = (HWND)lParam;
 
-	SetTextColor(hdc, listModify.style->textColor());   // ×ÖÌåÑÕÉ«
-	SetBkColor(hdc, listModify.style->textBkColor());	// ±³¾°ÑÕÉ«£¬Í¬Ê±Ò²¸Ä±ä±ß¿òµÄÑÕÉ«
+	SetTextColor(hdc, listModify.style->textColor());   // å­—ä½“é¢œè‰²
+	SetBkColor(hdc, listModify.style->textBkColor());	// èƒŒæ™¯é¢œè‰²ï¼ŒåŒæ—¶ä¹Ÿæ”¹å˜è¾¹æ¡†çš„é¢œè‰²
 
 	return (INT_PTR)listModify.style->textBkBrush();
 }

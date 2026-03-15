@@ -55,6 +55,10 @@ export namespace command
 			if (hFont)
 				SendMessage(hCur, WM_SETFONT, (WPARAM)hFont, TRUE);
 		}
+
+	public:
+		// 是否启用控件
+		void enable(bool able);
 	};
 
 	class Static :public Command

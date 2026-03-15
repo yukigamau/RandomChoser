@@ -30,9 +30,6 @@
     <ClCompile Include="window-Style.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="window-settingPage.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="window-choosePage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -115,6 +112,9 @@
       <Filter>command</Filter>
     </ClCompile>
     <ClCompile Include="Page-listModify.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="settingPageWPFun.cpp">
       <Filter>window/WP</Filter>
     </ClCompile>
   </ItemGroup>

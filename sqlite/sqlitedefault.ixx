@@ -13,27 +13,27 @@ using std::string, std::wstring;
 */
 export namespace sqlitedefault
 {
-	const wstring DATABASE_NAME = L"database.db";
+	const wstring database_name = L"database.db";
 	/*
 	* theme参数说明：	default跟随系统
 	*					diy自定义
 	*/
 	const wstring DB_INI =
-		L"CREATE TABLE IF NOT EXISTS skindb("
+		L"CREATE TABLE IF NOT EXISTS skin_table("
 		L"name TEXT PRIMARY KEY, "
 		L"data TEXT);"
-		L"INSERT OR IGNORE INTO skindb (name, data) "
+		L"INSERT OR IGNORE INTO skin_table (name, data) "
 		L"VALUES ('theme', 'default');"
-		L"CREATE TABLE IF NOT EXISTS listdb("
+		L"CREATE TABLE IF NOT EXISTS list_table("
 		L"name TEXT PRIMARY KEY, "
 		L"data TEXT);"
-		L"INSERT OR IGNORE INTO listdb (name, data) "
+		L"INSERT OR IGNORE INTO list_table (name, data) "
 		L"VALUES('defaultList', NULL);"
-		L"INSERT OR IGNORE INTO listdb (name, data) "
+		L"INSERT OR IGNORE INTO list_table (name, data) "
 		L"VALUES('lists', NULL);";
 
-	const wstring LISTDB = L"listdb";
-	const wstring SKINDB = L"skindb";
+	const wstring list_table = L"list_table";
+	const wstring skin_table = L"skin_table";
 
 	// 用于在必要时充当数据里面的分割符，常规的空格、换行不好用时使用
 	// 这个字在一般的输入法里面是打不出来的

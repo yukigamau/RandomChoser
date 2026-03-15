@@ -7,10 +7,10 @@ import sqlitedefault;
 import std;
 
 using sqlite::Sql;
-using sqlitedefault::DATABASE_NAME, sqlitedefault::DB_INI;
-using sqlitedefault::LISTDB, sqlitedefault::SKINDB;
+using sqlitedefault::database_name, sqlitedefault::DB_INI;
+using sqlitedefault::list_table, sqlitedefault::skin_table;
 using std::filesystem::exists, std::filesystem::file_size, std::mt19937, std::random_device;
-using std::stoi, std::shuffle, std::to_wstring, std::uniform_int_distribution, std::vector;
+using std::getline, std::stoi, std::shuffle, std::to_wstring, std::uniform_int_distribution, std::vector;
 using std::wstring, std::wstringstream;
 
 export namespace dataread
@@ -18,7 +18,7 @@ export namespace dataread
 	class Data
 	{
 	private:
-		bool ifOk = false;	// 表示是否有正常的可以插入数据库的数据
+		bool ifOk = false;	// 表示是否有数据文件
 	public:
 		// COLORREF使用16进制要返过来，可读性不如RGB宏
 		COLORREF clientBC = RGB(255, 255, 255);
@@ -45,7 +45,6 @@ export namespace dataread
 
 	public:
 		void ini(bool ifChoose = true);
-		void save(const wstring& title, const wstring& text);
 
 	private:
 		void getSkin();
@@ -53,9 +52,8 @@ export namespace dataread
 	public:
 		wstring nameOut();
 		wstring nameRandom();
-		// 有正常的可以插入的数据库表格
-		void ok();
-	} data;
+		void saveNewList(const wstring& title, const wstring& text, bool ifDefault);
+} data;
 
 	// 拼接字符串
 	wstring cat(const vector<wstring>& v);
@@ -66,34 +64,35 @@ export namespace dataread
 // 在关闭前要保存数据
 dataread::Data::~Data()
 {
-	// 只有在有相关数据的情况下才进行保存，确保至少有一个名单在数据库中
-	if(ifOk)
-	{
-		// 加入DB_INI，防止出现未输入任何信息就直接退出导致程序错误
-		Sql sql(DATABASE_NAME, DB_INI);
-		wstring w = cat(leftNames);
-		sql.insert_replace(LISTDB, { L"name",L"data" }, { defaultList + L"left'", w });
-	}
+	// 按理来说应该是由设置时处理
+	
+	//// 只有在有相关数据的情况下才进行保存，确保至少有一个名单在数据库中
+	//if(ifOk)
+	//{
+	//	// 加入DB_INI，防止出现未输入任何信息就直接退出导致程序错误
+	//	Sql sql(database_name, DB_INI);
+	//	wstring w = cat(leftNames);
+	//	sql.insert_replace(list_table, { L"name",L"data" }, { defaultList + L"left'", w });
+	//}
 }
 
 void dataread::Data::ini(bool ifChoose)
 {
-	Sql sql(DATABASE_NAME);
+	Sql sql(database_name);
 	const vector<wstring> list{ L"data" };
 	wstring where = L"name = 'theme'";
-	sql.select(SKINDB, list, where);
-	wstring theme;
-	sql.column(theme, 0);
+	sql.select(skin_table, list, where);
+	wstring theme = sql.column<wstring>(0);
 
 	if (theme != L"default")
 		getSkin();
 
 	where = L"name = 'defaultList'";
-	sql.select(LISTDB, list, where);
+	sql.select(list_table, list, where);
 	sql.column(defaultList, 0);
 
 	where = L"name = '" + defaultList + L"'";
-	sql.select(LISTDB, list, where);
+	sql.select(list_table, list, where);
 	wstring defaultListWS;
 	sql.column(defaultListWS, 0);
 	{
@@ -104,7 +103,7 @@ void dataread::Data::ini(bool ifChoose)
 	}
 
 	where = L"name = '" + defaultList + L"left'";
-	sql.select(LISTDB, list, where);
+	sql.select(list_table, list, where);
 	wstring defaultListLeftWS;
 	sql.column(defaultListLeftWS, 0);
 	{
@@ -120,24 +119,20 @@ void dataread::Data::ini(bool ifChoose)
 	// 以下是只有设置页面才会用到的：
 	// table = L"listdb";	已经在上面完成了这个操作
 	where = L"name = 'lists'";
-	sql.select(LISTDB, list, where);
+	sql.select(list_table, list, where);
 	wstring listsLine;
 	sql.column(listsLine, 0);
 	{
 		wstringstream wss(listsLine);
+		while
 		while (wss >> listsLine)
 			lists.push_back(listsLine);
 	}
 }
 
-void dataread::Data::save(const wstring& title, const wstring& text)
-{
-	//Sql sql
-}
-
 void dataread::Data::getSkin()
 {
-	Sql sql(DATABASE_NAME);
+	Sql sql(database_name);
 	const wstring table = L"skindb";
 	const vector<wstring> list{L"data" };
 
@@ -210,7 +205,7 @@ wstring dataread::cat(const vector<wstring>& v)
 
 bool dataread::ifDataExists()
 {
-	if (exists(DATABASE_NAME) && file_size(DATABASE_NAME))
+	if (exists(database_name) && file_size(database_name))
 		return true;
 	else
 		return false;
@@ -239,7 +234,11 @@ bool dataread::ifFontExists(const wstring& font)
 	return exists;
 }
 
-void dataread::Data::ok()
+void dataread::Data::saveNewList(const wstring& title, const wstring& text, bool ifDefault)
 {
-	ifOk = true;
+	Sql sql(database_name);
+	wstring where = L"name = 'lists'";
+	const vector<wstring> list{ L"data" };
+	sql.select(list_table, list, where);
+	wstring oldLists = sql.column<wstring>(0);
 }

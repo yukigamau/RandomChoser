@@ -41,11 +41,22 @@ export namespace sqlite
 		~Sql();
 
 	public:
+#pragma region 查询声明
+
 		// pos从0开始
+
+		// 这个没有下面的好，需要逐步丢弃
 		template<class T>
 		void column(T& out, int pos);
 
+		template<class T>
+		T column(int pos);
+
+#pragma endregion
+
+
 	private:
+		// 预准备sql语句
 		void doprepare(const wstring& s);
 		void exec(const wstring& s);
 		void open(const wstring& s);
@@ -54,6 +65,7 @@ export namespace sqlite
 
 	public:
 		void insert_replace(const wstring& table, const vector<wstring>& columns, const vector<wstring>& values);
+		// 构建select语句
 		void select(const wstring& table, const vector<wstring>& list, const wstring where = L"");
 	};
 }
@@ -87,6 +99,8 @@ sqlite::Sql::~Sql()
 		sqlite3_close(pdb);
 }
 
+#pragma region 查询实现
+
 template<class T>
 void sqlite::Sql::column(T& out, int pos)
 {
@@ -106,6 +120,25 @@ void sqlite::Sql::column(T& out, int pos)
 	else
 		throw runtime_error("未处理的查询类型");
 }
+
+template<class T>
+T sqlite::Sql::column(int pos)
+{
+	if constexpr (is_same_v<T, bool>)
+	{
+		const wchar_t* p = static_cast<const wchar_t*>(sqlite3_column_text16(stmt.stmt, pos));
+		return p == L"true";
+	}
+	else if constexpr (is_same_v<T, wstring>)
+	{
+		const wchar_t* p = static_cast<const wchar_t*>(sqlite3_column_text16(stmt.stmt, pos));
+		return p ? p : L"";
+	}
+	else
+		throw runtime_error("未处理的查询类型");
+}
+
+#pragma endregion
 
 void sqlite::Sql::doprepare(const wstring& s)
 {

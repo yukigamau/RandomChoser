@@ -161,7 +161,7 @@
     <ClCompile Include="window-choosePage.cpp" />
     <ClCompile Include="window-Gdi.cpp" />
     <ClCompile Include="window-Page.cpp" />
-    <ClCompile Include="window-settingPage.cpp" />
+    <ClCompile Include="settingPageWPFun.cpp" />
     <ClCompile Include="window-Style.cpp" />
     <ClCompile Include="window.ixx" />
     <ClCompile Include="windowPages-ini.cpp" />
