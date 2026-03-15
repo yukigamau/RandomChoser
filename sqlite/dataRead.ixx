@@ -47,6 +47,7 @@ export namespace dataread
 		void ini(bool ifChoose = true);
 
 	private:
+		void getLists();
 		void getSkin();
 
 	public:
@@ -115,19 +116,22 @@ void dataread::Data::ini(bool ifChoose)
 
 	if (ifChoose)
 		return;
+	else // 在设置页面中，会需要使用到名单列表
+		getLists();
+}
 
-	// 以下是只有设置页面才会用到的：
-	// table = L"listdb";	已经在上面完成了这个操作
-	where = L"name = 'lists'";
+void dataread::Data::getLists()
+{
+	Sql sql(database_name);
+	const vector<wstring> list{ L"data" };
+	wstring where = L"name = 'lists'";
 	sql.select(list_table, list, where);
+	// 先临时存储在listsLine，然后还给wss
 	wstring listsLine;
 	sql.column(listsLine, 0);
-	{
-		wstringstream wss(listsLine);
-		while
-		while (wss >> listsLine)
-			lists.push_back(listsLine);
-	}
+	wstringstream wss(listsLine);
+	while (getline(wss, listsLine))
+		lists.push_back(listsLine);
 }
 
 void dataread::Data::getSkin()
@@ -237,8 +241,18 @@ bool dataread::ifFontExists(const wstring& font)
 void dataread::Data::saveNewList(const wstring& title, const wstring& text, bool ifDefault)
 {
 	Sql sql(database_name);
-	wstring where = L"name = 'lists'";
-	const vector<wstring> list{ L"data" };
-	sql.select(list_table, list, where);
-	wstring oldLists = sql.column<wstring>(0);
+	wstring oldLists;
+	if(ifOk)
+	{
+		wstring where = L"name = 'lists'";
+		const vector<wstring> list{ L"data" };
+		sql.select(list_table, list, where);
+		oldLists = sql.column<wstring>(0);
+		oldLists += L"\n";
+		oldLists += title;
+	}
+
+	const vector<wstring> columns{ L"name",L"text" };
+	const vector<wstring> values{ L"lists",oldLists };
+	sql.insert_replace(database_name, columns, values);
 }
