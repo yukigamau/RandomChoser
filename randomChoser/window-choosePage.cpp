@@ -9,8 +9,7 @@ using window::WindowPages;
 void WindowPages::chooseOnDrawItem(WPARAM wParam, LPARAM lParam)
 {
 	LPDRAWITEMSTRUCT pDIS = (LPDRAWITEMSTRUCT)lParam;
-
-	HWND ctrl = (HWND)lParam;
+	HWND ctrl = pDIS->hwndItem;
 	if (ctrl == hTitleText)
 	{
 		/* ±³¾° */

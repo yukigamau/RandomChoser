@@ -141,10 +141,20 @@ T sqlite::Sql::column(int pos)
 #pragma endregion
 
 void sqlite::Sql::doprepare(const wstring& s)
+#if _DEBUG
+#else
+noexcept
+#endif
 {
 	int rc = sqlite3_prepare16_v2(pdb, s.c_str(), -1, &stmt.stmt, nullptr);
+#if _DEBUG
 	if (rc != SQLITE_OK)
-		throw runtime_error("sql”Ô∑®¥ÌŒÛ°£");
+	{
+		std::string sErr = "sql¥ÌŒÛ£∫\n";
+		sErr += sqlite3_errmsg(pdb);
+		throw runtime_error(sErr);
+	}
+#endif
 }
 
 void sqlite::Sql::exec(const wstring& s)

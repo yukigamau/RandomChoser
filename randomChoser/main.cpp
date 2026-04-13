@@ -24,8 +24,6 @@ try
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
-	return 0;
 }
 catch (const exception& e)
 {

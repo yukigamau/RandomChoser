@@ -171,7 +171,7 @@ export namespace window
 		void createChoosePage();
 	public:	// 消息处理
 		void chooseOnCommand(WPARAM wParam);
-		void chooseOnCreate();
+		void chooseOnCreate(HWND hwnd);
 		LRESULT chooseOnCtlColorStatic(WPARAM wParam, LPARAM lParam);
 		void chooseOnDestory();
 		void chooseOnDrawItem(WPARAM wParam, LPARAM lParam);
@@ -313,10 +313,10 @@ void window::WindowPages::chooseOnCommand(WPARAM wParam)
 	}
 }
 
-void window::WindowPages::chooseOnCreate()
+void window::WindowPages::chooseOnCreate(HWND hwnd)
 {
 	// 每秒发一次消息
-	SetTimer(hChoose, IDT_WAIT, 1000, nullptr);	// 等待一定时间切换至图标模式用
+	SetTimer(hwnd, IDT_WAIT, 1000, nullptr);	// 等待一定时间切换至图标模式用
 
 	/* 标题 */
 	wstring titleText = L"点名器" + VERSION;
@@ -326,11 +326,17 @@ void window::WindowPages::chooseOnCreate()
 		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		titleRect.left, titleRect.top,
 		titleRect.right - titleRect.left, titleRect.bottom - titleRect.top,
-		hChoose,
+		hwnd,
 		nullptr,
 		hInstance,
 		nullptr
 	);
+#if _DEBUG
+
+	if (!hTitleText)
+		throw("抽取页面的标题文本控件创建失败！");
+
+#endif // _DEBUG
 
 	/* 设置按钮 */
 	hSettingBtn = CreateWindow(
@@ -339,7 +345,7 @@ void window::WindowPages::chooseOnCreate()
 		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		settingBtnRect.left, settingBtnRect.top,
 		settingBtnRect.right - settingBtnRect.left, settingBtnRect.bottom - settingBtnRect.top,
-		hChoose,
+		hwnd,
 		(HMENU)IDC_BTN_SETTING,
 		hInstance,
 		nullptr
@@ -352,7 +358,7 @@ void window::WindowPages::chooseOnCreate()
 		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		closeBtnRect.left, closeBtnRect.top,
 		closeBtnRect.right - closeBtnRect.left, closeBtnRect.bottom - closeBtnRect.top,
-		hChoose,
+		hwnd,
 		(HMENU)IDCLOSE,
 		hInstance,
 		nullptr
@@ -364,7 +370,7 @@ void window::WindowPages::chooseOnCreate()
 		L"点击抽取",
 		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		hPenWidth, captionHeight, choosePageSize.cx - hPenWidth, choosePageSize.cy - hPenWidth,
-		hChoose,
+		hwnd,
 		(HMENU)IDC_BTN_TEXT,
 		hInstance,
 		nullptr
@@ -493,7 +499,7 @@ LRESULT CALLBACK window::WindowPages::chooseWP(HWND hwnd, UINT uMsg, WPARAM wPar
 	switch (uMsg)
 	{
 	case WM_CREATE:
-		wps.chooseOnCreate();
+		wps.chooseOnCreate(hwnd);
 		break;
 
 	case WM_COMMAND:

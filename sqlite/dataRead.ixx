@@ -53,7 +53,9 @@ export namespace dataread
 	public:
 		wstring nameOut();
 		wstring nameRandom();
-		void saveNewList(const wstring& title, const wstring& text, bool ifDefault);
+		void saveLists(const wstring &title, bool ifDefault);
+		void saveListText(const wstring &title, const wstring &text,
+			const wstring &password = sqlitedefault::not_use_password);
 } data;
 
 	// 拼接字符串
@@ -222,6 +224,10 @@ int findFont(const LOGFONT*, const TEXTMETRIC*, DWORD, LPARAM lParam)
 	return 0; // 找到就停
 }
 
+/*
+* 函数ifFontExists
+*	用于确定是否有字体在电脑上
+*/
 bool dataread::ifFontExists(const wstring& font)
 {
 	LOGFONT lf{};
@@ -238,11 +244,17 @@ bool dataread::ifFontExists(const wstring& font)
 	return exists;
 }
 
-void dataread::Data::saveNewList(const wstring& title, const wstring& text, bool ifDefault)
+/*
+* 函数：		Data::saveLists
+* 作用：		保存名单名
+* @title：		新名单名称
+* @ifDefault：	是否是默认名单
+*/
+void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 {
-	Sql sql(database_name);
+	Sql sql(database_name, DB_INI);
 	wstring oldLists;
-	if(ifOk)
+	if (ifOk)
 	{
 		wstring where = L"name = 'lists'";
 		const vector<wstring> list{ L"data" };
@@ -252,7 +264,35 @@ void dataread::Data::saveNewList(const wstring& title, const wstring& text, bool
 		oldLists += title;
 	}
 
-	const vector<wstring> columns{ L"name",L"text" };
-	const vector<wstring> values{ L"lists",oldLists };
-	sql.insert_replace(database_name, columns, values);
+	const vector<wstring> columns{ L"name",L"data"};
+	const vector<wstring> values
+	{
+		L"lists",
+		oldLists
+	};
+	sql.insert_replace(list_table, columns, values);
+
+	if (ifDefault)
+	{
+		const vector<wstring> columns{ L"name",L"data" };
+		const vector<wstring> values{ L"defaultList",title };
+		sql.insert_replace(list_table, columns, values);
+	}
+}
+
+/*
+* 函数：		Data::saveListText
+* 作用：		保存名单内容
+* @title：		名单名称
+* @text：		名单内容
+* @password：	密码
+* @ifDefault：	是否是默认名单
+*/
+
+void dataread::Data::saveListText(const wstring &title, const wstring &text, const wstring &password)
+{
+	Sql sql(database_name, DB_INI);
+	const vector<wstring> columns{ L"name",L"data",L"password" };
+	const vector<wstring> values{ title,text,password };
+	sql.insert_replace(list_table, columns, values);
 }

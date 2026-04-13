@@ -2,9 +2,11 @@
 #include <commCtrl.h>
 
 import command;
+import dataread;
 import id;
 import margin;
 import match;
+import glob;
 import passwordSubclass;
 import passwordWPFun;
 import rgb;
@@ -91,6 +93,48 @@ void invalidatePassword(HWND hParent)
 	InvalidateRect(h2, NULL, TRUE);
 }
 
+
+#pragma region passwordOnCommand
+
+/*
+* 函数：	saveList
+* 作用：	保存列表
+*/
+void saveList()
+{
+	auto hTitle = GetDlgItem(window::wps.listModify.getHWND(), listModifyID::idc_edit_listName);
+	auto nTitle = GetWindowTextLength(hTitle);
+	wstring wsTitle;
+	wsTitle.resize(nTitle);
+	GetWindowText(hTitle, wsTitle.data(), nTitle + 1);
+
+	auto hText = GetDlgItem(window::wps.listModify.getHWND(), listModifyID::idc_edit_writeName);
+	auto nText = GetWindowTextLength(hText);
+	wstring wsText;
+	wsText.resize(nText);
+	GetWindowText(hText, wsText.data(), nText + 1);
+
+	dataread::data.saveLists(wsTitle, glob::ifNewListDefault);
+
+	if (!ifNeedPassword)
+	{
+		dataread::data.saveListText(wsTitle, wsText);
+		return;
+	}
+
+	auto hPassword = GetDlgItem(window::wps.password.getHWND(), passwordID::idc_edit_password);
+	auto nPassword = GetWindowTextLength(hPassword);
+	wstring wsPassword;
+	wsPassword.resize(nPassword);
+	GetWindowText(hPassword, wsPassword.data(), nPassword + 1);
+
+	dataread::data.saveListText(wsTitle, wsText, wsPassword);
+}
+
+/*
+* 函数：	passwordOnCommand
+* 作用：	用于密码页面的控件消息处理
+*/
 LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	auto id{ LOWORD(wParam) };
@@ -134,6 +178,11 @@ LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 
+	case idc_btn_yes:
+		if (msg == BN_CLICKED)
+			saveList();
+		break;
+
 	case idc_edit_password:
 		[[fallthrough]];
 	case idc_edit_passwordRe:
@@ -147,6 +196,7 @@ LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		default:
 			break;
 		}
+		break;
 
 	default:
 		break;
@@ -155,6 +205,7 @@ LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 #pragma endregion
+// passwordOnCommand
 
 LRESULT passwordOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
