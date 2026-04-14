@@ -156,6 +156,8 @@
     <ClCompile Include="passwordWPFun.ixx" />
     <ClCompile Include="listModifySubclass.cpp" />
     <ClCompile Include="listModifySubclass.ixx" />
+    <ClCompile Include="Page-randomChoose.ixx" />
+    <ClCompile Include="randomChooseWPFun.ixx" />
     <ClCompile Include="rgb.ixx" />
     <ClCompile Include="window-buttonStyleTurnOn.cpp" />
     <ClCompile Include="window-choosePage.cpp" />

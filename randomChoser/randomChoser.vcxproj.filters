@@ -117,6 +117,12 @@
     <ClCompile Include="settingPageWPFun.cpp">
       <Filter>window/WP</Filter>
     </ClCompile>
+    <ClCompile Include="Page-randomChoose.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="randomChooseWPFun.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

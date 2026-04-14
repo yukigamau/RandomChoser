@@ -142,6 +142,7 @@ export namespace window
 	public:
 		Style style;
 		// 新的页面规则
+		Page randomChoose;
 		Page listModify;
 		Page password;
 
@@ -313,70 +314,6 @@ void window::WindowPages::chooseOnCommand(WPARAM wParam)
 	}
 }
 
-void window::WindowPages::chooseOnCreate(HWND hwnd)
-{
-	// 每秒发一次消息
-	SetTimer(hwnd, IDT_WAIT, 1000, nullptr);	// 等待一定时间切换至图标模式用
-
-	/* 标题 */
-	wstring titleText = L"点名器" + VERSION;
-	hTitleText = CreateWindow(
-		L"STATIC",
-		titleText.c_str(),
-		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-		titleRect.left, titleRect.top,
-		titleRect.right - titleRect.left, titleRect.bottom - titleRect.top,
-		hwnd,
-		nullptr,
-		hInstance,
-		nullptr
-	);
-#if _DEBUG
-
-	if (!hTitleText)
-		throw("抽取页面的标题文本控件创建失败！");
-
-#endif // _DEBUG
-
-	/* 设置按钮 */
-	hSettingBtn = CreateWindow(
-		L"BUTTON",
-		L"…",
-		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-		settingBtnRect.left, settingBtnRect.top,
-		settingBtnRect.right - settingBtnRect.left, settingBtnRect.bottom - settingBtnRect.top,
-		hwnd,
-		(HMENU)IDC_BTN_SETTING,
-		hInstance,
-		nullptr
-	);
-
-	/* 关闭按钮 */
-	hCloseBtn = CreateWindow(
-		L"BUTTON",
-		L"×",
-		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-		closeBtnRect.left, closeBtnRect.top,
-		closeBtnRect.right - closeBtnRect.left, closeBtnRect.bottom - closeBtnRect.top,
-		hwnd,
-		(HMENU)IDCLOSE,
-		hInstance,
-		nullptr
-	);
-
-	/* 用户区文本 */
-	hTextBtn = CreateWindow(
-		L"BUTTON",
-		L"点击抽取",
-		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-		hPenWidth, captionHeight, choosePageSize.cx - hPenWidth, choosePageSize.cy - hPenWidth,
-		hwnd,
-		(HMENU)IDC_BTN_TEXT,
-		hInstance,
-		nullptr
-	);
-}
-
 LRESULT window::WindowPages::chooseOnCtlColorStatic(WPARAM wParam, LPARAM lParam)
 {
 	HWND hParam = (HWND)lParam;
@@ -516,7 +453,6 @@ LRESULT CALLBACK window::WindowPages::chooseWP(HWND hwnd, UINT uMsg, WPARAM wPar
 	case WM_DRAWITEM:
 		wps.chooseOnDrawItem(wParam, lParam);
 		return true;
-		break;
 
 	case WM_NCHITTEST:
 		return wps.chooseOnNcHitTest(hwnd, uMsg, wParam, lParam);
