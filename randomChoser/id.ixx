@@ -1,6 +1,16 @@
 module;
 export module id;
 
+export namespace chooseID
+{
+	constexpr auto
+		idc_stc_title{ 1501 },
+		idc_stc_settingBtn{ 1502 },
+		// 实际上这个控件用的是IDCLOSE
+		// idc_stc_closeBtn{ 1503 },
+		idc_stc_chooseBtn{ 1504 };
+}
+
 /*
 * listModify页面
 */

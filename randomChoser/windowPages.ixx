@@ -13,6 +13,7 @@ export module window:windowPages;
 import "resource.h";
 
 import dataread;
+import id;
 import std;
 
 using dataread::data, dataread::ifDataExists;
@@ -29,8 +30,6 @@ export namespace window
 	constexpr int IDT_TRANSPARENCY = 3;
 	constexpr int IDC_BTN_EDIT_LIST = 1501;
 	constexpr int IDC_BTN_OPEN_SOURCE_SITE = 1502;
-	constexpr int IDC_BTN_SETTING = 1503;
-	constexpr int IDC_BTN_TEXT = 1504;
 	constexpr int IDC_BTN_WRITE_LIST = 1505;
 	constexpr int IDC_COMBO_LISTS = 1551;
 	constexpr int IDC_STATIC_RED = 1601;
@@ -151,13 +150,13 @@ export namespace window
 		const int WAIT_NUM_MAX = 8;
 
 	private:
-		SIZE choosePageSize = { 200,90 };
+		SIZE choosePageSize = { 200,75 };
 		HWND hChoose = nullptr;
 		HWND hTitleText = nullptr;
 		HWND hSettingBtn = nullptr;
 		HWND hCloseBtn = nullptr;
 		HWND hTextBtn = nullptr;
-		int captionHeight = GetSystemMetrics(SM_CYCAPTION);
+		int captionHeight;
 		int hPenWidth = 2;
 		HFONT hFont = nullptr;
 		RECT titleRect;	// 在ini函数中赋值
@@ -260,11 +259,13 @@ void window::WindowPages::iniDpi()
 	// 设置 DPI 感知
 	HRESULT hr = SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 	// 如果系统不支持 SetProcessDpiAwareness，回退到旧 API
-	if (FAILED(hr))	BOOL success = SetProcessDPIAware();
+	if (FAILED(hr))	SetProcessDPIAware();
 
 	// DPI调整
 	const double defaultDPI = 96.0;
 	double dpiScale = getDPIScalingFactor() / defaultDPI;
+
+	captionHeight = GetSystemMetrics(SM_CYCAPTION);
 
 	choosePageSize.cx *= dpiScale;
 	choosePageSize.cy *= dpiScale;
@@ -274,11 +275,9 @@ void window::WindowPages::iniDpi()
 
 	hPenWidth *= dpiScale;
 
-	int btnSize = 50 * dpiScale;
+	int btnSize = captionHeight;
 
 	titleRect = { 0,0,choosePageSize.cx,captionHeight };
-	titleRect.left += 10 * dpiScale;	// 给文字留点空间
-	titleRect.right -= 2 * btnSize;	// 避开关闭、设置按钮
 
 	settingBtnRect = { choosePageSize.cx - 2 * btnSize,0,choosePageSize.cx - btnSize,captionHeight };
 	closeBtnRect = { choosePageSize.cx - btnSize,0,choosePageSize.cx,captionHeight };
@@ -299,7 +298,7 @@ void window::WindowPages::chooseOnCommand(WPARAM wParam)
 
 	switch (id)
 	{
-	case IDC_BTN_TEXT:
+	case chooseID::idc_stc_chooseBtn:
 		switch(code)
 		{
 		case BN_CLICKED:
@@ -321,8 +320,9 @@ LRESULT window::WindowPages::chooseOnCtlColorStatic(WPARAM wParam, LPARAM lParam
 	{
 		HDC hdcStatic = (HDC)wParam;
 		SetTextColor(hdcStatic, data.captionFC);
-		SetBkMode(hdcStatic, OPAQUE);
-		return (LRESULT)(HBRUSH)CreateSolidBrush(data.captionBC);
+		SetBkColor(hdcStatic, data.captionBC);
+		static HBRUSH hBrush = CreateSolidBrush(data.captionBC);
+		return (INT_PTR)hBrush;
 	}
 	else
 		return 0;	// 这个是默认的windows api返回值
