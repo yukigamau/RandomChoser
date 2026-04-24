@@ -174,7 +174,6 @@ export namespace window
 		void chooseOnCreate(HWND hwnd);
 		LRESULT chooseOnCtlColorStatic(WPARAM wParam, LPARAM lParam);
 		void chooseOnDestory();
-		void chooseOnDrawItem(WPARAM wParam, LPARAM lParam);
 		LRESULT chooseOnNcHitTest(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		void chooseOnPaint(HDC& hdc);
 		void chooseOnTimer(WPARAM wParam);
@@ -298,6 +297,10 @@ void window::WindowPages::chooseOnCommand(WPARAM wParam)
 
 	switch (id)
 	{
+	case IDCLOSE:
+		SendMessage(hChoose, WM_CLOSE, 0, 0);
+		break;
+
 	case chooseID::idc_stc_chooseBtn:
 		switch(code)
 		{
@@ -316,7 +319,9 @@ void window::WindowPages::chooseOnCommand(WPARAM wParam)
 LRESULT window::WindowPages::chooseOnCtlColorStatic(WPARAM wParam, LPARAM lParam)
 {
 	HWND hParam = (HWND)lParam;
-	if (hParam == hTitleText)
+	if (hParam == hTitleText ||
+		hParam == hSettingBtn ||
+		hParam == hCloseBtn)
 	{
 		HDC hdcStatic = (HDC)wParam;
 		SetTextColor(hdcStatic, data.captionFC);
@@ -449,10 +454,6 @@ LRESULT CALLBACK window::WindowPages::chooseWP(HWND hwnd, UINT uMsg, WPARAM wPar
 	case WM_DESTROY:
 		wps.chooseOnDestory();
 		break;
-
-	case WM_DRAWITEM:
-		wps.chooseOnDrawItem(wParam, lParam);
-		return true;
 
 	case WM_NCHITTEST:
 		return wps.chooseOnNcHitTest(hwnd, uMsg, wParam, lParam);
