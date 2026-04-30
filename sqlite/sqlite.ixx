@@ -218,7 +218,7 @@ void sqlite::Sql::select(const wstring& table, const vector<wstring>& list, cons
 
 	if (where.size())
 	{
-		sql += L" " + where;
+		sql += L" where " + where;
 	}
 
 	sql += L";";

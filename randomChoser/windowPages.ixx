@@ -404,20 +404,22 @@ void window::WindowPages::chooseOnTimer(WPARAM wParam)
 	switch (wParam)
 	{
 	case IDT_SCROLL:
+	{
 		scrollNum--;
-		LPCWSTR nameOut;
+		wstring nameOut;
 		if (scrollNum)	// 随机滚动没有结束
-			nameOut = data.nameRandom().c_str();
+			nameOut = data.nameRandom();
 		else
 		{
-			nameOut = data.nameOut().c_str();
+			nameOut = data.nameOut();
 
 			// 终止文本滚动
 			KillTimer(hChoose, IDT_SCROLL);
 		}
 
 		// 设置文本
-		SetWindowText(hTextBtn, nameOut);
+		SetWindowText(hTextBtn, nameOut.c_str());
+	}
 		break;
 
 	case IDT_TRANSPARENCY:
@@ -822,7 +824,12 @@ void window::WindowPages::createWindow(HINSTANCE hInstance)
 {
 	this->hInstance = hInstance;
 	if (ifDataExists())
+	{
+		// 数据存在就初始化数据
+		data.ini();
+
 		createChoosePage();
+	}
 	else
 		createSettingPage();
 }
