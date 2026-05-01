@@ -2,6 +2,7 @@
 export module window;
 export import :windowPages;
 export import :windowAdjuster;
+export import :windowRestart;
 
 // 页面的具体实现
 export import :listModify;

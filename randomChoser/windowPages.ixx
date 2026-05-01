@@ -415,6 +415,9 @@ void window::WindowPages::chooseOnTimer(WPARAM wParam)
 
 			// 终止文本滚动
 			KillTimer(hChoose, IDT_SCROLL);
+
+			// 重置scrollNum
+			scrollNum = scrollNumMax;
 		}
 
 		// 设置文本

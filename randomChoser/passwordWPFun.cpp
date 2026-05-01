@@ -34,6 +34,7 @@ const wstring needPasswordNoOn = L"⊙ 不需要";
 const wstring needPasswordYesOff = L"○ 需要";
 const wstring needPasswordYesOn = L"⊙ 需要";
 
+// 密码的匹配程度
 Match mt;
 
 void changeNeedPasswordGroup()
@@ -180,7 +181,25 @@ LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case idc_btn_yes:
 		if (msg == BN_CLICKED)
+		{
+			if (mt.degree() == MatchDegree::none)
+			{
+				if (ifNeedPassword)
+				{
+					MessageBox(password.getHWND(), L"未设置密码", L"错误", MB_ICONERROR);
+					break;
+				}
+			}
+			else if (mt.degree() == MatchDegree::diff)
+			{
+				MessageBox(password.getHWND(), L"密码不统一", L"错误", MB_ICONERROR);
+				break;
+			}
+
 			saveList();
+			// 保存完成后重启应用应用更改
+			window::restart();
+		}
 		break;
 
 	case idc_edit_password:

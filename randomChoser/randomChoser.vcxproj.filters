@@ -123,6 +123,9 @@
     <ClCompile Include="randomChooseWPFun.ixx">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="windowRestart.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

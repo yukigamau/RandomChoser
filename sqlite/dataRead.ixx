@@ -186,6 +186,8 @@ wstring dataread::Data::nameOut()
 		leftNames = defaultNames;
 		// 打乱，使用洗牌函数保证随机性
 		shuffle(leftNames.begin(), leftNames.end(),rng);
+
+		return L"抽完一轮";
 	}
 
 	wstring r = leftNames.back();
@@ -253,22 +255,20 @@ bool dataread::ifFontExists(const wstring& font)
 void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 {
 	Sql sql(database_name, DB_INI);
-	wstring oldLists;
-	if (ifOk)
-	{
-		wstring where = L"name = 'lists'";
-		const vector<wstring> list{ L"data" };
-		sql.select(list_table, list, where);
-		oldLists = sql.column<wstring>(0);
-		oldLists += L"\n";
-		oldLists += title;
-	}
+	wstring strLists;
 
-	const vector<wstring> columns{ L"name",L"data"};
+	wstring where = L"name = 'lists'";
+	const vector<wstring> list{ L"data" };
+	sql.select(list_table, list, where);
+	strLists = sql.column<wstring>(0);
+	strLists += L"\n";	// 注意如果是用命令行去看，会换行，导致像是新的数据
+	strLists += title;
+
+	const vector<wstring> columns{ L"name",L"data" };
 	const vector<wstring> values
 	{
 		L"lists",
-		oldLists
+		strLists
 	};
 	sql.insert_replace(list_table, columns, values);
 

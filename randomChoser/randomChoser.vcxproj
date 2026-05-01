@@ -169,6 +169,7 @@
     <ClCompile Include="windowPages-ini.cpp" />
     <ClCompile Include="windowPages.ixx" />
     <ClCompile Include="windowAdjuster.ixx" />
+    <ClCompile Include="windowRestart.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\sqlite\sqlite.vcxproj">
