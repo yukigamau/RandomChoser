@@ -9,8 +9,9 @@ import std;
 using sqlite::Sql;
 using sqlitedefault::database_name, sqlitedefault::DB_INI;
 using sqlitedefault::list_table, sqlitedefault::skin_table;
-using std::filesystem::exists, std::filesystem::file_size, std::mt19937, std::random_device;
-using std::getline, std::stoi, std::shuffle, std::to_wstring, std::uniform_int_distribution, std::vector;
+using std::mt19937, std::random_device, std::seed_seq;
+using std::filesystem::exists, std::filesystem::file_size;
+using std::getline, std::stoi, std::shuffle, std::time, std::to_wstring, std::uniform_int_distribution, std::vector;
 using std::wstring, std::wstringstream;
 
 export namespace dataread
@@ -35,11 +36,11 @@ export namespace dataread
 		vector<wstring> defaultNames;
 		vector<wstring> leftNames;
 	private:
-		// 用于得到随机数种子
-		mt19937 rng{ random_device{}() };
+		// 用于得到随机数种子，在构造函数中初始化
+		mt19937 rng;
 
 	public:
-		Data(){}
+		Data();
 		// 在关闭前要保存数据
 		~Data();
 
@@ -64,19 +65,24 @@ export namespace dataread
 	bool ifFontExists(const wstring& font);
 }
 
+dataread::Data::Data()
+{
+	// 初始化随机种子
+	random_device rd;
+	seed_seq ss{ rd(), (unsigned int)time(nullptr), 0xdeadbeef }; // 混合多个源
+	rng = mt19937{ ss };
+}
+
 // 在关闭前要保存数据
 dataread::Data::~Data()
 {
-	// 按理来说应该是由设置时处理
-	
-	//// 只有在有相关数据的情况下才进行保存，确保至少有一个名单在数据库中
-	//if(ifOk)
-	//{
-	//	// 加入DB_INI，防止出现未输入任何信息就直接退出导致程序错误
-	//	Sql sql(database_name, DB_INI);
-	//	wstring w = cat(leftNames);
-	//	sql.insert_replace(list_table, { L"name",L"data" }, { defaultList + L"left'", w });
-	//}
+	if (ifOk)
+	{
+		wstring wsText;
+		for (const auto &ws : leftNames)
+			wsText += ws + L"\n";
+		saveListText(defaultList + L"left", wsText);
+	}
 }
 
 void dataread::Data::ini(bool ifChoose)
@@ -109,15 +115,18 @@ void dataread::Data::ini(bool ifChoose)
 	sql.select(list_table, list, where);
 	wstring defaultListLeftWS;
 	sql.column(defaultListLeftWS, 0);
-	{
-		wstringstream wss(defaultListLeftWS);
-		wstring listLine;
-		while (wss >> listLine)
-			leftNames.push_back(listLine);
-	}
+
+	wstringstream wss(defaultListLeftWS);
+	wstring listLine;
+	while (wss >> listLine)
+		leftNames.push_back(listLine);
+
 
 	if (ifChoose)
+	{
+		ifOk = true;
 		return;
+	}
 	else // 在设置页面中，会需要使用到名单列表
 		getLists();
 }
@@ -293,6 +302,11 @@ void dataread::Data::saveListText(const wstring &title, const wstring &text, con
 {
 	Sql sql(database_name, DB_INI);
 	const vector<wstring> columns{ L"name",L"data",L"password" };
-	const vector<wstring> values{ title,text,password };
+	vector<wstring> values{ title,text,password };
+	sql.insert_replace(list_table, columns, values);
+
+	values[0] += L"left";
+	shuffle(values[1].begin(), values[1].end(), rng);
+	values[2] = sqlitedefault::not_use_password;
 	sql.insert_replace(list_table, columns, values);
 }

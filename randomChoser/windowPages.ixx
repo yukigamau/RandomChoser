@@ -202,7 +202,7 @@ export namespace window
 		void iconOnLButtonDown(LPARAM lParam);
 		void iconOnLButtonUp();
 		void iconOnMouseMove(WPARAM wParam, LPARAM lParam);
-		void iconOnPaint();
+		void iconOnPaint(HWND hwnd);
 		void iconOnTimer(WPARAM wParam);
 	private:
 		static LRESULT CALLBACK iconWP(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -528,6 +528,7 @@ void window::WindowPages::inIconPage()
 
 	ShowWindow(hChoose, SW_HIDE);
 	ShowWindow(hIcon, SW_SHOW);
+	iconOnPaint(hIcon);
 }
 
 void window::WindowPages::outIconPage()
@@ -630,7 +631,6 @@ void window::WindowPages::createIconPage()
 	// 调整位置
 	HWND set = data.ifTop ? HWND_TOPMOST : HWND_NOTOPMOST;
 	SetWindowPos(hIcon, set, newPosition.left, newPosition.top, 0, 0, SWP_NOSIZE);
-	iconOnPaint();
 }
 
 // 辅助函数：从资源中加载图像
@@ -733,10 +733,10 @@ void window::WindowPages::iconOnMouseMove(WPARAM wParam, LPARAM lParam)
 	ptOld = ptNew;  // 更新鼠标位置
 }
 
-void window::WindowPages::iconOnPaint()
+void window::WindowPages::iconOnPaint(HWND hwnd)
 {
 	// 获取屏幕 DC 及创建内存 DC
-	HDC hdcScreen = GetDC(hIcon);
+	HDC hdcScreen = GetDC(hwnd);
 	hdcMem = CreateCompatibleDC(hdcScreen);
 
 	BITMAPINFO bmi = { 0 };
@@ -775,15 +775,15 @@ void window::WindowPages::iconOnPaint()
 	blend.SourceConstantAlpha = (BYTE)0;
 	blend.AlphaFormat = AC_SRC_ALPHA;
 	RECT rcClient;
-	GetWindowRect(hIcon, &rcClient);
+	GetWindowRect(hwnd, &rcClient);
 	POINT ptWnd = { rcClient.left, rcClient.top };
 	POINT ptSrc = { 0, 0 };
-	UpdateLayeredWindow(hIcon, hdcScreen, &ptWnd, &iconPageSize, hdcMem, &ptSrc, 0, &blend, ULW_ALPHA);
+	UpdateLayeredWindow(hwnd, hdcScreen, &ptWnd, &iconPageSize, hdcMem, &ptSrc, 0, &blend, ULW_ALPHA);
 
 	// 清理资源
 	SelectObject(hdcMem, hOldBitmap);	// 将位图从内存DC中清出
 	DeleteObject(hBitmap);
-	ReleaseDC(hIcon, hdcScreen);
+	ReleaseDC(hwnd, hdcScreen);
 }
 
 void window::WindowPages::iconOnTimer(WPARAM wParam)
@@ -810,6 +810,10 @@ LRESULT CALLBACK window::WindowPages::iconWP(HWND hwnd, UINT uMsg, WPARAM wParam
 
 	case WM_LBUTTONUP:
 		wps.iconOnLButtonUp();
+		break;
+
+	case WM_PAINT:
+		wps.iconOnPaint(hwnd);
 		break;
 
 	case WM_TIMER:
@@ -867,6 +871,7 @@ void window::WindowPages::transparency(HWND hwnd, Mode m)
 				outIconPage();
 				SetTimer(hChoose, IDT_TRANSPARENCY, TRANSPARENCY_INTERVAL, nullptr);
 				SetTimer(hChoose, IDT_SCROLL, IDT_SCROLL_INTERVAL, nullptr);	// 同时开始滚动以优化使用
+				SetTimer(hChoose, IDT_WAIT, 1000, nullptr);
 			}
 		}
 		currentAlpha -= transparencyChange;  // 每次减少透明度

@@ -20,7 +20,7 @@ using margin::Margin;
 using match::Match, match::MatchDegree;
 using rgb::Color, rgb::Rgb;
 using std::wstring;
-using std::tie;
+using std::format, std::tie;
 using window::Follow, window::IfButton, window::WindowAdjuster;
 
 auto& password{ window::wps.password };
@@ -117,9 +117,11 @@ void saveList()
 
 	dataread::data.saveLists(wsTitle, glob::ifNewListDefault);
 
+#pragma region 保存名单内容
+
 	if (!ifNeedPassword)
 	{
-		dataread::data.saveListText(wsTitle, wsText);
+		dataread::data.saveListText(wsTitle, wsText, sqlitedefault::not_use_password);
 		return;
 	}
 
@@ -130,6 +132,9 @@ void saveList()
 	GetWindowText(hPassword, wsPassword.data(), nPassword + 1);
 
 	dataread::data.saveListText(wsTitle, wsText, wsPassword);
+
+#pragma endregion
+	// 保存名单内容
 }
 
 /*
