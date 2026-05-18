@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <windowsx.h>
 
 import dataread;
 import std;
@@ -52,6 +53,7 @@ void WindowPages::createSettingPage()
 	UpdateWindow(hSetting);
 }
 
+// 同时求最大的宽度和高度
 void maxSize(HWND hWnd, HFONT hFont, const vector<wstring>& texts, int* const width, int* const height)
 {
 	HDC hdc = GetDC(hWnd);
@@ -64,6 +66,8 @@ void maxSize(HWND hWnd, HFONT hFont, const vector<wstring>& texts, int* const wi
 		*width = max(*width, rc.right - rc.left);
 		*height = max(*width, rc.bottom - rc.top);
 	}
+
+	*width += 50;
 
 	SelectObject(hdc, font);
 	ReleaseDC(hWnd, hdc);
@@ -117,6 +121,8 @@ void WindowPages::settingOnCreate(HWND hWnd)
 
 	wa.ctlNext(height);
 
+	data.getLists();
+
 	if (data.defaultList == L"")
 	{
 		wstring ifListOK = L"您尚未选择要抽取的名单。";
@@ -148,6 +154,20 @@ void WindowPages::settingOnCreate(HWND hWnd)
 		HWND chooseListCombo = CreateWindow(L"COMBOBOX", nullptr,
 			WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
 			wa.x, wa.y, width, height, hWnd, nullptr, hInstance, nullptr);
+
+		for (auto a : data.lists)
+		{
+			int nIndex = SendMessage(chooseListCombo, CB_ADDSTRING, 0, (LPARAM)a.c_str());
+			if (nIndex == CB_ERR)
+				throw std::runtime_error("插入名单选项失败");
+			else if (nIndex == CB_ERRSPACE)
+				throw std::runtime_error("chooseListCombo CB_ERRSPACE");
+			else if (a == data.defaultList)
+				ComboBox_SetCurSel(chooseListCombo, nIndex);
+		}
+
+		SendMessage(chooseListCombo, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
+
 
 		wa.ctlNext(height);
 	}

@@ -47,8 +47,9 @@ export namespace dataread
 	public:
 		void ini(bool ifChoose = true);
 
-	private:
+	public:
 		void getLists();
+	private:
 		void getSkin();
 
 	public:
@@ -121,14 +122,11 @@ void dataread::Data::ini(bool ifChoose)
 	while (wss >> listLine)
 		leftNames.push_back(listLine);
 
-
 	if (ifChoose)
 	{
 		ifOk = true;
 		return;
 	}
-	else // 在设置页面中，会需要使用到名单列表
-		getLists();
 }
 
 void dataread::Data::getLists()
@@ -142,7 +140,8 @@ void dataread::Data::getLists()
 	sql.column(listsLine, 0);
 	wstringstream wss(listsLine);
 	while (getline(wss, listsLine))
-		lists.push_back(listsLine);
+		if (listsLine.size())
+			lists.push_back(listsLine);
 }
 
 void dataread::Data::getSkin()
