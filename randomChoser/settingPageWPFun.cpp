@@ -53,26 +53,6 @@ void WindowPages::createSettingPage()
 	UpdateWindow(hSetting);
 }
 
-// 同时求最大的宽度和高度
-void maxSize(HWND hWnd, HFONT hFont, const vector<wstring>& texts, int* const width, int* const height)
-{
-	HDC hdc = GetDC(hWnd);
-	HFONT font = (HFONT)SelectObject(hdc, hFont);
-
-	for(wstring text:texts)
-	{
-		RECT rc = { 0, 0, 0, 0 };
-		DrawText(hdc, text.c_str(), -1, &rc, DT_CALCRECT);
-		*width = max(*width, rc.right - rc.left);
-		*height = max(*width, rc.bottom - rc.top);
-	}
-
-	*width += 50;
-
-	SelectObject(hdc, font);
-	ReleaseDC(hWnd, hdc);
-}
-
 LRESULT WindowPages::settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int id = LOWORD(wParam);
@@ -102,6 +82,28 @@ LRESULT WindowPages::settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	default:
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
+}
+
+// 同时求最大的宽度和高度
+void maxSize(HWND hWnd, HFONT hFont, const vector<wstring> &texts, int *const width, int *const height)
+{
+	// 初始化，防出错。
+	*width = 0;
+	*height = 0;
+
+	HDC hdc = GetDC(hWnd);
+	HFONT font = (HFONT)SelectObject(hdc, hFont);
+
+	for (const wstring &text : texts)
+	{
+		RECT rc = { 0, 0, 0, 0 };
+		DrawText(hdc, text.c_str(), -1, &rc, DT_CALCRECT);
+		*width = max(*width, rc.right - rc.left);
+		*height = max(*height, rc.bottom - rc.top);
+	}
+
+	SelectObject(hdc, font);
+	ReleaseDC(hWnd, hdc);
 }
 
 void WindowPages::settingOnCreate(HWND hWnd)
@@ -148,8 +150,17 @@ void WindowPages::settingOnCreate(HWND hWnd)
 	}
 	else
 	{
+		wstring wsDefalutList = L"抽取名单：";
 		int width, height;
+		std::tie(width, height) = wa.getCtlSize(wsDefalutList);
+		HWND hDefalutList = CreateWindow(L"STATIC", wsDefalutList.c_str(), WS_CHILD | WS_VISIBLE,
+			wa.x, wa.y, width, height, hWnd, nullptr, hInstance, nullptr);
+		SendMessage(hDefalutList, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
+
+		wa.ctlBeside(width);
+
 		maxSize(hWnd, style.hFStatic, data.lists, &width, &height);
+		width += 50;	// 补足下拉键的宽度
 
 		HWND chooseListCombo = CreateWindow(L"COMBOBOX", nullptr,
 			WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
@@ -168,7 +179,7 @@ void WindowPages::settingOnCreate(HWND hWnd)
 
 		SendMessage(chooseListCombo, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
-
+		wa.ctlLeft(xBegin);
 		wa.ctlNext(height);
 	}
 
