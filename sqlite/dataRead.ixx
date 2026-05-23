@@ -1,4 +1,4 @@
-export module dataread;
+ï»¿export module dataread;
 
 import <Windows.h>;
 
@@ -19,15 +19,15 @@ export namespace dataread
 	class Data
 	{
 	private:
-		bool ifOk = false;	// ±íÊ¾ÊÇ·ñÓĞÊı¾İÎÄ¼ş
+		bool ifOk = false;	// è¡¨ç¤ºæ˜¯å¦æœ‰æ•°æ®æ–‡ä»¶
 	public:
-		// COLORREFÊ¹ÓÃ16½øÖÆÒª·µ¹ıÀ´£¬¿É¶ÁĞÔ²»ÈçRGBºê
+		// COLORREFä½¿ç”¨16è¿›åˆ¶è¦è¿”è¿‡æ¥ï¼Œå¯è¯»æ€§ä¸å¦‚RGBå®
 		COLORREF clientBC = RGB(255, 255, 255);
 		COLORREF clientFC = RGB(0, 123, 187);
 		COLORREF captionBC = RGB(102, 204, 255);
 		COLORREF captionFC = RGB(255, 255, 255);
 	public:
-		wstring fontName = L"¿¬Ìå";
+		wstring fontName = L"Simsun";
 	public:
 		bool ifTop = true;
 	public:
@@ -36,12 +36,12 @@ export namespace dataread
 		vector<wstring> defaultNames;
 		vector<wstring> leftNames;
 	private:
-		// ÓÃÓÚµÃµ½Ëæ»úÊıÖÖ×Ó£¬ÔÚ¹¹Ôìº¯ÊıÖĞ³õÊ¼»¯
+		// ç”¨äºå¾—åˆ°éšæœºæ•°ç§å­ï¼Œåœ¨æ„é€ å‡½æ•°ä¸­åˆå§‹åŒ–
 		mt19937 rng;
 
 	public:
 		Data();
-		// ÔÚ¹Ø±ÕÇ°Òª±£´æÊı¾İ
+		// åœ¨å…³é—­å‰è¦ä¿å­˜æ•°æ®
 		~Data();
 
 	public:
@@ -53,6 +53,7 @@ export namespace dataread
 		void getSkin();
 
 	public:
+		void changeDefaultList(const wstring &title);
 		wstring nameOut();
 		wstring nameRandom();
 		void saveLists(const wstring &title, bool ifDefault);
@@ -60,7 +61,7 @@ export namespace dataread
 			const wstring &password = sqlitedefault::not_use_password);
 } data;
 
-	// Æ´½Ó×Ö·û´®
+	// æ‹¼æ¥å­—ç¬¦ä¸²
 	wstring cat(const vector<wstring>& v);
 	bool ifDataExists();
 	bool ifFontExists(const wstring& font);
@@ -68,13 +69,13 @@ export namespace dataread
 
 dataread::Data::Data()
 {
-	// ³õÊ¼»¯Ëæ»úÖÖ×Ó
+	// åˆå§‹åŒ–éšæœºç§å­
 	random_device rd;
-	seed_seq ss{ rd(), (unsigned int)time(nullptr), 0xdeadbeef }; // »ìºÏ¶à¸öÔ´
+	seed_seq ss{ rd(), (unsigned int)time(nullptr), 0xdeadbeef }; // æ··åˆå¤šä¸ªæº
 	rng = mt19937{ ss };
 }
 
-// ÔÚ¹Ø±ÕÇ°Òª±£´æÊı¾İ
+// åœ¨å…³é—­å‰è¦ä¿å­˜æ•°æ®
 dataread::Data::~Data()
 {
 	if (ifOk)
@@ -82,8 +83,23 @@ dataread::Data::~Data()
 		wstring wsText;
 		for (const auto &ws : leftNames)
 			wsText += ws + L"\n";
-		saveListText(defaultList + L"left", wsText);
+
+		Sql sql(database_name, DB_INI);
+		vector<wstring> columns{ L"name",L"data" };
+		vector<wstring> values{ defaultList + L"left", wsText };
+		sql.insert_replace(list_table, columns, values);
 	}
+}
+
+vector<wstring> splitWString(const wstring &text)
+{
+	wstringstream wss(text);
+	wstring line;
+	vector<wstring> lines;
+	while (wss >> line)
+		if (line.size())
+			lines.push_back(line);
+	return lines;
 }
 
 void dataread::Data::ini(bool ifChoose)
@@ -105,12 +121,7 @@ void dataread::Data::ini(bool ifChoose)
 	sql.select(list_table, list, where);
 	wstring defaultListWS;
 	sql.column(defaultListWS, 0);
-	{
-		wstringstream wss(defaultListWS);
-		wstring listLine;
-		while (wss >> listLine)
-			defaultNames.push_back(listLine);
-	}
+	defaultNames = splitWString(defaultListWS);
 
 	where = L"name = '" + defaultList + L"left'";
 	sql.select(list_table, list, where);
@@ -135,13 +146,10 @@ void dataread::Data::getLists()
 	const vector<wstring> list{ L"data" };
 	wstring where = L"name = 'lists'";
 	sql.select(list_table, list, where);
-	// ÏÈÁÙÊ±´æ´¢ÔÚlistsLine£¬È»ºó»¹¸øwss
+
 	wstring listsLine;
 	sql.column(listsLine, 0);
-	wstringstream wss(listsLine);
-	while (getline(wss, listsLine))
-		if (listsLine.size())
-			lists.push_back(listsLine);
+	lists = splitWString(listsLine);
 }
 
 void dataread::Data::getSkin()
@@ -150,8 +158,8 @@ void dataread::Data::getSkin()
 	const wstring table = L"skindb";
 	const vector<wstring> list{L"data" };
 
-	/* ÑÕÉ« */
-	// ÑÕÉ«±»ÒÔÌØ¶¨µÄË³Ğò´æ´¢ÔÚÃûÎªcolorµÄĞĞÖĞ
+	/* é¢œè‰² */
+	// é¢œè‰²è¢«ä»¥ç‰¹å®šçš„é¡ºåºå­˜å‚¨åœ¨åä¸ºcolorçš„è¡Œä¸­
 	wstring where = L"name = 'color'";
 	sql.select(table, list, where);
 	wstring color;
@@ -172,7 +180,7 @@ void dataread::Data::getSkin()
 	wss >> r >> g >> b;
 	captionFC = RGB(stoi(r), stoi(g), stoi(b));
 
-	/* ×ÖÌå */
+	/* å­—ä½“ */
 	where = L"name = 'font'";
 	sql.select(table, list, where);
 	wstring font;
@@ -180,22 +188,28 @@ void dataread::Data::getSkin()
 	if (font.size() && ifFontExists(font))
 		fontName = font;
 
-	/* ÊÇ·ñÖÃ¶¥ */
+	/* æ˜¯å¦ç½®é¡¶ */
 	where = L"name = 'ifTop'";
 	sql.select(table, list, where);
 	sql.column(ifTop, 0);
 }
 
+void dataread::Data::changeDefaultList(const wstring &title)
+{
+	Sql sql(database_name, DB_INI);
+
+	const vector<wstring> columns{ L"name",L"data" };
+	const vector<wstring> values{ L"defaultList",title };
+	sql.insert_replace(list_table, columns, values);
+}
+
 wstring dataread::Data::nameOut()
 {
-	// ·À¿Õ
 	if (leftNames.empty())
 	{
 		leftNames = defaultNames;
-		// ´òÂÒ£¬Ê¹ÓÃÏ´ÅÆº¯Êı±£Ö¤Ëæ»úĞÔ
-		shuffle(leftNames.begin(), leftNames.end(),rng);
-
-		return L"³éÍêÒ»ÂÖ";
+		shuffle(leftNames.begin(), leftNames.end(), rng);
+		return L"æŠ½å®Œä¸€è½®";
 	}
 
 	wstring r = leftNames.back();
@@ -205,7 +219,7 @@ wstring dataread::Data::nameOut()
 
 wstring dataread::Data::nameRandom()
 {
-	// uniform_int_distributionÊÇ±ÕÇø¼ä
+	// uniform_int_distributionæ˜¯é—­åŒºé—´
 	uniform_int_distribution<int> dist(0, defaultNames.size() - 1);
 	int r = dist(rng);
 	return defaultNames.at(r);
@@ -219,6 +233,7 @@ wstring dataread::cat(const vector<wstring>& v)
 	return r;
 }
 
+// åˆ©ç”¨æ ‡å‡†åº“çš„å‡½æ•°è¿›è¡Œæ–‡ä»¶å­˜åœ¨æ€§çš„åˆ¤æ–­
 bool dataread::ifDataExists()
 {
 	if (exists(database_name) && file_size(database_name))
@@ -227,16 +242,16 @@ bool dataread::ifDataExists()
 		return false;
 }
 
-/* ÓÃÓÚÏÂÃæµÄ¼ì²é×ÖÌåÊÇ·ñ´æÔÚ */
+/* ç”¨äºä¸‹é¢çš„æ£€æŸ¥å­—ä½“æ˜¯å¦å­˜åœ¨ */
 int findFont(const LOGFONT*, const TEXTMETRIC*, DWORD, LPARAM lParam)
 {
 	*reinterpret_cast<bool*>(lParam) = true;
-	return 0; // ÕÒµ½¾ÍÍ£
+	return 0; // æ‰¾åˆ°å°±åœ
 }
 
 /*
-* º¯ÊıifFontExists
-*	ÓÃÓÚÈ·¶¨ÊÇ·ñÓĞ×ÖÌåÔÚµçÄÔÉÏ
+* å‡½æ•°ifFontExists
+*	ç”¨äºç¡®å®šæ˜¯å¦æœ‰å­—ä½“åœ¨ç”µè„‘ä¸Š
 */
 bool dataread::ifFontExists(const wstring& font)
 {
@@ -255,10 +270,10 @@ bool dataread::ifFontExists(const wstring& font)
 }
 
 /*
-* º¯Êı£º		Data::saveLists
-* ×÷ÓÃ£º		±£´æÃûµ¥Ãû
-* @title£º		ĞÂÃûµ¥Ãû³Æ
-* @ifDefault£º	ÊÇ·ñÊÇÄ¬ÈÏÃûµ¥
+* å‡½æ•°ï¼š		Data::saveLists
+* ä½œç”¨ï¼š		ä¿å­˜åå•å
+* @titleï¼š		æ–°åå•åç§°
+* @ifDefaultï¼š	æ˜¯å¦æ˜¯é»˜è®¤åå•
 */
 void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 {
@@ -269,7 +284,7 @@ void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 	const vector<wstring> list{ L"data" };
 	sql.select(list_table, list, where);
 	strLists = sql.column<wstring>(0);
-	strLists += L"\n";	// ×¢ÒâÈç¹ûÊÇÓÃÃüÁîĞĞÈ¥¿´£¬»á»»ĞĞ£¬µ¼ÖÂÏñÊÇĞÂµÄÊı¾İ
+	strLists += L"\n";	// æ³¨æ„å¦‚æœæ˜¯ç”¨å‘½ä»¤è¡Œå»çœ‹ï¼Œä¼šæ¢è¡Œï¼Œå¯¼è‡´åƒæ˜¯æ–°çš„æ•°æ®
 	strLists += title;
 
 	const vector<wstring> columns{ L"name",L"data" };
@@ -281,22 +296,17 @@ void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 	sql.insert_replace(list_table, columns, values);
 
 	if (ifDefault)
-	{
-		const vector<wstring> columns{ L"name",L"data" };
-		const vector<wstring> values{ L"defaultList",title };
-		sql.insert_replace(list_table, columns, values);
-	}
+		changeDefaultList(title);
 }
 
 /*
-* º¯Êı£º		Data::saveListText
-* ×÷ÓÃ£º		±£´æÃûµ¥ÄÚÈİ
-* @title£º		Ãûµ¥Ãû³Æ
-* @text£º		Ãûµ¥ÄÚÈİ
-* @password£º	ÃÜÂë
-* @ifDefault£º	ÊÇ·ñÊÇÄ¬ÈÏÃûµ¥
+* å‡½æ•°ï¼š		Data::saveListText
+* ä½œç”¨ï¼š		ä¿å­˜åå•å†…å®¹
+* @titleï¼š		åå•åç§°
+* @textï¼š		åå•å†…å®¹
+* @passwordï¼š	å¯†ç 
+* @ifDefaultï¼š	æ˜¯å¦æ˜¯é»˜è®¤åå•
 */
-
 void dataread::Data::saveListText(const wstring &title, const wstring &text, const wstring &password)
 {
 	Sql sql(database_name, DB_INI);
@@ -305,7 +315,13 @@ void dataread::Data::saveListText(const wstring &title, const wstring &text, con
 	sql.insert_replace(list_table, columns, values);
 
 	values[0] += L"left";
-	shuffle(values[1].begin(), values[1].end(), rng);
+
+	vector<wstring> names = splitWString(text);
+	shuffle(values.begin(), values.end(), rng);
+	values[1] = L"";
+	for (wstring ws : names)
+		values[1] += ws + L"\n";
+
 	values[2] = sqlitedefault::not_use_password;
 	sql.insert_replace(list_table, columns, values);
 }

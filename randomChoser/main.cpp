@@ -11,13 +11,13 @@ try
 {
 	moreControlTurnOn();
 	
-	// 启用GDI+
+	// 鍚敤GDI+
 	Gdi gdi;
 
 	wps.ini(hInstance);
 	wps.createWindow(hInstance);
 
-	// 消息循环
+	// 娑堟伅寰幆
 	MSG msg = {};
 	while (GetMessage(&msg, nullptr, 0, 0))
 	{
@@ -27,14 +27,14 @@ try
 }
 catch (const exception& e)
 {
-	string errorMessage = "发生了错误：\n";
+	string errorMessage = "鍙戠敓浜嗛敊璇細\n";
 	errorMessage += e.what();
-	// exception只支持ANSI
-	MessageBoxA(nullptr, errorMessage.c_str(), "错误X﹏X", MB_ICONERROR);
+	// exception鍙敮鎸丄NSI
+	MessageBoxA(nullptr, errorMessage.c_str(), "閿欒X锕廥", MB_ICONERROR);
 	return 1;
 }
 catch (...)
 {
-	MessageBox(nullptr, L"出现了未知的错误！", L"X﹏X", MB_ICONERROR);
+	MessageBox(nullptr, L"鍙戠敓浜嗘湭鐭ョ殑閿欒", L"閿欒", MB_ICONERROR);
 	return 1;
 }

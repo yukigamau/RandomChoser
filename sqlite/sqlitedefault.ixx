@@ -6,17 +6,17 @@ import std;
 using std::string, std::wstring;
 
 /*
-* ÃüÃû¿Õ¼äÃû£º	sqlitedefault
-* ×÷ÓÃ£º		°üº¬ÁË±¾½â¾ö·½°¸ÖĞµÄÄ¬ÈÏÊı¾İ¿âÉè¶¨
-* ĞŞ¸ÄÊ±¼ä£º	20251227
-* ĞŞ¸ÄÄÚÈİ£º	´´½¨
+* å‘½åç©ºé—´åï¼š	sqlitedefault
+* ä½œç”¨ï¼š		åŒ…å«äº†æœ¬è§£å†³æ–¹æ¡ˆä¸­çš„é»˜è®¤æ•°æ®åº“è®¾å®š
+* ä¿®æ”¹æ—¶é—´ï¼š	20251227
+* ä¿®æ”¹å†…å®¹ï¼š	åˆ›å»º
 */
 export namespace sqlitedefault
 {
 	const wstring database_name = L"database.db";
 	/*
-	* theme²ÎÊıËµÃ÷£º	default¸úËæÏµÍ³
-	*					diy×Ô¶¨Òå
+	* themeå‚æ•°è¯´æ˜ï¼š	defaultè·Ÿéšç³»ç»Ÿ
+	*					diyè‡ªå®šä¹‰
 	*/
 	const wstring DB_INI =
 		L"CREATE TABLE IF NOT EXISTS skin_table("
@@ -36,6 +36,6 @@ export namespace sqlitedefault
 	const wstring list_table = L"list_table";
 	const wstring skin_table = L"skin_table";
 
-	// ÓÃÓÚ²»¿ÉĞŞ¸ÄµÄÃûµ¥
+	// ç”¨äºä¸å¯ä¿®æ”¹çš„åå•
 	const wstring not_use_password = L"\u0001";
 }

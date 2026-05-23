@@ -1,88 +1,20 @@
 #include <Windows.h>
 #include <windowsx.h>
+#include "resource.h"
 
 import dataread;
+import glob;
+import id;
+import settingWPFun;
 import std;
 import website;
 import window;
-import "resource.h";
 
 using dataread::data;
 using std::vector, std::wstring;
 using website::openWebsite;
 using window::WindowAdjuster, window::WindowPages;
-
-void WindowPages::createSettingPage()
-{
-	// 注册窗口类
-	const wchar_t* className = L"设置页面";
-	WNDCLASS wc = {};
-	wc.hbrBackground = style.textBkBrush();
-	wc.lpfnWndProc = settingWP; // 设置窗口过程函数
-	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wc.hInstance = GetModuleHandle(nullptr); // 获取实例句柄
-	wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_ICON1));
-	wc.lpszClassName = className;
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-
-	if (!RegisterClass(&wc))
-	{
-		DWORD err = GetLastError();
-		if (err != ERROR_CLASS_ALREADY_EXISTS) // 可以忽略已存在
-		{
-			MessageBox(nullptr, L"RegisterClass failed!", L"Error", MB_ICONERROR);
-			return;
-		}
-	}
-
-	LPCWSTR lpWindowName = L"点名器设置";
-	// 创建窗口
-	hSetting = CreateWindow(
-		className, lpWindowName,
-		WS_OVERLAPPEDWINDOW,
-		// 等创建控件之后根据控件调整窗口大小和位置
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		nullptr, nullptr,
-		wc.hInstance,	// 实例句柄
-		nullptr			// 附加数据
-	);
-
-	ShowWindow(hSetting, SW_SHOW);
-	SetForegroundWindow(hSetting);	// 把窗口显示到最前面
-	UpdateWindow(hSetting);
-}
-
-LRESULT WindowPages::settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	int id = LOWORD(wParam);
-	switch (id)
-	{
-	case IDC_BTN_EDIT_LIST:
-
-		return 0;
-
-	case IDC_BTN_OPEN_SOURCE_SITE:
-		openWebsite(L"https://github.com/yukigamau/RandomChoser");
-		return 0;
-
-	case IDC_BTN_WRITE_LIST:
-		if (listModify.hInstance)
-			ShowWindow(listModify.getHWND(), SW_SHOW);
-		else
-		{
-			listModify.ini(hInstance, &style);
-			listModify.createWindow(L"listModify", L"创建名单", WS_OVERLAPPEDWINDOW,
-				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
-		}
-		
-		ShowWindow(hWnd, SW_HIDE);
-		return 0;
-
-	default:
-		return DefWindowProc(hWnd, uMsg, wParam, lParam);
-	}
-}
+using namespace settingID;
 
 // 同时求最大的宽度和高度
 void maxSize(HWND hWnd, HFONT hFont, const vector<wstring> &texts, int *const width, int *const height)
@@ -108,11 +40,10 @@ void maxSize(HWND hWnd, HFONT hFont, const vector<wstring> &texts, int *const wi
 
 void WindowPages::settingOnCreate(HWND hWnd)
 {
-	const int xBegin = 10;
-	const int yBegin = 10;
-	WindowAdjuster wa(hWnd, style.hFStatic, style.interval, xBegin, yBegin);
+	constexpr auto pBegin{ POINT{10,10} };
+	WindowAdjuster wa(hWnd, style.hFStatic, style.interval, pBegin);
 
-	const wstring welcome = L"欢迎使用本程序！当前版本：" + VERSION + L"\n"
+	const wstring welcome = L"欢迎使用本程序！当前版本：" + glob::VERSION + L"\n"
 		L"如果您在使用本产品时遇到程序漏洞，请发邮件至yvehuanghun@outlook.com" + L"\n"
 		L"本项目己经在github上开源：https://github.com/yukigamau/RandomChoser";
 	int width, height;
@@ -122,8 +53,6 @@ void WindowPages::settingOnCreate(HWND hWnd)
 	SendMessage(welcomeStatic, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
 	wa.ctlNext(height);
-
-	data.getLists();
 
 	if (data.defaultList == L"")
 	{
@@ -154,7 +83,7 @@ void WindowPages::settingOnCreate(HWND hWnd)
 		int width, height;
 		std::tie(width, height) = wa.getCtlSize(wsDefalutList);
 		HWND hDefalutList = CreateWindow(L"STATIC", wsDefalutList.c_str(), WS_CHILD | WS_VISIBLE,
-			wa.x, wa.y, width, height, hWnd, nullptr, hInstance, nullptr);
+			wa.x, wa.y, width, height, hWnd, (HMENU)idc_ccb_default_list, hInstance, nullptr);
 		SendMessage(hDefalutList, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
 		wa.ctlBeside(width);
@@ -179,7 +108,7 @@ void WindowPages::settingOnCreate(HWND hWnd)
 
 		SendMessage(chooseListCombo, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
-		wa.ctlLeft(xBegin);
+		wa.ctlLeft(pBegin.x);
 		wa.ctlNext(height);
 	}
 
@@ -259,7 +188,7 @@ LRESULT CALLBACK window::WindowPages::settingWP(HWND hWnd, UINT uMsg, WPARAM wPa
 	switch (uMsg)
 	{
 	case WM_COMMAND:
-		return wps.settingOnCommand(hWnd, uMsg, wParam, lParam);
+		return settingOnCommand(hWnd, uMsg, wParam, lParam);
 
 	case WM_CREATE:
 		wps.settingOnCreate(hWnd);

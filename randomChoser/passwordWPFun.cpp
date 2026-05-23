@@ -234,7 +234,8 @@ LRESULT passwordOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 LRESULT passwordOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	constexpr auto xBegin{ 10 }, yBegin{ 10 };
-	WindowAdjuster wa(hWnd, password.style->hFStatic, password.style->interval, xBegin, yBegin);
+	constexpr auto pBegin{ POINT(xBegin,yBegin) };
+	WindowAdjuster wa(hWnd, password.style->hFStatic, password.style->interval, pBegin);
 
 	wstring ifNeedPassword{ L"ÇëÑ¡ÔñÊÇ·ñÒªÃÜÂë£º" };
 	auto [width, height] = wa.getCtlSize(ifNeedPassword);

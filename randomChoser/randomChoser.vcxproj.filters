@@ -30,9 +30,6 @@
     <ClCompile Include="window-Style.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="window-choosePage.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="window-Gdi.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -120,10 +117,28 @@
     <ClCompile Include="Page-randomChoose.ixx">
       <Filter>window/WP</Filter>
     </ClCompile>
-    <ClCompile Include="randomChooseWPFun.ixx">
+    <ClCompile Include="windowRestart.ixx">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="windowRestart.ixx">
+    <ClCompile Include="Page-setting.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="settingWPFun.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="settingWPFun.cpp">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="glob.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="chooseWPFun.cpp">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="chooseWPFun.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="window-choosePage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

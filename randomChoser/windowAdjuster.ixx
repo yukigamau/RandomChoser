@@ -46,7 +46,7 @@ export namespace window
 		HFONT hFont = nullptr;
 
 	public:
-		// 这个函数应该用更好的下面的函数代替，因为xBegin和yBegin与interval会出现位置问题
+		[[deprecated("这个函数中可能会出现interval与xBegin和yBegin的位置问题")]]
 		WindowAdjuster(HWND hWnd, HFONT hFont, int interval, int xBegin, int yBegin);
 		WindowAdjuster(HWND hWnd, HFONT hFont, int interval, POINT pt);
 

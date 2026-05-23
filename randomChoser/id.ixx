@@ -6,13 +6,15 @@ export namespace chooseID
 	constexpr auto
 		idc_stc_title{ 1501 },
 		idc_stc_settingBtn{ 1502 },
-		// 实际上这个控件用的是IDCLOSE
+		// 瀹為檯涓婅繖涓帶浠剁敤鐨勬槸IDCLOSE
 		// idc_stc_closeBtn{ 1503 },
-		idc_stc_chooseBtn{ 1504 };
+		idc_stc_chooseBtn{ 1504 },
+		idt_scroll{ 1 },
+		idt_wait{ 2 };
 }
 
 /*
-* listModify页面
+* listModify椤甸潰
 */
 export namespace listModifyID
 {
@@ -39,4 +41,13 @@ export namespace passwordID
 		idc_stc_password{ 1602 },
 		idc_stc_passwordRe{ 1603 },
 		idc_static_passwordTip{ 1604 };
+}
+
+export namespace settingID
+{
+	constexpr auto
+		idc_btn_edit_list{ 1501 },
+		idc_btn_open_source_site{ 1502 },
+		idc_btn_write_list{ 1505 },
+		idc_ccb_default_list{ 1551 };
 }

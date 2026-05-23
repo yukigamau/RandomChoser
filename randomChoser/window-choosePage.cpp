@@ -1,4 +1,4 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 
 import dataread;
 import glob;
@@ -14,14 +14,15 @@ using namespace chooseID;
 
 void window::WindowPages::chooseOnCreate(HWND hwnd)
 {
-	// Ã¿Ãë·¢Ò»´ÎÏûÏ¢
-	SetTimer(hwnd, IDT_WAIT, 1000, nullptr);	// µÈ´ıÒ»¶¨Ê±¼äÇĞ»»ÖÁÍ¼±êÄ£Ê½ÓÃ
+	// æ¯ç§’å‘ä¸€æ¬¡æ¶ˆæ¯
+	SetTimer(hwnd, chooseID::idt_wait, 1000, nullptr);	// ç­‰å¾…ä¸€å®šæ—¶é—´åˆ‡æ¢è‡³å›¾æ ‡æ¨¡å¼ç”¨
 
-	/* ±êÌâ */
+	/* æ ‡é¢˜ */
 	int titleWidth = titleRect.right - titleRect.left;
 	int titleHeight = titleRect.bottom - titleRect.top;
-	wstring titleText = L"µãÃûÆ÷" + VERSION;
-	hTitleText = CreateWindow(
+	wstring titleText = L"ç‚¹åå™¨" + glob::VERSION;
+	hTitleText = CreateWindowEx(
+		0,
 		L"STATIC",
 		titleText.c_str(),
 		WS_CHILD | WS_VISIBLE,
@@ -37,13 +38,12 @@ void window::WindowPages::chooseOnCreate(HWND hwnd)
 
 	SendMessage(hTitleText, WM_SETFONT, glob::title.send(), true);
 
-	/* ÉèÖÃ°´Å¥ */
 	hSettingBtn = CreateWindow(
-		L"STATIC",
-		L"¡­",
+		L"STATIC", L"â€¦",
 		WS_CHILD | WS_VISIBLE | SS_NOTIFY,
 		settingBtnRect.left, settingBtnRect.top,
-		settingBtnRect.right - settingBtnRect.left, settingBtnRect.bottom - settingBtnRect.top,
+		settingBtnRect.right - settingBtnRect.left,
+		settingBtnRect.bottom - settingBtnRect.top,
 		hwnd,
 		(HMENU)idc_stc_settingBtn,
 		hInstance,
@@ -51,10 +51,10 @@ void window::WindowPages::chooseOnCreate(HWND hwnd)
 	);
 	SendMessage(hSettingBtn, WM_SETFONT, glob::title.send(), true);
 
-	/* ¹Ø±Õ°´Å¥ */
+	/* å…³é—­æŒ‰é’® */
 	hCloseBtn = CreateWindow(
 		L"STATIC",
-		L"¡Á",
+		L"Ã—",
 		WS_CHILD | WS_VISIBLE | SS_NOTIFY,
 		closeBtnRect.left, closeBtnRect.top,
 		closeBtnRect.right - closeBtnRect.left, closeBtnRect.bottom - closeBtnRect.top,
@@ -65,12 +65,12 @@ void window::WindowPages::chooseOnCreate(HWND hwnd)
 	);
 	SendMessage(hCloseBtn, WM_SETFONT, glob::title.send(), true);
 
-	/* ÓÃ»§ÇøÎÄ±¾ */
+	/* ç”¨æˆ·åŒºæ–‡æœ¬ */
 	int chooseBtnWidth = choosePageSize.cx - hPenWidth;
 	int chooseBtnHeight = choosePageSize.cy - hPenWidth - captionHeight;
 	hTextBtn = CreateWindow(
 		L"STATIC",
-		L"µã»÷³éÈ¡",
+		L"ç‚¹å‡»æŠ½å–",
 		WS_CHILD | WS_VISIBLE | SS_NOTIFY | SS_CENTER | SS_CENTERIMAGE,
 		hPenWidth, captionHeight, chooseBtnWidth, chooseBtnHeight,
 		hwnd,

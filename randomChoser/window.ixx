@@ -1,10 +1,10 @@
-/* windowÄ£¿éµÄÖ÷½Ó¿Ú */
+/* windowæ¨¡å—çš„ä¸»æ¥å£ */
 export module window;
 export import :windowPages;
 export import :windowAdjuster;
 export import :windowRestart;
 
-// Ò³ÃæµÄ¾ßÌåÊµÏÖ
+// é¡µé¢çš„å…·ä½“å®ç°
 export import :listModify;
 export import :password;
 export import :randomChoose;

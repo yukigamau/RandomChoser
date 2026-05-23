@@ -206,7 +206,8 @@ LRESULT listModifyOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	constexpr auto xBegin{ 10 };
 	constexpr auto yBegin{ 10 };
-	WindowAdjuster wa(hWnd, listModify.style->hFStatic, listModify.style->interval, xBegin, yBegin);
+	constexpr auto pBegin{ POINT(xBegin,yBegin) };
+	WindowAdjuster wa(hWnd, listModify.style->hFStatic, listModify.style->interval, pBegin);
 
 	// 用于对齐下面的名字输入编辑框和名单名字框
 	auto maxX{ 0 };

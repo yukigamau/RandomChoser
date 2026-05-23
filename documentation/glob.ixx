@@ -10,6 +10,8 @@ using std::wstring;
 
 export namespace glob
 {
+	const wstring VERSION{ L"2.0.0" };
+
 	// 横向
 	constexpr double btnOuterSizeScaleH = 1.6;
 	// 垂直
@@ -24,7 +26,7 @@ export namespace glob
 		HFONT hFont = nullptr;
 
 	public:
-		Font();
+		Font() = default;
 		Font(int height, wstring fontName);
 		Font(Font &) = delete;	// 还没有写这个的打算
 		~Font();
@@ -36,11 +38,14 @@ export namespace glob
 
 	Font title;
 	Font chooseBtn;
-}
 
-glob::Font::Font()
-{
+	// 创建窗口用
+	void createSettingPage();
 
+	/* 用于给抽取名字时滚动 */
+	int scrollNumMax = 10;	// 滚动数字上限
+	int scrollNum = scrollNumMax;	// 当前滚动名字剩余数
+	constexpr int scrollInterval = 50;	// 滚动间隔时间
 }
 
 glob::Font::Font(int height, wstring fontName)
