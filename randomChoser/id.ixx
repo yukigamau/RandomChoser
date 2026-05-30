@@ -10,7 +10,14 @@ export namespace chooseID
 		// idc_stc_closeBtn{ 1503 },
 		idc_stc_chooseBtn{ 1504 },
 		idt_scroll{ 1 },
-		idt_wait{ 2 };
+		idt_wait{ 2 },
+		idt_transparency{ 3 };
+}
+
+export namespace iconID
+{
+	constexpr auto
+		idt_transparency{ chooseID::idt_transparency };
 }
 
 /*

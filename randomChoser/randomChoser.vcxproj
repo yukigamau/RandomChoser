@@ -170,6 +170,8 @@
     <ClCompile Include="window-Page.cpp" />
     <ClCompile Include="settingPageWPFun.cpp" />
     <ClCompile Include="window-Style.cpp" />
+    <ClCompile Include="transparency.cpp" />
+    <ClCompile Include="transparency.ixx" />
     <ClCompile Include="window.ixx" />
     <ClCompile Include="windowPages-ini.cpp" />
     <ClCompile Include="windowPages.ixx" />

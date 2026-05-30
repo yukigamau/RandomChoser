@@ -42,10 +42,19 @@ export namespace glob
 	// 创建窗口用
 	void createSettingPage();
 
+	// 主要用于抽取窗口与图标窗口的处理
+	enum class Mode
+	{
+		choose,
+		icon
+	};
+
 	/* 用于给抽取名字时滚动 */
 	int scrollNumMax = 10;	// 滚动数字上限
 	int scrollNum = scrollNumMax;	// 当前滚动名字剩余数
 	constexpr int scrollInterval = 50;	// 滚动间隔时间
+	constexpr int TRANSPARENCY_INTERVAL = 5;
+	bool transparencyTimerActive = false;	// 透明度计时器是否处于活动状态，如果是是，需要在销毁窗口时杀掉
 }
 
 glob::Font::Font(int height, wstring fontName)

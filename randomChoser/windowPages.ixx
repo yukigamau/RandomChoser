@@ -17,6 +17,7 @@ import dataread;
 import glob;
 import id;
 import std;
+import transparency;
 
 using dataread::data, dataread::ifDataExists;
 using Gdiplus::Bitmap, Gdiplus::Color, Gdiplus::Graphics, Gdiplus::SmoothingModeAntiAlias;
@@ -24,7 +25,6 @@ using std::unique_ptr, std::wstring;
 
 export namespace window
 {
-	constexpr int IDT_TRANSPARENCY = 3;
 	constexpr int IDC_BTN_EDIT_LIST = 1501;
 	constexpr int IDC_BTN_OPEN_SOURCE_SITE = 1502;
 	constexpr int IDC_BTN_WRITE_LIST = 1505;
@@ -37,12 +37,6 @@ export namespace window
 	{
 		light,
 		dark
-	};
-
-	enum Mode
-	{
-		choose,
-		icon
 	};
 
 	class Gdi
@@ -143,10 +137,6 @@ export namespace window
 		Page password;
 
 	private:
-		int waitNum = 0;
-		const int WAIT_NUM_MAX = 8;
-
-	private:
 		SIZE choosePageSize = { 200,75 };
 		HWND hChoose = nullptr;
 		HWND hTitleText = nullptr;
@@ -169,11 +159,9 @@ export namespace window
 		void chooseOnDestory();
 		LRESULT chooseOnNcHitTest(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		void chooseOnPaint(HDC& hdc);
-		void chooseOnTimer(WPARAM wParam);
 
 	public:
 		static LRESULT CALLBACK chooseWP(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 
 	public:
 		void inIconPage();
@@ -191,6 +179,10 @@ export namespace window
 		bool ifUp(RECT& originalRect) const;
 		void offset(HWND& hwnd, RECT& newPosition, SIZE windowSize);
 		void createIconPage();
+	public:
+		HWND getHChoose() { return hChoose; }
+		HWND getHIcon() { return hIcon; }
+		HDC getHdcMem() { return hdcMem; }
 	public:
 		void iconOnLButtonDown(LPARAM lParam);
 		void iconOnLButtonUp();
@@ -214,17 +206,6 @@ export namespace window
 	public:
 		static LRESULT CALLBACK settingWP(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-		/* 透明变换动画 */
-	private:
-		bool changeAlpha = false;	// 标志更改透明度是增加还是减少，true为增加
-		BYTE currentAlpha = 255; // 当前透明度，初始为完全不透明
-	private:
-		const int TRANSPARENCY_INTERVAL = 5;
-		bool transparencyTimerActive = false;	// 透明度计时器是否处于活动状态，如果是是，需要在销毁窗口时杀掉
-		const int transparencyChange = 15;	// 透明度变化
-		void handleSwitchMode(Mode m);	// 状态切换函数
-		void updateWindowAlpha(HWND hwnd, Mode m);	// 应用透明度渲染
-		void transparency(HWND hwnd, Mode m);
 	} wps;
 }
 
@@ -233,7 +214,7 @@ window::WindowPages::~WindowPages()
 {
 	// 关闭可能的计时器
 	KillTimer(hChoose, chooseID::idt_scroll);			// 可能还在抽取就关了
-	KillTimer(hChoose, IDT_TRANSPARENCY);	// 可能还在透明度变幻关了
+	KillTimer(hChoose, chooseID::idt_transparency);	// 可能还在透明度变幻关了
 	KillTimer(hChoose, chooseID::idt_wait);			// 一定存在于使用抽取窗口时
 }
 
@@ -301,8 +282,8 @@ LRESULT window::WindowPages::chooseOnCtlColorStatic(WPARAM wParam, LPARAM lParam
 
 void window::WindowPages::chooseOnDestory()
 {
-	if (transparencyTimerActive)
-		KillTimer(nullptr, IDT_TRANSPARENCY);  // 完全透明后停止定时器
+	if (glob::transparencyTimerActive)
+		KillTimer(nullptr, chooseID::idt_transparency);  // 完全透明后停止定时器
 
 	if(hFont)
 		DeleteObject(hFont);
@@ -365,48 +346,6 @@ void window::WindowPages::chooseOnPaint(HDC& hdc)
 	DeleteObject(hPen);
 }
 
-void window::WindowPages::chooseOnTimer(WPARAM wParam)
-{
-	switch (wParam)
-	{
-	case chooseID::idt_scroll:
-	{
-		glob::scrollNum--;
-		wstring nameOut;
-		if (glob::scrollNum)	// 随机滚动没有结束
-			nameOut = data.nameRandom();
-		else
-		{
-			nameOut = data.nameOut();
-
-			// 终止文本滚动
-			KillTimer(hChoose, chooseID::idt_scroll);
-
-			// 重置scrollNum
-			glob::scrollNum = glob::scrollNumMax;
-		}
-
-		// 设置文本
-		SetWindowText(hTextBtn, nameOut.c_str());
-	}
-		break;
-
-	case IDT_TRANSPARENCY:
-		transparency(hChoose, choose);
-		break;
-
-	case chooseID::idt_wait:
-		waitNum++;
-		if (waitNum != WAIT_NUM_MAX)
-			break;
-
-		waitNum = 0;	// 清零waitNum
-		SetTimer(hChoose, IDT_TRANSPARENCY, TRANSPARENCY_INTERVAL, nullptr);	// 用于设置透明度修改时间
-		transparencyTimerActive = true;
-		break;
-	}
-}
-
 LRESULT CALLBACK window::WindowPages::chooseWP(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -437,8 +376,7 @@ LRESULT CALLBACK window::WindowPages::chooseWP(HWND hWnd, UINT uMsg, WPARAM wPar
 		break;
 
 	case WM_TIMER:
-		wps.chooseOnTimer(wParam);
-		break;
+		return chooseOnTimer(hWnd, uMsg, wParam, lParam);
 
 	default:
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -663,8 +601,9 @@ void window::WindowPages::iconOnLButtonUp()
 {
 	if (!isDragging)
 	{
-		SetTimer(hIcon, IDT_TRANSPARENCY, TRANSPARENCY_INTERVAL, nullptr);	// 动态回复抽取窗口
-		transparencyTimerActive = true;
+		// 动态回复抽取窗口
+		SetTimer(hIcon, iconID::idt_transparency, glob::TRANSPARENCY_INTERVAL, nullptr);
+		glob::transparencyTimerActive = true;
 	}
 	ReleaseCapture();
 }
@@ -755,8 +694,8 @@ void window::WindowPages::iconOnTimer(WPARAM wParam)
 {
 	switch (wParam)
 	{
-	case IDT_TRANSPARENCY:
-		transparency(hIcon, icon);
+	case iconID::idt_transparency:
+		transparency::transparency(hIcon, glob::Mode::icon);
 		break;
 	}
 }
@@ -804,75 +743,4 @@ void window::WindowPages::createWindow(HINSTANCE hInstance)
 	}
 	else
 		glob::createSettingPage();
-}
-
-void window::WindowPages::handleSwitchMode(Mode m)
-{
-	if (m == choose)
-	{
-		inIconPage();
-		SetTimer(hIcon, IDT_TRANSPARENCY, TRANSPARENCY_INTERVAL, nullptr);
-	}
-	else if (m == icon)
-	{
-		outIconPage();
-		// 显式确保 hChoose 的分层属性正确
-		SetLayeredWindowAttributes(hChoose, 0, currentAlpha, LWA_ALPHA);
-
-		SetTimer(hChoose, IDT_TRANSPARENCY, TRANSPARENCY_INTERVAL, nullptr);
-		SetTimer(hChoose, chooseID::idt_scroll, glob::scrollInterval, nullptr);
-		SetTimer(hChoose, chooseID::idt_wait, 1000, nullptr);
-	}
-}
-
-void window::WindowPages::updateWindowAlpha(HWND hwnd, Mode m)
-{
-	if (m == choose)
-	{
-		SetLayeredWindowAttributes(hwnd, 0, currentAlpha, LWA_ALPHA);
-	}
-	else if (m == icon)
-	{
-		BLENDFUNCTION blend = { 0 };
-		blend.BlendOp = AC_SRC_OVER;
-		blend.SourceConstantAlpha = (BYTE)currentAlpha;
-		blend.AlphaFormat = AC_SRC_ALPHA;
-
-		UpdateLayeredWindow(hwnd, nullptr, nullptr, nullptr, hdcMem, nullptr, 0, &blend, ULW_ALPHA);
-	}
-}
-
-void window::WindowPages::transparency(HWND hwnd, Mode m)
-{
-	if (changeAlpha) // 增加透明度（淡入）
-	{
-		if (currentAlpha + transparencyChange >= 255)
-		{
-			currentAlpha = 255;
-			KillTimer(hwnd, IDT_TRANSPARENCY);
-			changeAlpha = false;
-			transparencyTimerActive = false;
-		}
-		else
-		{
-			currentAlpha += transparencyChange;
-		}
-	}
-	else // 减少透明度（淡出）
-	{
-		if (currentAlpha - transparencyChange <= transparencyChange)
-		{
-			currentAlpha = 0;
-			KillTimer(hwnd, IDT_TRANSPARENCY);
-			changeAlpha = true;
-
-			// 抽取出去的状态切换逻辑
-			handleSwitchMode(m);
-			return;
-		}
-		currentAlpha -= transparencyChange;
-	}
-
-	// 抽取出去的渲染逻辑
-	updateWindowAlpha(hwnd, m);
 }

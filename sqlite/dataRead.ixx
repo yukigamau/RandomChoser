@@ -9,13 +9,38 @@ import std;
 using sqlite::Sql;
 using sqlitedefault::database_name, sqlitedefault::DB_INI;
 using sqlitedefault::list_table, sqlitedefault::skin_table;
-using std::mt19937, std::random_device, std::seed_seq;
+using std::deque, std::mt19937, std::random_device, std::seed_seq;
+using std::uniform_int_distribution, std::vector;
 using std::filesystem::exists, std::filesystem::file_size;
-using std::getline, std::stoi, std::shuffle, std::time, std::to_wstring, std::uniform_int_distribution, std::vector;
+using std::format, std::getline, std::stoi, std::shuffle, std::time, std::to_wstring;
 using std::wstring, std::wstringstream;
+
+constexpr int maxNameLast = 6;
 
 export namespace dataread
 {
+	class Steady
+	{
+	public:
+		Steady(int len);
+		~Steady();
+
+	private:
+		deque<wstring> data;
+
+	public:
+		// 添加新的数据，并顶替最旧的数据
+		void push(const wstring &val);
+
+	public:
+		auto begin()noexcept { return data.begin(); }
+		auto begin()const noexcept { return data.cbegin(); }
+		auto end()noexcept { return data.end(); }
+		auto end()const noexcept { return data.cend(); }
+		auto cbegin()const noexcept { return data.cbegin(); }
+		auto cend()const noexcept { return data.cend(); }
+	};
+
 	class Data
 	{
 	private:
@@ -35,6 +60,7 @@ export namespace dataread
 		wstring defaultList;
 		vector<wstring> defaultNames;
 		vector<wstring> leftNames;
+		Steady lastNames{ maxNameLast };
 	private:
 		// 用于得到随机数种子，在构造函数中初始化
 		mt19937 rng;
@@ -46,6 +72,10 @@ export namespace dataread
 
 	public:
 		void ini(bool ifChoose = true);
+	private:
+		// 初始化leftNames需要用特别的方法
+		// 当前的抽取防止抽取不当用的是上次的最后几个下次也在名单的最后面。
+		void iniLeftNames();
 
 	public:
 		void getLists();
@@ -67,6 +97,21 @@ export namespace dataread
 	bool ifFontExists(const wstring& font);
 }
 
+dataread::Steady::Steady(int len)
+{
+	data.resize(len);
+}
+
+dataread::Steady::~Steady()
+{
+}
+
+void dataread::Steady::push(const wstring &val)
+{
+	data.push_back(val);
+	data.pop_front();
+}
+
 dataread::Data::Data()
 {
 	// 初始化随机种子
@@ -81,12 +126,12 @@ dataread::Data::~Data()
 	if (ifOk)
 	{
 		wstring wsText;
-		for (const auto &ws : leftNames)
+		for (auto &ws : lastNames)
 			wsText += ws + L"\n";
 
 		Sql sql(database_name, DB_INI);
 		vector<wstring> columns{ L"name",L"data" };
-		vector<wstring> values{ defaultList + L"left", wsText };
+		vector<wstring> values{ defaultList + L"last", wsText };
 		sql.insert_replace(list_table, columns, values);
 	}
 }
@@ -123,21 +168,39 @@ void dataread::Data::ini(bool ifChoose)
 	sql.column(defaultListWS, 0);
 	defaultNames = splitWString(defaultListWS);
 
-	where = L"name = '" + defaultList + L"left'";
+	where = format(L"name = '{}last'", defaultList);
 	sql.select(list_table, list, where);
-	wstring defaultListLeftWS;
-	sql.column(defaultListLeftWS, 0);
+	wstring defaultListLastWS;
+	sql.column(defaultListLastWS, 0);
 
-	wstringstream wss(defaultListLeftWS);
+	wstringstream wss(defaultListLastWS);
 	wstring listLine;
 	while (wss >> listLine)
-		leftNames.push_back(listLine);
+		lastNames.push(listLine);
+
+	iniLeftNames();
 
 	if (ifChoose)
 	{
 		ifOk = true;
 		return;
 	}
+}
+
+void copy(const dataread::Steady &s, vector<wstring> *vws)
+{
+	for (auto ws : s)
+		vws->push_back(ws);
+}
+
+void dataread::Data::iniLeftNames()
+{
+	leftNames = defaultNames;
+
+	std::unordered_set<wstring> deq_lookup(lastNames.begin(), lastNames.end());
+	std::erase_if(leftNames, [&](wstring x) { return deq_lookup.contains(x); });
+
+	copy(lastNames, &leftNames);
 }
 
 void dataread::Data::getLists()
@@ -214,6 +277,7 @@ wstring dataread::Data::nameOut()
 
 	wstring r = leftNames.back();
 	leftNames.pop_back();
+	lastNames.push(r);	// 登记最后一个名字
 	return r;
 }
 
@@ -222,7 +286,7 @@ wstring dataread::Data::nameRandom()
 	// uniform_int_distribution是闭区间
 	uniform_int_distribution<int> dist(0, defaultNames.size() - 1);
 	int r = dist(rng);
-	return defaultNames.at(r);
+	return defaultNames[r];
 }
 
 wstring dataread::cat(const vector<wstring>& v)
