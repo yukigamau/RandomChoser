@@ -24,7 +24,7 @@ LRESULT chooseOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (id)
 	{
 	case IDCLOSE:
-		SendMessage(hWnd, WM_CLOSE, 0, 0);
+		DestroyWindow(hWnd);
 		break;
 
 	case idc_stc_settingBtn:

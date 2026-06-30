@@ -1,4 +1,4 @@
-module;
+ï»¿module;
 
 #include <sqlite3.h>;
 
@@ -10,10 +10,10 @@ using std::function, std::getline, std::is_same_v, std::runtime_error, std::vect
 using std::wstring, std::wstringstream;
 
 /*
-* ÃüÃû¿Õ¼äÃû£º	sqlite
-* ×÷ÓÃ£º		·â×°Êı¾İ¿â²Ù×÷ 
-* ĞŞ¸ÄÊ±¼ä£º	20251227
-* ĞŞ¸ÄÄÚÈİ£º	´´½¨
+* å‘½åç©ºé—´åï¼š	sqlite
+* ä½œç”¨ï¼š		å°è£…æ•°æ®åº“æ“ä½œ 
+* ä¿®æ”¹æ—¶é—´ï¼š	20251227
+* ä¿®æ”¹å†…å®¹ï¼š	åˆ›å»º
 */
 export namespace sqlite
 {
@@ -41,11 +41,11 @@ export namespace sqlite
 		~Sql();
 
 	public:
-#pragma region ²éÑ¯ÉùÃ÷
+#pragma region æŸ¥è¯¢å£°æ˜
 
-		// pos´Ó0¿ªÊ¼
+		// posä»0å¼€å§‹
 
-		// Õâ¸öÃ»ÓĞÏÂÃæµÄºÃ£¬ĞèÒªÖğ²½¶ªÆú
+		// è¿™ä¸ªæ²¡æœ‰ä¸‹é¢çš„å¥½ï¼Œéœ€è¦é€æ­¥ä¸¢å¼ƒ
 		template<class T>
 		void column(T& out, int pos);
 
@@ -56,7 +56,7 @@ export namespace sqlite
 
 
 	private:
-		// Ô¤×¼±¸sqlÓï¾ä
+		// é¢„å‡†å¤‡sqlè¯­å¥
 		void doprepare(const wstring& s);
 		void exec(const wstring& s);
 		void open(const wstring& s);
@@ -65,7 +65,7 @@ export namespace sqlite
 
 	public:
 		void insert_replace(const wstring& table, const vector<wstring>& columns, const vector<wstring>& values);
-		// ¹¹½¨selectÓï¾ä
+		// æ„å»ºselectè¯­å¥
 		void select(const wstring& table, const vector<wstring>& list, const wstring where = L"");
 	};
 }
@@ -99,7 +99,7 @@ sqlite::Sql::~Sql()
 		sqlite3_close(pdb);
 }
 
-#pragma region ²éÑ¯ÊµÏÖ
+#pragma region æŸ¥è¯¢å®ç°
 
 template<class T>
 void sqlite::Sql::column(T& out, int pos)
@@ -118,7 +118,7 @@ void sqlite::Sql::column(T& out, int pos)
 		out = p ? p : L"";
 	}
 	else
-		throw runtime_error("Î´´¦ÀíµÄ²éÑ¯ÀàĞÍ");
+		throw runtime_error("æœªå¤„ç†çš„æŸ¥è¯¢ç±»å‹");
 }
 
 template<class T>
@@ -135,7 +135,7 @@ T sqlite::Sql::column(int pos)
 		return p ? p : L"";
 	}
 	else
-		throw runtime_error("Î´´¦ÀíµÄ²éÑ¯ÀàĞÍ");
+		throw runtime_error("æœªå¤„ç†çš„æŸ¥è¯¢ç±»å‹");
 }
 
 #pragma endregion
@@ -150,7 +150,7 @@ noexcept
 #if _DEBUG
 	if (rc != SQLITE_OK)
 	{
-		std::string sErr = "sql´íÎó£º\n";
+		std::string sErr = "sqlé”™è¯¯ï¼š\n";
 		sErr += sqlite3_errmsg(pdb);
 		throw runtime_error(sErr);
 	}
@@ -166,7 +166,7 @@ void sqlite::Sql::exec(const wstring& s)
 		if (single.empty())
 			continue;
 
-		// ²¹»Ø±»·Ö¸îµÄ·ÖºÅ
+		// è¡¥å›è¢«åˆ†å‰²çš„åˆ†å·
 		single += L";";
 
 		doprepare(single);
@@ -180,7 +180,7 @@ void sqlite::Sql::open(const wstring& s)
 {
 	int rc = sqlite3_open16(s.c_str(), &pdb);
 	if (rc)
-		throw runtime_error("sqlÓï·¨´íÎó¡£");
+		throw runtime_error("sqlè¯­æ³•é”™è¯¯ã€‚");
 }
 
 void sqlite::Sql::prepare(const wstring& s)
@@ -191,15 +191,24 @@ void sqlite::Sql::prepare(const wstring& s)
 
 void sqlite::Sql::insert_replace(const wstring& table, const vector<wstring>& columns, const vector<wstring>& values)
 {
-	wstring sql = L"INSERT OR REPLACE INTO " + table + L' ' + L'(';
-	for (size_t i = 0; i < columns.size() - 1; i++)
-		sql += columns[i] + L", ";
-	sql += columns.back();
-	sql += L") VALUES (";
-	for (size_t i = 0; i < values.size() - 1; i++)
-		sql += L'\''+values[i] + L"\', ";
-	sql += L'\'' + values.back() + L'\'';
-	sql += L");";
+	// åˆ—è¡¨å
+	wstring wsColumns;
+	for (const wstring &ws : columns)
+		wsColumns += ws + L", ";
+	// å»é™¤æœ€åçš„", "
+	wsColumns.pop_back();
+	wsColumns.pop_back();
+
+	// å€¼å†…å®¹
+	wstring wsValue;
+	for (const wstring &ws : values)
+		wsValue += std::format(L"\'{}\', ", ws);
+	// å»é™¤æœ€åçš„", "
+	wsValue.pop_back();
+	wsValue.pop_back();
+
+	wstring sql = std::format(L"INSERT OR REPLACE INTO {} ({}) VALUES ({});",
+		table, wsColumns, wsValue);
 
 	prepare(sql);
 	step();
@@ -231,5 +240,5 @@ void sqlite::Sql::step() const
 {
 	int rc = sqlite3_step(stmt.stmt);
 	if (rc != SQLITE_DONE && rc != SQLITE_ROW)
-		throw runtime_error("sqlÓï¾äÖ´ĞĞÊ§°Ü¡£");
+		throw runtime_error("sqlè¯­å¥æ‰§è¡Œå¤±è´¥ã€‚");
 }

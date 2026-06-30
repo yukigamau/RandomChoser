@@ -121,7 +121,7 @@ void saveList()
 
 	if (!ifNeedPassword)
 	{
-		dataread::data.saveListText(wsTitle, wsText, sqlitedefault::not_use_password);
+		dataread::data.saveListText(wsTitle, wsText, (std::wstring)(sqlitedefault::not_use_password));
 		return;
 	}
 

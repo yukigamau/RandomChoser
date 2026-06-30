@@ -39,6 +39,9 @@ export namespace dataread
 		auto end()const noexcept { return data.cend(); }
 		auto cbegin()const noexcept { return data.cbegin(); }
 		auto cend()const noexcept { return data.cend(); }
+
+	public:
+		bool empty()const;
 	};
 
 	class Data
@@ -88,7 +91,7 @@ export namespace dataread
 		wstring nameRandom();
 		void saveLists(const wstring &title, bool ifDefault);
 		void saveListText(const wstring &title, const wstring &text,
-			const wstring &password = sqlitedefault::not_use_password);
+			const wstring &password = (wstring)sqlitedefault::not_use_password);
 } data;
 
 	// 拼接字符串
@@ -112,6 +115,15 @@ void dataread::Steady::push(const wstring &val)
 	data.pop_front();
 }
 
+bool dataread::Steady::empty() const
+{
+	for (const wstring &ws : data)
+		if (ws.size())
+			return false;
+
+	return true;	// 所有内容没有一个是有文本的
+}
+
 dataread::Data::Data()
 {
 	// 初始化随机种子
@@ -125,14 +137,18 @@ dataread::Data::~Data()
 {
 	if (ifOk)
 	{
+		if (lastNames.empty())
+			return;
+
 		wstring wsText;
+		
 		for (auto &ws : lastNames)
 			wsText += ws + L"\n";
 
-		Sql sql(database_name, DB_INI);
+		Sql sql((wstring)database_name, (wstring)DB_INI);
 		vector<wstring> columns{ L"name",L"data" };
 		vector<wstring> values{ defaultList + L"last", wsText };
-		sql.insert_replace(list_table, columns, values);
+		sql.insert_replace((wstring)list_table, columns, values);
 	}
 }
 
@@ -149,27 +165,27 @@ vector<wstring> splitWString(const wstring &text)
 
 void dataread::Data::ini(bool ifChoose)
 {
-	Sql sql(database_name);
+	Sql sql((wstring)database_name);
 	const vector<wstring> list{ L"data" };
 	wstring where = L"name = 'theme'";
-	sql.select(skin_table, list, where);
+	sql.select((wstring)skin_table, list, where);
 	wstring theme = sql.column<wstring>(0);
 
 	if (theme != L"default")
 		getSkin();
 
 	where = L"name = 'defaultList'";
-	sql.select(list_table, list, where);
+	sql.select((wstring)list_table, list, where);
 	sql.column(defaultList, 0);
 
 	where = L"name = '" + defaultList + L"'";
-	sql.select(list_table, list, where);
+	sql.select((wstring)list_table, list, where);
 	wstring defaultListWS;
 	sql.column(defaultListWS, 0);
 	defaultNames = splitWString(defaultListWS);
 
 	where = format(L"name = '{}last'", defaultList);
-	sql.select(list_table, list, where);
+	sql.select((wstring)list_table, list, where);
 	wstring defaultListLastWS;
 	sql.column(defaultListLastWS, 0);
 
@@ -205,10 +221,10 @@ void dataread::Data::iniLeftNames()
 
 void dataread::Data::getLists()
 {
-	Sql sql(database_name);
+	Sql sql((wstring)database_name);
 	const vector<wstring> list{ L"data" };
 	wstring where = L"name = 'lists'";
-	sql.select(list_table, list, where);
+	sql.select((wstring)list_table, list, where);
 
 	wstring listsLine;
 	sql.column(listsLine, 0);
@@ -217,7 +233,7 @@ void dataread::Data::getLists()
 
 void dataread::Data::getSkin()
 {
-	Sql sql(database_name);
+	Sql sql((wstring)database_name);
 	const wstring table = L"skindb";
 	const vector<wstring> list{L"data" };
 
@@ -259,11 +275,11 @@ void dataread::Data::getSkin()
 
 void dataread::Data::changeDefaultList(const wstring &title)
 {
-	Sql sql(database_name, DB_INI);
+	Sql sql((wstring)database_name, (wstring)DB_INI);
 
 	const vector<wstring> columns{ L"name",L"data" };
 	const vector<wstring> values{ L"defaultList",title };
-	sql.insert_replace(list_table, columns, values);
+	sql.insert_replace((wstring)list_table, columns, values);
 }
 
 wstring dataread::Data::nameOut()
@@ -341,12 +357,12 @@ bool dataread::ifFontExists(const wstring& font)
 */
 void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 {
-	Sql sql(database_name, DB_INI);
+	Sql sql((wstring)database_name, (wstring)DB_INI);
 	wstring strLists;
 
 	wstring where = L"name = 'lists'";
 	const vector<wstring> list{ L"data" };
-	sql.select(list_table, list, where);
+	sql.select((wstring)list_table, list, where);
 	strLists = sql.column<wstring>(0);
 	strLists += L"\n";	// 注意如果是用命令行去看，会换行，导致像是新的数据
 	strLists += title;
@@ -357,7 +373,7 @@ void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 		L"lists",
 		strLists
 	};
-	sql.insert_replace(list_table, columns, values);
+	sql.insert_replace((wstring)list_table, columns, values);
 
 	if (ifDefault)
 		changeDefaultList(title);
@@ -373,10 +389,10 @@ void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 */
 void dataread::Data::saveListText(const wstring &title, const wstring &text, const wstring &password)
 {
-	Sql sql(database_name, DB_INI);
+	Sql sql((wstring)database_name, (wstring)DB_INI);
 	const vector<wstring> columns{ L"name",L"data",L"password" };
 	vector<wstring> values{ title,text,password };
-	sql.insert_replace(list_table, columns, values);
+	sql.insert_replace((wstring)list_table, columns, values);
 
 	values[0] += L"left";
 
@@ -387,5 +403,5 @@ void dataread::Data::saveListText(const wstring &title, const wstring &text, con
 		values[1] += ws + L"\n";
 
 	values[2] = sqlitedefault::not_use_password;
-	sql.insert_replace(list_table, columns, values);
+	sql.insert_replace((wstring)list_table, columns, values);
 }

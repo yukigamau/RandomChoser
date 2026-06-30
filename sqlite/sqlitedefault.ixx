@@ -3,7 +3,7 @@ export module sqlitedefault;
 import sqlite;
 import std;
 
-using std::string, std::wstring;
+using std::string, std::wstring, std::wstring_view;
 
 /*
 * 命名空间名：	sqlitedefault
@@ -13,12 +13,12 @@ using std::string, std::wstring;
 */
 export namespace sqlitedefault
 {
-	const wstring database_name = L"database.db";
+	constexpr wstring_view database_name = L"database.db";
 	/*
 	* theme参数说明：	default跟随系统
 	*					diy自定义
 	*/
-	const wstring DB_INI =
+	constexpr wstring_view DB_INI =
 		L"CREATE TABLE IF NOT EXISTS skin_table("
 		L"name TEXT PRIMARY KEY, "
 		L"data TEXT); "
@@ -33,9 +33,9 @@ export namespace sqlitedefault
 		L"INSERT OR IGNORE INTO list_table (name, data) "
 		L"VALUES('lists', NULL);";
 
-	const wstring list_table = L"list_table";
-	const wstring skin_table = L"skin_table";
+	constexpr wstring_view list_table = L"list_table";
+	constexpr wstring_view skin_table = L"skin_table";
 
 	// 用于不可修改的名单
-	const wstring not_use_password = L"\u0001";
+	constexpr wstring_view not_use_password = L"\u0001";
 }

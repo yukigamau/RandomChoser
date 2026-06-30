@@ -27,9 +27,6 @@
     <ClCompile Include="windowPages.ixx">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="window-Style.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="window-Gdi.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -145,6 +142,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="transparency.ixx">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="window-Style.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
