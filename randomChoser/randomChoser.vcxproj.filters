@@ -147,6 +147,15 @@
     <ClCompile Include="window-Style.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Page-editList.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="editListWPFun.cpp">
+      <Filter>window/WP</Filter>
+    </ClCompile>
+    <ClCompile Include="editListWPFun.ixx">
+      <Filter>window/WP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

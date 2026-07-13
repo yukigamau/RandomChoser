@@ -9,4 +9,5 @@ void window::WindowPages::ini(HINSTANCE hInstance)
 	// 配置页面的过程处理函数
 	listModify.process = window::listModifyWP;
 	password.process = window::passwordWP;
+	editList.process = window::editListWP;
 }

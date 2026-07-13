@@ -392,9 +392,9 @@ LRESULT defaultColor(HDC hdc)
 	return (INT_PTR)password.style->textBkBrush();
 }
 
-LRESULT setColor(HDC hdc, const Rgb& rgb)
+LRESULT setColor(HDC hdc, const Rgb& code)
 {
-	SetTextColor(hdc, rgb.cur());
+	SetTextColor(hdc, code.cur());
 	SetBkColor(hdc, password.style->textBkColor());
 
 	return (INT_PTR)password.style->textBkBrush();

@@ -5,6 +5,7 @@ export import :windowAdjuster;
 export import :windowRestart;
 
 // 页面的具体实现
+export import :editList;
 export import :listModify;
 export import :password;
 export import :randomChoose;

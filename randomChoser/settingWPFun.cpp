@@ -13,12 +13,24 @@ using namespace settingID;
 LRESULT CALLBACK settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	auto &listModify{ wps.listModify };
+	auto &editList{ wps.editList };
 
 	int id = LOWORD(wParam);
+	
 	switch (id)
 	{
 	case idc_btn_edit_list:
+		if (editList.hInstance)
+			ShowWindow(editList.getHWND(), SW_SHOW);
+		else
+		{
+			HINSTANCE hInstance = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+			editList.ini(hInstance, &wps.style);
+			editList.createWindow(L"editList", L"ÁÐ±íÐÞ¸Ä", WS_OVERLAPPEDWINDOW,
+				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+		}
 
+		ShowWindow(hWnd, SW_HIDE);
 		return 0;
 
 	case idc_btn_open_source_site:

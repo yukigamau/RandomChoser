@@ -133,12 +133,12 @@ void WindowPages::settingOnCreate(HWND hWnd)
 
 	wa.ctlBeside(width);
 
-	wstring editList = L"修改已有名单";
+	wstring editList = L"修改当前名单";
 	wa.getCtlSize(editList, &width, &height);
 	width *= style.btnOuterSizeScaleH;
 	height *= style.btnOuterSizeScaleV;
 	HWND editListBtn = CreateWindow(L"BUTTON", editList.c_str(), WS_CHILD | WS_VISIBLE,
-		wa.x, wa.y, width, height, hWnd, (HMENU)IDC_BTN_EDIT_LIST, hInstance, nullptr);
+		wa.x, wa.y, width, height, hWnd, (HMENU)idc_btn_edit_list, hInstance, nullptr);
 	SendMessage(editListBtn, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 
 	// 如果没有名单，那么就不会启用【修改已有名单】
@@ -156,7 +156,7 @@ LRESULT WindowPages::settingOnCtlColorBtn(HWND hwnd, UINT uMsg, WPARAM wParam, L
 
 	switch (id)
 	{
-	case IDC_BTN_EDIT_LIST:
+	case idc_btn_edit_list:
 		[[fallthrough]];
 	case IDC_BTN_OPEN_SOURCE_SITE:
 		[[fallthrough]];

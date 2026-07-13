@@ -25,7 +25,6 @@ using std::unique_ptr, std::wstring;
 
 export namespace window
 {
-	constexpr int IDC_BTN_EDIT_LIST = 1501;
 	constexpr int IDC_BTN_OPEN_SOURCE_SITE = 1502;
 	constexpr int IDC_BTN_WRITE_LIST = 1505;
 	constexpr int IDC_COMBO_LISTS = 1551;
@@ -135,6 +134,7 @@ export namespace window
 		Page randomChoose;
 		Page listModify;
 		Page password;
+		Page editList;
 
 	private:
 		SIZE choosePageSize = { 200,75 };
