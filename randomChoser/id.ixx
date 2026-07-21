@@ -21,6 +21,16 @@ export namespace iconID
 }
 
 /*
+* editList页面
+*/
+export namespace editListID
+{
+	constexpr auto
+		idc_edit_password{ 1551 },
+		idc_stc_blue{ 1601 };
+}
+
+/*
 * listModify页面
 */
 export namespace listModifyID
