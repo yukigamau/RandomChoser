@@ -25,10 +25,7 @@ using std::unique_ptr, std::wstring;
 
 export namespace window
 {
-	constexpr int IDC_BTN_OPEN_SOURCE_SITE = 1502;
-	constexpr int IDC_BTN_WRITE_LIST = 1505;
 	constexpr int IDC_COMBO_LISTS = 1551;
-	constexpr int IDC_STATIC_RED = 1601;
 
 	void moreControlTurnOn();
 
@@ -137,7 +134,7 @@ export namespace window
 		Page editList;
 
 	private:
-		SIZE choosePageSize = { 200,75 };
+		SIZE choosePageSize = { 200,90 };
 		HWND hChoose = nullptr;
 		HWND hTitleText = nullptr;
 		HWND hSettingBtn = nullptr;
@@ -200,7 +197,6 @@ export namespace window
 	public:
 		HWND hSetting;
 	public:
-		void settingOnCreate(HWND hwnd);
 		LRESULT settingOnCtlColorBtn(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		LRESULT settingOnCtlColorStatic(WPARAM wParam, LPARAM lParam);
 	public:
@@ -237,7 +233,7 @@ void window::WindowPages::iniDpi()
 	const double defaultDPI = 96.0;
 	double dpiScale = getDPIScalingFactor() / defaultDPI;
 
-	captionHeight = GetSystemMetrics(SM_CYCAPTION);
+	captionHeight = GetSystemMetrics(SM_CYCAPTION) * dpiScale;
 
 	choosePageSize.cx *= dpiScale;
 	choosePageSize.cy *= dpiScale;

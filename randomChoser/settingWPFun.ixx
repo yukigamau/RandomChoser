@@ -3,3 +3,4 @@ module;
 export module settingWPFun;
 
 export LRESULT CALLBACK settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+export LRESULT settingOnCreate(HWND hWnd, HINSTANCE hInstance);

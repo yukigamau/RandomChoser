@@ -27,6 +27,7 @@ export namespace editListID
 {
 	constexpr auto
 		idc_edit_password{ 1551 },
+		idc_edit_list{ 1552 },
 		idc_stc_blue{ 1601 };
 }
 
@@ -66,5 +67,6 @@ export namespace settingID
 		idc_btn_edit_list{ 1501 },
 		idc_btn_open_source_site{ 1502 },
 		idc_btn_write_list{ 1505 },
-		idc_ccb_default_list{ 1551 };
+		idc_ccb_default_list{ 1551 },
+		IDC_STATIC_RED = 1601;
 }

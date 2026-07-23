@@ -1,4 +1,4 @@
-module chooseWPFun;
+﻿module chooseWPFun;
 #include <Windows.h>
 import dataread;
 import glob;
@@ -62,31 +62,39 @@ LRESULT chooseOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+void timer_idt_scroll(HWND hWnd)
+{
+	glob::scrollNum--;
+	wstring nameOut;
+	if (glob::scrollNum)	// 随机滚动没有结束
+		nameOut = data.nameRandom();
+	else
+	{
+		nameOut = data.nameOut();
+
+		// 终止文本滚动
+		KillTimer(hWnd, chooseID::idt_scroll);
+
+		// 重置scrollNum
+		glob::scrollNum = glob::scrollNumMax;
+	}
+
+	// 设置文本
+	SetWindowText(GetDlgItem(hWnd, idc_stc_chooseBtn), nameOut.c_str());
+
+#if _DEBUG
+	if (nameOut == L"")
+		MessageBox(nullptr, L"没有内容在nameOut里面", L"报错", MB_ICONWARNING);
+#endif
+}
+
 LRESULT chooseOnTimer(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (wParam)
 	{
 	case chooseID::idt_scroll:
-	{
-		glob::scrollNum--;
-		wstring nameOut;
-		if (glob::scrollNum)	// 随机滚动没有结束
-			nameOut = data.nameRandom();
-		else
-		{
-			nameOut = data.nameOut();
-
-			// 终止文本滚动
-			KillTimer(hWnd, chooseID::idt_scroll);
-
-			// 重置scrollNum
-			glob::scrollNum = glob::scrollNumMax;
-		}
-
-		// 设置文本
-		SetWindowText(GetDlgItem(hWnd, idc_stc_chooseBtn), nameOut.c_str());
-	}
-	break;
+		timer_idt_scroll(hWnd);
+		break;
 
 	case idt_transparency:
 		transparency::transparency(hWnd, glob::Mode::choose);

@@ -202,7 +202,17 @@ void sqlite::Sql::insert_replace(const wstring& table, const vector<wstring>& co
 	// 值内容
 	wstring wsValue;
 	for (const wstring &ws : values)
-		wsValue += std::format(L"\'{}\', ", ws);
+	{
+		// 可能有多个\0结尾，需要去除
+		if (ws.size() >= 2 && ws[ws.size() - 2] == L'\0')
+		{
+			wstring cutEnd = ws;
+			cutEnd.resize(std::wcslen(cutEnd.c_str()));
+			wsValue += std::format(L"'{}', ", cutEnd);
+		}
+		else
+			wsValue += std::format(L"\'{}\', ", ws);
+	}
 	// 去除最后的", "
 	wsValue.pop_back();
 	wsValue.pop_back();

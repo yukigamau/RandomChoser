@@ -25,7 +25,8 @@ enum class SpecialKey :int
 	ctrl_backspace = 127
 };
 
-LRESULT CALLBACK subclassEPassword(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+// 修改ctrl+backspace以免输入del
+LRESULT CALLBACK subclassECtrlBackspace(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 	UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch (uMsg)
@@ -143,10 +144,30 @@ LRESULT editListOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		password.id = idc_edit_password;
 		password.hFont = editList.style->hFStatic;
 		password.addWinStyle(command::WinStyle::password);
-		password.setSubclass(subclassEPassword);
+		password.setSubclass(subclassECtrlBackspace);
 		password.create();
 
 		wa.ctlLeft(pBegin.x);
+		wa.ctlNext(height);
+	}
+
+	{
+		int maxWidth = wa.outMaxWidth();
+		width = maxWidth;
+		height = width;
+
+		Margin margin{ editList.style->dpiScale };
+		command::Edit list(hWnd, editList.hInstance, &margin);
+		list.x = wa.x;
+		list.y = wa.y;
+		list.w = width;
+		list.h = height;
+		list.id = idc_edit_list;
+		list.hFont = editList.style->hFStatic;
+		list.setSubclass(subclassECtrlBackspace);
+		list.create();
+
+		wa.adjustMaxYAddon(height);
 		wa.ctlNext(height);
 	}
 
@@ -155,12 +176,19 @@ LRESULT editListOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+// Create
+#pragma endregion
+
 LRESULT editListOnCtlColorEdit(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	return LRESULT();
-}
+	HDC hdc = (HDC)wParam;
+	HWND hEdit = (HWND)lParam;
 
-#pragma endregion
+	SetTextColor(hdc, editList.style->textColor());   // 字体颜色
+	SetBkColor(hdc, editList.style->textBkColor());	// 背景颜色，同时也改变边框的颜色
+
+	return (INT_PTR)editList.style->textBkBrush();
+}
 
 LRESULT editListOnCtlColorStatic(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

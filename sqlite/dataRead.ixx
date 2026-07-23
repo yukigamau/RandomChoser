@@ -59,11 +59,11 @@ export namespace dataread
 	public:
 		bool ifTop = true;
 	public:
-		vector<wstring> lists;
-		wstring defaultList;
-		vector<wstring> defaultNames;
-		vector<wstring> leftNames;
-		Steady lastNames{ maxNameLast };
+		vector<wstring> lists;			// 所有名单
+		wstring defaultList;			// 默认名单
+		vector<wstring> defaultNames;	// 默认名单所有名字
+		vector<wstring> leftNames;		// 没有抽取到的名字
+		Steady lastNames{ maxNameLast };	// 最近抽取的名字
 	private:
 		// 用于得到随机数种子，在构造函数中初始化
 		mt19937 rng;
@@ -206,7 +206,8 @@ void dataread::Data::ini(bool ifChoose)
 void copy(const dataread::Steady &s, vector<wstring> *vws)
 {
 	for (auto ws : s)
-		vws->push_back(ws);
+		if (ws.size())
+			vws->push_back(ws);
 }
 
 void dataread::Data::iniLeftNames()
