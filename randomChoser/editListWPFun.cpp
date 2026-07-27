@@ -8,6 +8,7 @@ import margin;
 import std;
 import window;
 
+using command::WinStyle;
 using dataread::data;
 using margin::Margin;
 using std::wstring;
@@ -165,9 +166,53 @@ LRESULT editListOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		list.id = idc_edit_list;
 		list.hFont = editList.style->hFStatic;
 		list.setSubclass(subclassECtrlBackspace);
+		list.addWinStyle(WinStyle::multiLine);
 		list.create();
 
 		wa.adjustMaxYAddon(height);
+		wa.ctlNext(height);
+
+		// 设置文本
+		wstring listText;
+		for (const auto &dn : data.defaultNames)
+			listText += dn + L"\r\n";
+		// 去除最后的\r\n
+		listText.pop_back();
+		listText.pop_back();
+
+		SetWindowText(list.getHWnd(), listText.c_str());
+	}
+
+	{
+		wstring wsBackSetting = L"返回设置页面";
+		tie(width, height) = wa.getCtlSize(wsBackSetting, window::IfButton::button);
+
+		command::Button backSetting(hWnd, editList.hInstance, wsBackSetting);
+		backSetting.x = wa.x;
+		backSetting.y = wa.y;
+		backSetting.w = width;
+		backSetting.h = height;
+		backSetting.id = idc_btn_backSetting;
+		backSetting.hFont = editList.style->hFStatic;
+		backSetting.create();
+
+		wa.ctlBeside(width);
+	}
+
+	{
+		wstring wsConfirm = L"确认修改";
+		tie(width, height) = wa.getCtlSize(wsConfirm, window::IfButton::button, window::Follow::beside);
+
+		command::Button confirm(hWnd, editList.hInstance, wsConfirm);
+		confirm.x = wa.x;
+		confirm.y = wa.y;
+		confirm.w = width;
+		confirm.h = height;
+		confirm.id = idc_btn_confirm;
+		confirm.hFont = editList.style->hFStatic;
+		confirm.create();
+
+		wa.ctlLeft(pBegin.x);
 		wa.ctlNext(height);
 	}
 
@@ -178,6 +223,11 @@ LRESULT editListOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 // Create
 #pragma endregion
+
+LRESULT editListOnCtlColorButton(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return (INT_PTR)editList.style->buttonBkBrush();
+}
 
 LRESULT editListOnCtlColorEdit(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

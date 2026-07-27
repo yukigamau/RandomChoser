@@ -117,9 +117,6 @@
     <ClCompile Include="windowRestart.ixx">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Page-setting.ixx">
-      <Filter>window/WP</Filter>
-    </ClCompile>
     <ClCompile Include="settingWPFun.ixx">
       <Filter>window/WP</Filter>
     </ClCompile>

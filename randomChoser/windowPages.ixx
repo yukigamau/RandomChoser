@@ -3,7 +3,6 @@
 #include <Windows.h>
 #include <windowsx.h>
 #include <gdiplus.h>
-#include <ShellScalingAPI.h>
 
 #pragma comment(lib, "Gdiplus.lib")
 #pragma comment(lib, "Shcore.lib")
@@ -134,7 +133,7 @@ export namespace window
 		Page editList;
 
 	private:
-		SIZE choosePageSize = { 200,90 };
+		SIZE choosePageSize = { 200,75 };
 		HWND hChoose = nullptr;
 		HWND hTitleText = nullptr;
 		HWND hSettingBtn = nullptr;
@@ -220,43 +219,6 @@ UINT window::WindowPages::getDPIScalingFactor()
 	UINT dpi = GetDeviceCaps(hdc, LOGPIXELSX); // 96 DPI 为 100% 缩放
 	ReleaseDC(NULL, hdc);
 	return MulDiv(dpi, 100, 96); // 返回百分比（如 200 表示 200%）
-}
-
-void window::WindowPages::iniDpi()
-{
-	// 设置 DPI 感知
-	HRESULT hr = SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
-	// 如果系统不支持 SetProcessDpiAwareness，回退到旧 API
-	if (FAILED(hr))	SetProcessDPIAware();
-
-	// DPI调整
-	const double defaultDPI = 96.0;
-	double dpiScale = getDPIScalingFactor() / defaultDPI;
-
-	captionHeight = GetSystemMetrics(SM_CYCAPTION) * dpiScale;
-
-	choosePageSize.cx *= dpiScale;
-	choosePageSize.cy *= dpiScale;
-
-	iconPageSize.cx *= dpiScale;
-	iconPageSize.cy *= dpiScale;
-
-	hPenWidth *= dpiScale;
-
-	int btnSize = captionHeight;
-
-	titleRect = { 0,0,choosePageSize.cx,captionHeight };
-
-	settingBtnRect = { choosePageSize.cx - 2 * btnSize,0,choosePageSize.cx - btnSize,captionHeight };
-	closeBtnRect = { choosePageSize.cx - btnSize,0,choosePageSize.cx,captionHeight };
-
-	settingFontHeight *= dpiScale;
-
-	// 屏幕
-	screenSize.cx = GetSystemMetrics(SM_CXSCREEN);
-	screenSize.cy = GetSystemMetrics(SM_CYSCREEN);
-
-	style.dpi(dpiScale);
 }
 
 LRESULT window::WindowPages::chooseOnCtlColorStatic(WPARAM wParam, LPARAM lParam)

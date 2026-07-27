@@ -13,9 +13,12 @@ export namespace command
 	enum class WinStyle :DWORD
 	{
 		border = WS_BORDER,
+
 		center = ES_CENTER,
 		left = ES_LEFT,
+		multiLine = ES_MULTILINE,
 		password = ES_PASSWORD,
+
 		notify = SS_NOTIFY
 	};
 
@@ -28,6 +31,9 @@ export namespace command
 		int x{ 0 }, y{ 0 };
 		int w{ 0 }, h{ 0 };
 		HFONT hFont = nullptr;
+		
+	protected:
+		HWND hWnd;
 
 	public:
 		virtual void create() = 0;
@@ -37,6 +43,9 @@ export namespace command
 
 	public:
 		void setSubclass(SUBCLASSPROC subProc);
+
+	public:
+		HWND getHWnd() { return hWnd; }
 	};
 
 	class Button :public Command
@@ -50,10 +59,10 @@ export namespace command
 	public:
 		void create() override
 		{
-			HWND hCur = CreateWindow(L"BUTTON", text.c_str(), WS_CHILD | WS_VISIBLE, x, y, w, h,
+			hWnd = CreateWindow(L"BUTTON", text.c_str(), WS_CHILD | WS_VISIBLE, x, y, w, h,
 				hParent, (HMENU)id, hInstance, nullptr);
 			if (hFont)
-				SendMessage(hCur, WM_SETFONT, (WPARAM)hFont, TRUE);
+				SendMessage(hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
 		}
 
 	public:
@@ -76,10 +85,10 @@ export namespace command
 	public:
 		void create() override
 		{
-			HWND hCur = CreateWindow(L"STATIC", text.c_str(), style, x, y, w, h,
+			hWnd = CreateWindow(L"STATIC", text.c_str(), style, x, y, w, h,
 				hParent, (HMENU)id, hInstance, nullptr);
 			if (hFont)
-				SendMessage(hCur, WM_SETFONT, (WPARAM)hFont, TRUE);
+				SendMessage(hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
 		}
 
 		void addWinStyle(WinStyle ws);
@@ -101,12 +110,12 @@ export namespace command
 		{
 			auto winStyle{ WS_CHILD | WS_VISIBLE | WS_BORDER };
 			winStyle |= this->ws;
-			HWND hCur = CreateWindow(L"EDIT", L"", winStyle,
+			hWnd = CreateWindow(L"EDIT", L"", winStyle,
 				x, y - margin.get()->getHalfMargin(), w, h + 2 * margin.get()->getHalfMargin(),
 				hParent, (HMENU)id, hInstance, nullptr);
-			margin.get()->apply(hCur);
+			margin.get()->apply(hWnd);
 			if (hFont)
-				SendMessage(hCur, WM_SETFONT, (WPARAM)hFont, TRUE);
+				SendMessage(hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
 		}
 
 		// 限制文本长度

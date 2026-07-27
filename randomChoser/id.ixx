@@ -26,6 +26,8 @@ export namespace iconID
 export namespace editListID
 {
 	constexpr auto
+		idc_btn_backSetting{ 1501 },
+		idc_btn_confirm{ 1502 },
 		idc_edit_password{ 1551 },
 		idc_edit_list{ 1552 },
 		idc_stc_blue{ 1601 };

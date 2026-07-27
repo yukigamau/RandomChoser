@@ -154,7 +154,6 @@
     <ClCompile Include="Page-editList.ixx" />
     <ClCompile Include="Page-listModify.ixx" />
     <ClCompile Include="Page-password.ixx" />
-    <ClCompile Include="Page-setting.ixx" />
     <ClCompile Include="passwordSubclass.cpp" />
     <ClCompile Include="passwordSubclass.ixx" />
     <ClCompile Include="passwordWPFun.cpp" />
