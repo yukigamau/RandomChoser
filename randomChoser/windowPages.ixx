@@ -697,7 +697,10 @@ void window::WindowPages::createWindow(HINSTANCE hInstance)
 		// 数据存在就初始化数据
 		data.ini();
 
-		createChoosePage();
+		if (data.defaultList != L"")
+			createChoosePage();
+		else
+			glob::createSettingPage();
 	}
 	else
 		glob::createSettingPage();

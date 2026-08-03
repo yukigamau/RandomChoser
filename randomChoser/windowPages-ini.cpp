@@ -17,7 +17,7 @@ void window::WindowPages::iniDpi()
 	const double defaultDPI = 96.0;
 	double dpiScale = getDPIScalingFactor() / defaultDPI;
 
-	captionHeight = GetSystemMetrics(SM_CYCAPTION);
+	captionHeight = GetSystemMetrics(SM_CYCAPTION) * 1.3;
 
 	choosePageSize.cx *= dpiScale;
 	choosePageSize.cy *= dpiScale;

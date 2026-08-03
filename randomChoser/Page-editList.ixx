@@ -13,6 +13,7 @@ LRESULT CALLBACK window::editListWP(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 {
 	switch (uMsg)
 	{
+	case WM_COMMAND:		return editListOnCommand(hWnd, uMsg, wParam, lParam);
 	case WM_CREATE:			return editListOnCreate(hWnd, uMsg, wParam, lParam);
 	case WM_CTLCOLORBTN:	return editListOnCtlColorButton(hWnd, uMsg, wParam, lParam);
 	case WM_CTLCOLOREDIT:	return editListOnCtlColorEdit(hWnd, uMsg, wParam, lParam);

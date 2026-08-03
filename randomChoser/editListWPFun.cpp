@@ -5,6 +5,7 @@ import dataread;
 import editListWPFun;
 import id;
 import margin;
+import settingWPFun;
 import std;
 import window;
 
@@ -14,10 +15,174 @@ using margin::Margin;
 using std::wstring;
 using std::tie;
 using window::WindowAdjuster;
+using window::restart;
 
 using namespace editListID;
 
 auto &editList{ window::wps.editList };
+
+#pragma region Command
+
+LRESULT backSetting()
+{
+	HWND hCur = editList.getHWND();
+	HWND hSetting = window::wps.hSetting;
+
+	ShowWindow(hCur, SW_HIDE);
+	ShowWindow(hSetting, SW_SHOW);
+
+	return 0;
+}
+
+inline LRESULT switchBackSetting(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto msg{ HIWORD(wParam) };
+
+	switch (msg)
+	{
+	case STN_CLICKED:
+		return backSetting();
+
+	default:
+		break;
+	}
+
+	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+wstring getInpassword()
+{
+	wchar_t buffer[257]{};
+	HWND hPassword = GetDlgItem(editList.getHWND(), idc_edit_password);
+	GetWindowText(hPassword, buffer, 257);
+	wstring inPassword{ buffer };
+	return inPassword;
+}
+
+// 获取idc_edit_list中被修改过的文本
+wstring getModifiedText()
+{
+	HWND hEdit = GetDlgItem(editList.getHWND(), idc_edit_list);
+	int length = GetWindowTextLength(hEdit);
+
+	wstring text;
+	text.resize(length + 1);
+	GetWindowText(hEdit, text.data(), length + 1);
+
+	// 去除最后的\0
+	text.pop_back();
+
+	// 把CRLF改成LF
+	text.erase(std::remove(text.begin(), text.end(), L'\r'), text.end());
+
+	return text;
+}
+
+bool checkPassword()
+{
+	// 获取输入的密码
+	wstring inPassword = getInpassword();
+
+	// 获取对应的名单的密码
+	wstring truePassword = data.getPassword(data.defaultList);
+
+	return inPassword == truePassword;
+}
+
+void replaceList(const wstring &listName, const wstring &listText, const wstring &password)
+{
+	data.saveListText(listName, listText, password);
+}
+
+LRESULT switchConfirm(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto msg{ HIWORD(wParam) };
+
+	if (msg != STN_CLICKED)
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+
+	// 处理STN_CLICKED消息
+	if (!checkPassword())
+	{
+		MessageBox(hWnd, L"密码错误", L"密码错误", MB_OK);
+		return 0;
+	}
+
+	switch (MessageBox(hWnd, L"确定修改吗？", L"密码一致", MB_YESNOCANCEL))
+	{
+	case IDYES:
+		replaceList(data.defaultList, getModifiedText(), getInpassword());
+		return 0;
+
+	case IDNO:
+		backSetting();
+		return 0;
+
+	case IDCANCEL:
+		return 0;
+	}
+
+	return 0;
+}
+
+void deleteList()
+{
+	if (data.deleteList(data.defaultList))
+		reloadLists(data.lists);
+	else
+		restart();
+}
+
+LRESULT switchDelete(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto msg{ HIWORD(wParam) };
+	
+	if (msg != STN_CLICKED)
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+
+	// 处理STN_CLICKED
+	switch (MessageBox(hWnd, L"确定删除吗？\n本次操作不可撤回。", L"警告", MB_YESNOCANCEL))
+	{
+	case IDYES:
+		deleteList();
+		backSetting();
+		return 0;
+
+	case IDNO:
+		backSetting();
+		return 0;
+
+	case IDCANCEL:
+		return 0;
+	}
+
+	return 0;
+}
+
+LRESULT editListOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto id{ LOWORD(wParam) };
+
+	switch (id)
+	{
+	case idc_btn_backSetting:
+		return switchBackSetting(hWnd, uMsg, wParam, lParam);
+
+	case idc_btn_confirm:
+		return switchConfirm(hWnd, uMsg, wParam, lParam);
+
+	case idc_btn_delete:
+		return switchDelete(hWnd, uMsg, wParam, lParam);
+
+	default:
+		break;
+	}
+
+	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+// Command
+#pragma endregion
 
 #pragma region Create
 
@@ -211,6 +376,22 @@ LRESULT editListOnCreate(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		confirm.id = idc_btn_confirm;
 		confirm.hFont = editList.style->hFStatic;
 		confirm.create();
+
+		wa.ctlBeside(width);
+	}
+
+	{
+		wstring wsDelete = L"删除名单";
+		tie(width, height) = wa.getCtlSize(wsDelete, window::IfButton::button, window::Follow::beside);
+
+		command::Button deleteBtn(hWnd, editList.hInstance, wsDelete);
+		deleteBtn.x = wa.x;
+		deleteBtn.y = wa.y;
+		deleteBtn.w = width;
+		deleteBtn.h = height;
+		deleteBtn.id = idc_btn_delete;
+		deleteBtn.hFont = editList.style->hFStatic;
+		deleteBtn.create();
 
 		wa.ctlLeft(pBegin.x);
 		wa.ctlNext(height);

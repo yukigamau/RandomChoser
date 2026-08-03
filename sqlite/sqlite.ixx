@@ -67,6 +67,8 @@ export namespace sqlite
 		void insert_replace(const wstring& table, const vector<wstring>& columns, const vector<wstring>& values);
 		// 构建select语句
 		void select(const wstring& table, const vector<wstring>& list, const wstring where = L"");
+		// 删除语句
+		void del(const wstring &table, const wstring &where);
 	};
 }
 
@@ -141,10 +143,6 @@ T sqlite::Sql::column(int pos)
 #pragma endregion
 
 void sqlite::Sql::doprepare(const wstring& s)
-#if _DEBUG
-#else
-noexcept
-#endif
 {
 	int rc = sqlite3_prepare16_v2(pdb, s.c_str(), -1, &stmt.stmt, nullptr);
 #if _DEBUG
@@ -201,17 +199,12 @@ void sqlite::Sql::insert_replace(const wstring& table, const vector<wstring>& co
 
 	// 值内容
 	wstring wsValue;
-	for (const wstring &ws : values)
+	for (wstring ws : values)
 	{
-		// 可能有多个\0结尾，需要去除
-		if (ws.size() >= 2 && ws[ws.size() - 2] == L'\0')
-		{
-			wstring cutEnd = ws;
-			cutEnd.resize(std::wcslen(cutEnd.c_str()));
-			wsValue += std::format(L"'{}', ", cutEnd);
-		}
-		else
-			wsValue += std::format(L"\'{}\', ", ws);
+		// 去除\0
+		ws.erase(std::remove(ws.begin(), ws.end(), L'\0'), ws.end());
+
+		wsValue += std::format(L"\'{}\', ", ws);
 	}
 	// 去除最后的", "
 	wsValue.pop_back();
@@ -224,13 +217,14 @@ void sqlite::Sql::insert_replace(const wstring& table, const vector<wstring>& co
 	step();
 }
 
-void sqlite::Sql::select(const wstring& table, const vector<wstring>& list, const wstring where)
+// 查找table中满足where的column
+void sqlite::Sql::select(const wstring& table, const vector<wstring>& columns, const wstring where)
 {
 	wstring sql = L"SELECT ";
 
-	for (size_t i = 0; i < list.size() - 1; i++)
-		sql += list[i] + L", ";
-	sql += list.back() + L" ";
+	for (size_t i = 0; i < columns.size() - 1; i++)
+		sql += columns[i] + L", ";
+	sql += columns.back() + L" ";
 
 	sql += L"FROM ";
 	sql += table;
@@ -242,6 +236,13 @@ void sqlite::Sql::select(const wstring& table, const vector<wstring>& list, cons
 
 	sql += L";";
 
+	prepare(sql);
+	step();
+}
+
+void sqlite::Sql::del(const wstring &table, const wstring &where)
+{
+	wstring sql = format(L"delete from {} where {};", table, where);
 	prepare(sql);
 	step();
 }

@@ -55,10 +55,8 @@ LRESULT CALLBACK window::WindowPages::settingWP(HWND hWnd, UINT uMsg, WPARAM wPa
 {
 	switch (uMsg)
 	{
-	case WM_COMMAND:
-		return settingOnCommand(hWnd, uMsg, wParam, lParam);
-
-	case WM_CREATE:	return settingOnCreate(hWnd, wps.hInstance);
+	case WM_COMMAND:	return settingOnCommand(hWnd, uMsg, wParam, lParam);
+	case WM_CREATE:		return settingOnCreate(hWnd, wps.hInstance);
 
 	case WM_CTLCOLORBTN:
 		return wps.settingOnCtlColorBtn(hWnd, uMsg, wParam, lParam);

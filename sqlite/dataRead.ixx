@@ -92,6 +92,10 @@ export namespace dataread
 		void saveLists(const wstring &title, bool ifDefault);
 		void saveListText(const wstring &title, const wstring &text,
 			const wstring &password = (wstring)sqlitedefault::not_use_password);
+
+	public:
+		wstring getPassword(const wstring &listName);
+		int deleteList(const wstring &listName);
 } data;
 
 	// 拼接字符串
@@ -365,7 +369,8 @@ void dataread::Data::saveLists(const wstring &title, bool ifDefault)
 	const vector<wstring> list{ L"data" };
 	sql.select((wstring)list_table, list, where);
 	strLists = sql.column<wstring>(0);
-	strLists += L"\n";	// 注意如果是用命令行去看，会换行，导致像是新的数据
+	if (strLists.size())
+		strLists += L"\n";
 	strLists += title;
 
 	const vector<wstring> columns{ L"name",L"data" };
@@ -405,4 +410,65 @@ void dataread::Data::saveListText(const wstring &title, const wstring &text, con
 
 	values[2] = sqlitedefault::not_use_password;
 	sql.insert_replace((wstring)list_table, columns, values);
+}
+
+wstring dataread::Data::getPassword(const wstring &listName)
+{
+	Sql sql((wstring)database_name, (wstring)DB_INI);
+	
+	vector<wstring> columns{ L"password" };
+	wstring where = format(L"name == '{}'", listName);
+
+	sql.select((wstring)sqlitedefault::list_table, columns, where);
+
+	wstring password;
+	sql.column(password, 0);
+
+	return password;
+}
+
+int dataread::Data::deleteList(const wstring &listName)
+{
+	int have = 1;
+
+	// 在list（vector）中删除名字
+	for (size_t i = 0; i < lists.size(); i++)
+	{
+		if (lists[i] == listName)
+		{
+			lists.erase(lists.begin() + i);
+		}
+	}
+
+	Sql sql((wstring)sqlitedefault::database_name);
+	wstring wsLists;
+	for (const auto &list : lists)
+		wsLists += list + L"\n";
+	sql.insert_replace((wstring)sqlitedefault::list_table, { L"name",L"data" }, { L"lists",wsLists });
+
+	// 按需修改默认名单
+	if (lists.size())
+	{
+		if (defaultList == listName)
+			defaultList = lists[0];
+	}
+	else
+	{
+		have = 0;
+		Sql sql((wstring)sqlitedefault::database_name);
+		sql.insert_replace((wstring)sqlitedefault::list_table, { L"name",L"data" }, { L"defaultList",L"" });
+	}
+
+	/* 清除遗留数据 */
+	// 被删除名单
+	wstring where = format(L"name = '{}'", listName);
+	sql.del((wstring)sqlitedefault::list_table, where);
+	// 未抽取名字
+	where = format(L"name = '{}left'", listName);
+	sql.del((wstring)sqlitedefault::list_table, where);
+	// 最近名字
+	where = format(L"name = '{}last'", listName);
+	sql.del((wstring)sqlitedefault::list_table, where);
+
+	return have;
 }

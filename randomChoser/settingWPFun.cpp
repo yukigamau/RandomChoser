@@ -64,8 +64,10 @@ LRESULT CALLBACK settingOnCommand(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			if(currentIndex!=CB_ERR)
 			{
 				wstring title;
-				title.resize(256);
-				ComboBox_GetLBText(hComboBox, currentIndex, title.data());
+				wchar_t *buff = new wchar_t[256]();
+				ComboBox_GetLBText(hComboBox, currentIndex, buff);
+				title = buff;
+				delete[]buff;
 				dataread::data.changeDefaultList(title);
 			}
 		}
@@ -156,16 +158,7 @@ LRESULT settingOnCreate(HWND hWnd, HINSTANCE hInstance)
 			WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
 			wa.x, wa.y, width, height, hWnd, (HMENU)idc_ccb_default_list, hInstance, nullptr);
 
-		for (auto a : data.lists)
-		{
-			int nIndex = SendMessage(chooseListCombo, CB_ADDSTRING, 0, (LPARAM)a.c_str());
-			if (nIndex == CB_ERR)
-				throw std::runtime_error("插入名单选项失败");
-			else if (nIndex == CB_ERRSPACE)
-				throw std::runtime_error("chooseListCombo CB_ERRSPACE");
-			else if (a == data.defaultList)
-				ComboBox_SetCurSel(chooseListCombo, nIndex);
-		}
+		loadLists(chooseListCombo, data.lists);
 
 		SendMessage(chooseListCombo, WM_SETFONT, (WPARAM)style.hFStatic, TRUE);
 

@@ -105,9 +105,10 @@ void saveList()
 {
 	auto hTitle = GetDlgItem(window::wps.listModify.getHWND(), listModifyID::idc_edit_listName);
 	auto nTitle = GetWindowTextLength(hTitle);
+	wchar_t *wtTitle = new wchar_t[nTitle + 1]();
+	GetWindowText(hTitle, wtTitle, nTitle + 1);
 	wstring wsTitle;
-	wsTitle.resize(nTitle);
-	GetWindowText(hTitle, wsTitle.data(), nTitle + 1);
+	wsTitle = wtTitle;
 
 	auto hText = GetDlgItem(window::wps.listModify.getHWND(), listModifyID::idc_edit_writeName);
 	auto nText = GetWindowTextLength(hText);
